@@ -5,15 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Pixel Space Battle | レトロ風ブラウザシューティングゲーム</title>
-  <meta name="description" content="レトロなドット絵風デザインで遊べるブラウザシューティングゲーム。オート連射、BGM、効果音、ランキング機能つき。スマホ・タブレット・PC対応。" />
-  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, レトロゲーム, ドット絵, Space Invaders, HTMLゲーム, JavaScriptゲーム, オンラインゲーム" />
+  <meta name="description" content="レトロなドット絵風デザインで遊べるブラウザシューティングゲーム。オート連射、BGM、効果音、ランキング、パワーアップ、ボス戦つき。スマホ・タブレット・PC対応。" />
+  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, レトロゲーム, ドット絵, HTMLゲーム, JavaScriptゲーム, ボス戦, パワーアップ" />
   <meta name="author" content="Rakuten AI User Project" />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Pixel Space Battle | レトロ風ブラウザシューティングゲーム" />
-  <meta property="og:description" content="ドット絵風の宇宙背景とレトロBGMで遊べるブラウザシューティングゲーム。" />
+  <meta property="og:description" content="ドット絵風の宇宙背景、BGM、パワーアップ、ボス戦が楽しめるブラウザシューティングゲーム。" />
   <meta property="og:url" content="https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/" />
   <meta property="og:site_name" content="Pixel Space Battle" />
   <meta property="og:locale" content="ja_JP" />
@@ -30,21 +30,18 @@
     "genre": ["Shooter", "Arcade"],
     "gamePlatform": ["Web Browser"],
     "inLanguage": "ja",
-    "description": "ドット絵風の宇宙背景、BGM、効果音、ランキング機能を搭載したレトロ風ブラウザシューティングゲーム。"
+    "description": "ドット絵風の宇宙背景、BGM、効果音、ランキング、パワーアップ、ボス戦を搭載したレトロ風ブラウザシューティングゲーム。"
   }
   </script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at top, #29114d 0%, #0a0720 35%, #03030a 100%);
+      background: radial-gradient(circle at top, #29114d 0%, #0a0720 35%, #03030a 100%);
       color: #d8f6ff;
       font-family: 'Press Start 2P', monospace;
       text-align: center;
@@ -78,7 +75,7 @@
 
     #hud {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 8px;
       margin-bottom: 8px;
       max-width: 880px;
@@ -89,9 +86,7 @@
     .panel {
       background: rgba(15, 10, 35, 0.92);
       border: 3px solid #6ef7ff;
-      box-shadow:
-        0 0 0 3px #1d143f inset,
-        0 0 10px rgba(110, 247, 255, 0.35);
+      box-shadow: 0 0 0 3px #1d143f inset, 0 0 10px rgba(110, 247, 255, 0.35);
       padding: 8px 6px;
       min-height: 56px;
     }
@@ -103,7 +98,7 @@
     }
 
     .value {
-      font-size: 12px;
+      font-size: 11px;
       color: #ffffff;
     }
 
@@ -129,9 +124,7 @@
       height: auto;
       margin: 0 auto;
       border: 4px solid #85fbff;
-      box-shadow:
-        0 0 0 4px #14233f,
-        0 0 18px rgba(133, 251, 255, 0.45);
+      box-shadow: 0 0 0 4px #14233f, 0 0 18px rgba(133, 251, 255, 0.45);
       image-rendering: pixelated;
       touch-action: none;
     }
@@ -140,15 +133,40 @@
       pointer-events: none;
       position: absolute;
       inset: 0;
-      background:
-        repeating-linear-gradient(
-          to bottom,
-          rgba(255,255,255,0.05) 0px,
-          rgba(255,255,255,0.05) 2px,
-          rgba(0,0,0,0.00) 2px,
-          rgba(0,0,0,0.00) 4px
-        );
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.05) 0px,
+        rgba(255,255,255,0.05) 2px,
+        rgba(0,0,0,0.00) 2px,
+        rgba(0,0,0,0.00) 4px
+      );
       mix-blend-mode: soft-light;
+    }
+
+    #bossHpWrap {
+      max-width: 880px;
+      margin: 8px auto 0;
+      display: none;
+    }
+
+    #bossHpLabel {
+      font-size: 10px;
+      color: #ff8e8e;
+      margin-bottom: 6px;
+    }
+
+    #bossHpBarOuter {
+      width: 100%;
+      height: 18px;
+      background: #1a1026;
+      border: 3px solid #ff8e8e;
+      box-shadow: 0 0 10px rgba(255, 90, 90, 0.25);
+    }
+
+    #bossHpBarInner {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #ff4040 0%, #ff8a5b 100%);
     }
 
     #message {
@@ -159,6 +177,15 @@
       font-size: 10px;
       line-height: 1.6;
       text-shadow: 0 0 6px rgba(255, 229, 126, 0.65);
+    }
+
+    #powerStatus {
+      max-width: 880px;
+      margin: 6px auto 0;
+      min-height: 24px;
+      font-size: 9px;
+      line-height: 1.7;
+      color: #9effb7;
     }
 
     #controls {
@@ -262,9 +289,7 @@
       width: min(92vw, 520px);
       background: rgba(8, 8, 24, 0.98);
       border: 4px solid #ffdb70;
-      box-shadow:
-        0 0 0 4px #241a00 inset,
-        0 0 24px rgba(255, 219, 112, 0.25);
+      box-shadow: 0 0 0 4px #241a00 inset, 0 0 24px rgba(255, 219, 112, 0.25);
       padding: 18px 16px 16px;
       text-align: left;
     }
@@ -296,39 +321,24 @@
     }
 
     @media (max-width: 700px) {
-      h1 {
-        font-size: 15px;
-      }
+      h1 { font-size: 15px; }
 
       #hud {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .label {
-        font-size: 7px;
-      }
+      .label { font-size: 7px; }
+      .value, #lives { font-size: 10px; }
 
-      .value, #lives {
-        font-size: 10px;
-      }
+      input, button { font-size: 8px; }
 
-      input, button {
-        font-size: 8px;
-      }
+      #rankingTitle { font-size: 12px; }
 
-      #rankingTitle {
-        font-size: 12px;
-      }
-
-      #rankingList,
-      #introText,
-      #seoText {
+      #rankingList, #introText, #seoText, #powerStatus {
         font-size: 9px;
       }
 
-      #seoText h2 {
-        font-size: 11px;
-      }
+      #seoText h2 { font-size: 11px; }
     }
   </style>
 </head>
@@ -338,7 +348,7 @@
 
     <div id="introText">
       レトロなドット絵風の宇宙を舞台にしたブラウザシューティングゲームです。
-      オート連射で遊びやすく、スマホ・タブレット・PCに対応しています。
+      パワーアップ、ボス戦、ランキングつきで、スマホ・タブレット・PCに対応しています。
     </div>
 
     <div id="hud">
@@ -358,6 +368,10 @@
         <div class="label">BGM</div>
         <div class="value" id="bgmState">OFF</div>
       </div>
+      <div class="panel">
+        <div class="label">MODE</div>
+        <div class="value" id="modeState">NORMAL</div>
+      </div>
     </div>
 
     <div id="canvasWrap">
@@ -365,7 +379,15 @@
       <div id="scanlines"></div>
     </div>
 
+    <div id="bossHpWrap">
+      <div id="bossHpLabel">BOSS HP</div>
+      <div id="bossHpBarOuter">
+        <div id="bossHpBarInner"></div>
+      </div>
+    </div>
+
     <div id="message">READY...</div>
+    <div id="powerStatus"></div>
 
     <div id="controls">
       <input id="playerName" placeholder="NAME" />
@@ -391,7 +413,7 @@
       <p>
         Pixel Space Battle は、昔のアーケードゲーム風の見た目を意識して作られた
         ブラウザシューティングゲームです。ドット絵風の自機と敵、宇宙背景、
-        レトロなBGMと効果音、ランキング機能を搭載しています。
+        レトロなBGMと効果音、ランキング機能、パワーアップ、ボス戦を搭載しています。
       </p>
       <p>
         インストール不要で、Webブラウザですぐ遊べます。
@@ -438,13 +460,18 @@
 
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
+
     const scoreEl = document.getElementById("score");
     const livesEl = document.getElementById("lives");
     const stageEl = document.getElementById("stage");
     const bgmStateEl = document.getElementById("bgmState");
+    const modeStateEl = document.getElementById("modeState");
     const rankingList = document.getElementById("rankingList");
     const messageEl = document.getElementById("message");
     const rankingModal = document.getElementById("rankingModal");
+    const powerStatusEl = document.getElementById("powerStatus");
+    const bossHpWrap = document.getElementById("bossHpWrap");
+    const bossHpBarInner = document.getElementById("bossHpBarInner");
 
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
@@ -453,6 +480,7 @@
     let bullets = [];
     let enemyBullets = [];
     let enemies = [];
+    let items = [];
     let stars = [];
     let nebulaDots = [];
     let keys = {};
@@ -466,29 +494,41 @@
     let audioCtx = null;
     let bgmEnabled = false;
     let bgmInterval = null;
+    let bgmMode = "normal";
+    let boss = null;
+    let bossAttackTimer = 0;
 
-    const AUTO_SHOT_INTERVAL = 190;
+    let basePlayerSpeed = 6;
+    let playerSpeedBoostUntil = 0;
+    let rapidBoostUntil = 0;
+    let tripleShotUntil = 0;
+
+    let baseAutoShotInterval = 190;
+
+    const POWER_DURATION = 15000;
+    const ITEM_DROP_RATE = 0.2;
 
     const PLAYER_SPRITE = [
-      "00011000",
-      "00111100",
-      "01111110",
-      "11111111",
-      "11011011",
-      "00100100",
-      "01000010",
-      "10100101"
+      "00011000","00111100","01111110","11111111",
+      "11011011","00100100","01000010","10100101"
     ];
 
     const ENEMY_SPRITE = [
-      "00111100",
-      "01111110",
-      "11111111",
-      "11011011",
-      "11111111",
-      "00100100",
-      "01000010",
-      "10000001"
+      "00111100","01111110","11111111","11011011",
+      "11111111","00100100","01000010","10000001"
+    ];
+
+    const BOSS_SPRITE = [
+      "0000111111110000",
+      "0001111111111000",
+      "0011111111111100",
+      "0111110011111110",
+      "1111111111111111",
+      "1110111111110111",
+      "1111111111111111",
+      "0011101111011100",
+      "0110011111100110",
+      "1100001111000011"
     ];
 
     function setupAudio() {
@@ -548,22 +588,40 @@
     function startBgm() {
       if (bgmInterval || !bgmEnabled) return;
 
-      const melody = [
+      const normalMelody = [
         [262, 0.16], [330, 0.16], [392, 0.18], [330, 0.16],
         [294, 0.16], [349, 0.16], [440, 0.20], [349, 0.16],
         [262, 0.16], [330, 0.16], [392, 0.18], [523, 0.22],
         [440, 0.16], [392, 0.16], [330, 0.16], [294, 0.20]
       ];
 
+      const bossMelody = [
+        [196, 0.18], [196, 0.18], [262, 0.18], [196, 0.18],
+        [175, 0.16], [175, 0.16], [247, 0.18], [175, 0.18],
+        [165, 0.16], [196, 0.16], [220, 0.18], [247, 0.20],
+        [196, 0.16], [175, 0.16], [165, 0.16], [147, 0.22]
+      ];
+
       let index = 0;
       bgmInterval = setInterval(() => {
         if (!bgmEnabled || gameState !== "playing") return;
         setupAudio();
+
+        const melody = bgmMode === "boss" ? bossMelody : normalMelody;
         const [freq, dur] = melody[index];
-        beep(freq, dur, "square", 0.018, 8);
-        if (index % 4 === 0) {
-          beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
+
+        if (bgmMode === "boss") {
+          beep(freq, dur, "sawtooth", 0.022, -5);
+          if (index % 2 === 0) {
+            beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
+          }
+        } else {
+          beep(freq, dur, "square", 0.018, 8);
+          if (index % 4 === 0) {
+            beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
+          }
         }
+
         index = (index + 1) % melody.length;
       }, 190);
     }
@@ -575,6 +633,11 @@
       }
     }
 
+    function refreshBgm() {
+      stopBgm();
+      if (bgmEnabled) startBgm();
+    }
+
     function toggleBgm() {
       setupAudio();
       bgmEnabled = !bgmEnabled;
@@ -582,7 +645,7 @@
 
       if (bgmEnabled) {
         startBgm();
-        messageEl.textContent = "BGM ON";
+        messageEl.textContent = bgmMode === "boss" ? "BOSS BGM ON" : "BGM ON";
       } else {
         stopBgm();
         messageEl.textContent = "BGM OFF";
@@ -613,24 +676,60 @@
       }
     }
 
+    function isBossStage() {
+      return stage % 5 === 0;
+    }
+
     function initEnemies() {
       enemies = [];
-      const rows = Math.min(3 + Math.floor((stage - 1) / 2), 5);
-      const cols = 10;
-      const spacingX = 62;
-      const spacingY = 36;
+      boss = null;
+      bossAttackTimer = 0;
 
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          enemies.push({
-            x: 95 + col * spacingX,
-            y: 54 + row * spacingY,
-            width: 24,
-            height: 24,
-            alive: true
-          });
+      if (isBossStage()) {
+        boss = {
+          x: canvas.width / 2 - 80,
+          y: 60,
+          width: 160,
+          height: 100,
+          hp: 180 + stage * 20,
+          maxHp: 180 + stage * 20,
+          direction: 1,
+          speed: 2 + stage * 0.08
+        };
+        bgmMode = "boss";
+        modeStateEl.textContent = "BOSS";
+        bossHpWrap.style.display = "block";
+      } else {
+        const rows = Math.min(3 + Math.floor((stage - 1) / 2), 5);
+        const cols = 10;
+        const spacingX = 62;
+        const spacingY = 36;
+
+        for (let row = 0; row < rows; row++) {
+          for (let col = 0; col < cols; col++) {
+            enemies.push({
+              x: 95 + col * spacingX,
+              y: 54 + row * spacingY,
+              width: 24,
+              height: 24,
+              alive: true
+            });
+          }
         }
+
+        bgmMode = "normal";
+        modeStateEl.textContent = "NORMAL";
+        bossHpWrap.style.display = "none";
       }
+
+      refreshBgm();
+      updateBossHpBar();
+    }
+
+    function resetPowerUps() {
+      playerSpeedBoostUntil = 0;
+      rapidBoostUntil = 0;
+      tripleShotUntil = 0;
     }
 
     function resetGame(fullReset = true) {
@@ -639,11 +738,12 @@
         y: 448,
         width: 32,
         height: 32,
-        speed: 6
+        speed: basePlayerSpeed
       };
 
       bullets = [];
       enemyBullets = [];
+      items = [];
       enemyDirection = 1;
       lastEnemyShotTime = 0;
       lastAutoShotTime = 0;
@@ -653,13 +753,23 @@
         score = 0;
         lives = 3;
         stage = 1;
+        resetPowerUps();
       }
 
       initEnemies();
       createBackground();
       updateHud();
-      messageEl.textContent = "READY...";
+      updatePowerStatus();
+      messageEl.textContent = isBossStage() ? "BOSS STAGE!" : "READY...";
       if (bgmEnabled) startBgm();
+    }
+
+    function getCurrentShotInterval() {
+      return Date.now() < rapidBoostUntil ? 95 : baseAutoShotInterval;
+    }
+
+    function getCurrentPlayerSpeed() {
+      return Date.now() < playerSpeedBoostUntil ? 9 : basePlayerSpeed;
     }
 
     function updateHud() {
@@ -667,6 +777,34 @@
       livesEl.textContent = "♥".repeat(Math.max(lives, 0)) || "×";
       stageEl.textContent = stage;
       bgmStateEl.textContent = bgmEnabled ? "ON" : "OFF";
+      modeStateEl.textContent = isBossStage() ? "BOSS" : "NORMAL";
+    }
+
+    function updateBossHpBar() {
+      if (!boss) {
+        bossHpBarInner.style.width = "0%";
+        return;
+      }
+      const ratio = Math.max(0, boss.hp / boss.maxHp) * 100;
+      bossHpBarInner.style.width = `${ratio}%`;
+    }
+
+    function updatePowerStatus() {
+      const now = Date.now();
+      const statuses = [];
+
+      if (now < rapidBoostUntil) {
+        statuses.push(`RAPID ${Math.ceil((rapidBoostUntil - now) / 1000)}s`);
+      }
+      if (now < tripleShotUntil) {
+        statuses.push(`TRIPLE ${Math.ceil((tripleShotUntil - now) / 1000)}s`);
+      }
+      if (now < playerSpeedBoostUntil) {
+        statuses.push(`SPEED ${Math.ceil((playerSpeedBoostUntil - now) / 1000)}s`);
+      }
+
+      powerStatusEl.textContent = statuses.length ? statuses.join(" / ") : "";
+      player.speed = getCurrentPlayerSpeed();
     }
 
     function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
@@ -691,22 +829,71 @@
       }
     }
 
+    function createPlayerBullet(x, y, vx = 0) {
+      bullets.push({
+        x,
+        y,
+        width: 4,
+        height: 12,
+        speed: 9,
+        vx
+      });
+    }
+
     function shootBullet() {
       if (gameState !== "playing") return;
 
       setupAudio();
       playShootSound();
 
-      bullets.push({
-        x: player.x + player.width / 2 - 2,
-        y: player.y - 10,
-        width: 4,
-        height: 12,
-        speed: 9
+      const centerX = player.x + player.width / 2 - 2;
+      const startY = player.y - 10;
+
+      if (Date.now() < tripleShotUntil) {
+        createPlayerBullet(centerX, startY, 0);
+        createPlayerBullet(centerX - 10, startY, -1.8);
+        createPlayerBullet(centerX + 10, startY, 1.8);
+      } else {
+        createPlayerBullet(centerX, startY, 0);
+      }
+    }
+
+    function spawnItem(x, y) {
+      if (Math.random() > ITEM_DROP_RATE) return;
+
+      const types = ["RAPID", "TRIPLE", "SPEED"];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      items.push({
+        x,
+        y,
+        width: 18,
+        height: 18,
+        speed: 2.1,
+        type
       });
     }
 
+    function applyItem(type) {
+      const until = Date.now() + POWER_DURATION;
+
+      if (type === "RAPID") {
+        rapidBoostUntil = until;
+        messageEl.textContent = "RAPID BOOST!";
+      } else if (type === "TRIPLE") {
+        tripleShotUntil = until;
+        messageEl.textContent = "TRIPLE SHOT!";
+      } else if (type === "SPEED") {
+        playerSpeedBoostUntil = until;
+        messageEl.textContent = "SPEED UP!";
+      }
+
+      updatePowerStatus();
+    }
+
     function enemyShoot() {
+      if (boss) return;
+
       const aliveEnemies = enemies.filter(e => e.alive);
       if (aliveEnemies.length === 0) return;
 
@@ -720,10 +907,35 @@
         y: shooter.y + shooter.height,
         width: 4,
         height: 12,
-        speed: 2.8 + stage * 0.2
+        speed: 2.8 + stage * 0.2,
+        vx: 0
       });
 
       lastEnemyShotTime = now;
+    }
+
+    function bossShoot() {
+      if (!boss) return;
+
+      const now = Date.now();
+      const interval = Math.max(500, 1100 - stage * 20);
+      if (now - bossAttackTimer < interval) return;
+
+      const centerX = boss.x + boss.width / 2;
+
+      const shotPattern = [-2.4, -1.2, 0, 1.2, 2.4];
+      shotPattern.forEach(vx => {
+        enemyBullets.push({
+          x: centerX - 3,
+          y: boss.y + boss.height - 6,
+          width: 6,
+          height: 14,
+          speed: 3.4 + stage * 0.15,
+          vx
+        });
+      });
+
+      bossAttackTimer = now;
     }
 
     function rectHit(a, b) {
@@ -745,29 +957,44 @@
       });
     }
 
-    function update() {
-      if (gameState !== "playing") return;
+    function updateBullets() {
+      bullets.forEach(b => {
+        b.y -= b.speed;
+        b.x += b.vx || 0;
+      });
+      bullets = bullets.filter(b => b.y + b.height > 0 && b.x > -20 && b.x < canvas.width + 20);
 
-      updateBackground();
+      enemyBullets.forEach(b => {
+        b.y += b.speed;
+        b.x += b.vx || 0;
+      });
+      enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20 && b.x > -30 && b.x < canvas.width + 30);
+    }
 
-      const now = Date.now();
-      if (now - lastAutoShotTime > AUTO_SHOT_INTERVAL) {
-        shootBullet();
-        lastAutoShotTime = now;
+    function updateItems() {
+      items.forEach(item => {
+        item.y += item.speed;
+      });
+
+      items.forEach(item => {
+        if (rectHit(item, player)) {
+          item.collected = true;
+          applyItem(item.type);
+        }
+      });
+
+      items = items.filter(item => !item.collected && item.y < canvas.height + 20);
+    }
+
+    function updateEnemies() {
+      if (boss) {
+        boss.x += boss.speed * boss.direction;
+        if (boss.x <= 30 || boss.x + boss.width >= canvas.width - 30) {
+          boss.direction *= -1;
+        }
+        bossShoot();
+        return;
       }
-
-      if (keys["ArrowLeft"] && player.x > 10) {
-        player.x -= player.speed;
-      }
-      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
-        player.x += player.speed;
-      }
-
-      bullets.forEach(b => b.y -= b.speed);
-      bullets = bullets.filter(b => b.y + b.height > 0);
-
-      enemyBullets.forEach(b => b.y += b.speed);
-      enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20);
 
       let hitEdge = false;
       const moveSpeed = 0.48 + stage * 0.06;
@@ -775,7 +1002,6 @@
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
         enemy.x += moveSpeed * enemyDirection;
-
         if (enemy.x <= 18 || enemy.x + enemy.width >= canvas.width - 18) {
           hitEdge = true;
         }
@@ -784,28 +1010,42 @@
       if (hitEdge) {
         enemyDirection *= -1;
         enemies.forEach(enemy => {
-          if (enemy.alive) {
-            enemy.y += 9;
-          }
+          if (enemy.alive) enemy.y += 9;
         });
       }
 
       enemyShoot();
+    }
 
+    function checkBulletHits() {
       bullets.forEach(bullet => {
+        if (boss) {
+          if (rectHit(bullet, boss)) {
+            bullet.y = -100;
+            boss.hp -= 1;
+            score += 2;
+            playHitSound();
+            updateBossHpBar();
+            updateHud();
+          }
+          return;
+        }
+
         enemies.forEach(enemy => {
           if (!enemy.alive) return;
-
           if (rectHit(bullet, enemy)) {
             enemy.alive = false;
             bullet.y = -100;
             score += 10;
+            spawnItem(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2);
             playHitSound();
             updateHud();
           }
         });
       });
+    }
 
+    function checkEnemyHitsPlayer() {
       enemyBullets.forEach(bullet => {
         if (rectHit(bullet, player)) {
           bullet.y = canvas.height + 100;
@@ -824,6 +1064,16 @@
         }
       });
 
+      if (boss) {
+        if (boss.y + boss.height >= player.y - 8) {
+          gameState = "gameover";
+          stopBgm();
+          messageEl.textContent = "BOSS COLLISION - GAME OVER";
+          playGameOverSound();
+        }
+        return;
+      }
+
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
         if (enemy.y + enemy.height >= player.y - 8) {
@@ -833,17 +1083,62 @@
           playGameOverSound();
         }
       });
+    }
 
-      if (enemies.every(e => !e.alive)) {
+    function checkStageClear() {
+      if (boss) {
+        if (boss.hp <= 0) {
+          score += 500;
+          playClearSound();
+          stage++;
+          boss = null;
+          bullets = [];
+          enemyBullets = [];
+          items = [];
+          updateHud();
+          messageEl.textContent = "BOSS DOWN!";
+          initEnemies();
+        }
+        return;
+      }
+
+      if (enemies.length && enemies.every(e => !e.alive)) {
         stage++;
         playClearSound();
         updateHud();
-        messageEl.textContent = "STAGE CLEAR!";
+        messageEl.textContent = isBossStage() ? "WARNING! BOSS STAGE!" : "STAGE CLEAR!";
         bullets = [];
         enemyBullets = [];
+        items = [];
         initEnemies();
-        enemyDirection = 1;
       }
+    }
+
+    function update() {
+      if (gameState !== "playing") return;
+
+      updateBackground();
+      updatePowerStatus();
+
+      const now = Date.now();
+      if (now - lastAutoShotTime > getCurrentShotInterval()) {
+        shootBullet();
+        lastAutoShotTime = now;
+      }
+
+      if (keys["ArrowLeft"] && player.x > 10) {
+        player.x -= player.speed;
+      }
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
+        player.x += player.speed;
+      }
+
+      updateBullets();
+      updateItems();
+      updateEnemies();
+      checkBulletHits();
+      checkEnemyHitsPlayer();
+      checkStageClear();
     }
 
     function drawBackground() {
@@ -859,13 +1154,13 @@
         ctx.fillRect(dot.x, dot.y, dot.r * 3, dot.r * 2);
       });
 
-      ctx.fillStyle = "#3ff8ff";
+      ctx.fillStyle = boss ? "#ff5a5a" : "#3ff8ff";
       ctx.globalAlpha = 0.9;
       ctx.beginPath();
-      ctx.arc(690, 92, 34, 0, Math.PI * 2);
+      ctx.arc(690, 92, boss ? 42 : 34, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "#704dff";
+      ctx.fillStyle = boss ? "#ff3c3c" : "#704dff";
       ctx.globalAlpha = 0.2;
       ctx.fillRect(635, 78, 125, 10);
       ctx.fillRect(650, 90, 145, 8);
@@ -891,15 +1186,41 @@
       });
     }
 
+    function drawBoss() {
+      if (!boss) return;
+      drawPixelSprite(BOSS_SPRITE, boss.x, boss.y, 10, "#ff6868", "#822020");
+      ctx.fillStyle = "#fff27a";
+      ctx.fillRect(boss.x + 38, boss.y + 34, 12, 12);
+      ctx.fillRect(boss.x + 110, boss.y + 34, 12, 12);
+    }
+
     function drawBullets() {
       ctx.fillStyle = "#fff37a";
       bullets.forEach(b => {
         ctx.fillRect(b.x, b.y, b.width, b.height);
       });
 
-      ctx.fillStyle = "#ff8b5e";
+      ctx.fillStyle = boss ? "#ff5252" : "#ff8b5e";
       enemyBullets.forEach(b => {
         ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+    }
+
+    function drawItems() {
+      items.forEach(item => {
+        if (item.type === "RAPID") ctx.fillStyle = "#57b8ff";
+        if (item.type === "TRIPLE") ctx.fillStyle = "#ffe45e";
+        if (item.type === "SPEED") ctx.fillStyle = "#64ff8f";
+
+        ctx.fillRect(item.x, item.y, item.width, item.height);
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(item.x, item.y, item.width, item.height);
+
+        ctx.fillStyle = "#111";
+        ctx.font = "10px 'Press Start 2P', monospace";
+        const letter = item.type === "RAPID" ? "R" : item.type === "TRIPLE" ? "T" : "S";
+        ctx.fillText(letter, item.x + 4, item.y + 13);
       });
     }
 
@@ -922,7 +1243,9 @@
       drawBackground();
       drawPlayer();
       drawEnemies();
+      drawBoss();
       drawBullets();
+      drawItems();
       drawOverlay();
     }
 
@@ -936,9 +1259,9 @@
       const name = document.getElementById("playerName").value || "NO_NAME";
       try {
         await addDoc(collection(db, "ranking"), {
-          name: name,
-          score: score,
-          stage: stage,
+          name,
+          score,
+          stage,
           createdAt: Date.now()
         });
         messageEl.textContent = "SCORE SAVED!";
@@ -951,11 +1274,7 @@
     async function loadRanking() {
       rankingList.innerHTML = "";
       try {
-        const q = query(
-          collection(db, "ranking"),
-          orderBy("score", "desc"),
-          limit(10)
-        );
+        const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(10));
         const querySnapshot = await getDocs(q);
 
         querySnapshot.forEach(doc => {
