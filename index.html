@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Space Battle | 完成版ブラウザシューティング</title>
-  <meta name="description" content="レトロなドット絵風で遊べる完成版ブラウザシューティングゲーム。ランキング、ボス演出、必殺技、パワーアップ、BGM、スマホ対応つき。" />
-  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, HTMLゲーム, JavaScriptゲーム, レトロゲーム, ランキング, ボス戦" />
-  <meta name="author" content="Rakuten AI User Project" />
+  <title>Pixel Space Battle | 1人モード・対戦モード付き完成版</title>
+  <meta name="description" content="タイトル画面、1人モード、対戦モード、ボス戦、ランキング、BGM付きの完成版ブラウザシューティングゲーム。" />
+  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, HTMLゲーム, JavaScriptゲーム, 対戦ゲーム, レトロゲーム" />
   <meta name="robots" content="index, follow" />
-
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -147,6 +145,8 @@
       margin-top: 18px;
       display: flex;
       justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     input, button {
@@ -179,7 +179,7 @@
       filter: brightness(1.12);
     }
 
-    #restartBtn {
+    #restartBtn, #titleBtn {
       border-color: #ff8a8a;
       color: #ffdede;
       background: #34131f;
@@ -189,14 +189,14 @@
     #touchControls {
       margin: 12px auto 0;
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      max-width: 430px;
+      max-width: 560px;
     }
 
     #touchControls button {
       min-height: 54px;
-      font-size: 13px;
+      font-size: 12px;
       color: #fff;
       background: linear-gradient(180deg, #352868 0%, #17132f 100%);
     }
@@ -212,6 +212,9 @@
       font-size: 8px;
       color: #9ddfff;
       line-height: 1.8;
+      max-width: 880px;
+      margin-left: auto;
+      margin-right: auto;
     }
 
     #playerInfoArea {
@@ -305,12 +308,10 @@
       h1 { font-size: 15px; }
       input, button { font-size: 8px; }
       #rankingTitle { font-size: 12px; }
-      #rankingList, #introText, #seoText {
-        font-size: 9px;
-      }
+      #rankingList, #introText, #seoText { font-size: 9px; }
       #seoText h2 { font-size: 11px; }
       #touchControls {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         max-width: 100%;
       }
       #touchControls button {
@@ -325,8 +326,8 @@
     <h1>PIXEL SPACE BATTLE</h1>
 
     <div id="introText">
-      レトロなドット絵風の宇宙を舞台にしたブラウザシューティングゲームです。
-      パワーアップ、ボス戦、必殺技、ランキングつきで、スマホ・タブレット・PCに対応しています。
+      タイトル画面から1人モードと対戦モードを選べる、
+      レトロなドット絵風ブラウザシューティングゲームです。
     </div>
 
     <div id="canvasWrap">
@@ -341,52 +342,50 @@
       </div>
     </div>
 
-    <div id="message">READY...</div>
+    <div id="message">SELECT MODE</div>
 
     <div id="topUtility">
       <button onclick="toggleBgm()">BGM ON/OFF</button>
+      <button onclick="openRanking()">RANKING</button>
     </div>
 
     <div id="touchControls">
       <button id="leftBtn">◀ LEFT</button>
-      <button id="specialBtn">SPECIAL</button>
       <button id="rightBtn">RIGHT ▶</button>
+      <button id="specialBtn">SPECIAL</button>
+      <button id="startBtn">START / OK</button>
     </div>
 
     <div id="dangerZone">
       <button id="restartBtn" onclick="restartGame()">RESTART</button>
+      <button id="titleBtn" onclick="goToTitle()">TITLE</button>
     </div>
 
     <div id="help">
-      AUTO SHOT MODE<br />
-      KEYBOARD: ← → / X = SPECIAL<br />
-      MOBILE: TOUCH LEFT / SPECIAL / RIGHT
+      1 PLAYER: ← → / X = SPECIAL / ENTER = START<br />
+      VS MODE: P1 = A D F / P2 = ← → / SHIFT<br />
+      MOBILE: TOUCH BUTTONS / TITLE SCREEN TAP TO SELECT
     </div>
 
     <div id="playerInfoArea">
       <input id="playerName" placeholder="NAME" />
-      <button onclick="openRanking()">RANKING</button>
     </div>
 
     <div id="nameHelp">
-      一度入力した名前はこのブラウザに保存されます。あとから変更もできます。
+      ランキング用の名前です。1人モードのスコア保存に使われます。
     </div>
 
     <section id="seoText">
       <h2>このゲームについて</h2>
       <p>
-        Pixel Space Battle は、昔のアーケードゲーム風の見た目を意識して作られた
-        ブラウザシューティングゲームです。ドット絵風の自機と敵、宇宙背景、
-        レトロなBGM、ランキング、パワーアップ、ボス戦、必殺技を搭載しています。
-      </p>
-      <p>
-        インストール不要で、Webブラウザですぐ遊べます。
-        HTML、CSS、JavaScript を使って制作されており、スマホやタブレットでも快適に操作できるよう調整しています。
+        Pixel Space Battle は、1人プレイと2人対戦の両方で遊べる
+        レトロ風ブラウザシューティングゲームです。
+        タイトル画面からモードを選択し、スマホ・PCのどちらでも遊べます。
       </p>
     </section>
 
     <footer>
-      PIXEL SPACE BATTLE / RETRO BROWSER SHOOTING GAME
+      PIXEL SPACE BATTLE / SINGLE MODE & VS MODE
     </footer>
   </div>
 
@@ -426,8 +425,8 @@
     const ctx = canvas.getContext("2d");
 
     const rankingList = document.getElementById("rankingList");
-    const messageEl = document.getElementById("message");
     const rankingModal = document.getElementById("rankingModal");
+    const messageEl = document.getElementById("message");
     const bossHpWrap = document.getElementById("bossHpWrap");
     const bossHpBarInner = document.getElementById("bossHpBarInner");
     const playerNameInput = document.getElementById("playerName");
@@ -435,6 +434,7 @@
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
     const specialBtn = document.getElementById("specialBtn");
+    const startBtn = document.getElementById("startBtn");
 
     const PLAYER_NAME_KEY = "pixel_space_battle_player_name";
     const POWER_DURATION = 15000;
@@ -442,46 +442,55 @@
     const INVINCIBLE_TIME = 1500;
     const MAX_LIVES = 5;
 
-    let player;
-    let bullets = [];
-    let enemyBullets = [];
-    let enemies = [];
-    let items = [];
     let stars = [];
     let nebulaDots = [];
     let effects = [];
     let keys = {};
 
+    let gameState = "title";
+    let gameMode = null;
+    let menuIndex = 0;
+
     let score = 0;
     let lives = 3;
     let stage = 1;
     let specialCount = 1;
+    let scoreSaved = false;
+    let invincibleUntil = 0;
 
-    let gameState = "playing";
+    let bullets = [];
+    let enemyBullets = [];
+    let enemies = [];
+    let items = [];
     let enemyDirection = 1;
     let lastEnemyShotTime = 0;
     let lastAutoShotTime = 0;
-
-    let audioCtx = null;
-    let audioUnlocked = false;
-    let bgmEnabled = false;
-    let bgmInterval = null;
-    let bgmMode = "normal";
 
     let boss = null;
     let bossAttackTimer = 0;
     let bossBurstCount = 0;
     let bossBurstTimer = 0;
-    let scoreSaved = false;
-    let invincibleUntil = 0;
     let bossDefeatTimer = 0;
 
     let basePlayerSpeed = 6;
     let playerSpeedBoostUntil = 0;
     let rapidBoostUntil = 0;
     let tripleShotUntil = 0;
-
     let baseAutoShotInterval = 190;
+
+    let player;
+
+    let vsPlayer1;
+    let vsPlayer2;
+    let vsBullets = [];
+    let vsWinner = "";
+    let vsRoundOver = false;
+
+    let audioCtx = null;
+    let audioUnlocked = false;
+    let bgmEnabled = false;
+    let bgmInterval = null;
+    let bgmMode = "normal";
 
     const PLAYER_SPRITE = [
       "00011000","00111100","01111110","11111111",
@@ -508,9 +517,7 @@
 
     function loadPlayerName() {
       const savedName = localStorage.getItem(PLAYER_NAME_KEY);
-      if (savedName) {
-        playerNameInput.value = savedName;
-      }
+      if (savedName) playerNameInput.value = savedName;
     }
 
     function savePlayerName() {
@@ -529,9 +536,7 @@
     }
 
     function unlockAudioOnce() {
-      if (!audioUnlocked) {
-        setupAudio();
-      }
+      if (!audioUnlocked) setupAudio();
     }
 
     function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
@@ -554,37 +559,27 @@
       osc.stop(audioCtx.currentTime + duration);
     }
 
-    function playShootSound() {
-      beep(720, 0.04, "square", 0.018, -120);
-    }
-
+    function playShootSound() { beep(720, 0.04, "square", 0.018, -120); }
     function playHitSound() {
       beep(220, 0.08, "square", 0.04, 100);
       setTimeout(() => beep(180, 0.06, "square", 0.03, -80), 30);
     }
-
-    function playDamageSound() {
-      beep(140, 0.12, "sawtooth", 0.04, -40);
-    }
-
+    function playDamageSound() { beep(140, 0.12, "sawtooth", 0.04, -40); }
     function playClearSound() {
       beep(440, 0.08, "square", 0.03, 60);
       setTimeout(() => beep(660, 0.08, "square", 0.03, 60), 80);
       setTimeout(() => beep(880, 0.12, "square", 0.03, 80), 160);
     }
-
     function playGameOverSound() {
       beep(280, 0.14, "sawtooth", 0.04, -60);
       setTimeout(() => beep(220, 0.14, "sawtooth", 0.04, -60), 120);
       setTimeout(() => beep(160, 0.18, "sawtooth", 0.04, -60), 240);
     }
-
     function playSpecialSound() {
       beep(880, 0.12, "square", 0.05, 120);
       setTimeout(() => beep(660, 0.12, "square", 0.05, 80), 80);
       setTimeout(() => beep(440, 0.18, "triangle", 0.05, -60), 160);
     }
-
     function playBossExplosionSound() {
       beep(120, 0.16, "sawtooth", 0.06, -40);
       setTimeout(() => beep(90, 0.20, "sawtooth", 0.05, -50), 70);
@@ -610,22 +605,19 @@
 
       let index = 0;
       bgmInterval = setInterval(() => {
-        if (!bgmEnabled || (gameState !== "playing" && gameState !== "bossclear")) return;
+        if (!bgmEnabled) return;
         if (!audioCtx) return;
+        if (!["single", "vs"].includes(gameMode) && gameState !== "title") return;
 
         const melody = bgmMode === "boss" ? bossMelody : normalMelody;
         const [freq, dur] = melody[index];
 
         if (bgmMode === "boss") {
           beep(freq, dur, "sawtooth", 0.022, -5);
-          if (index % 2 === 0) {
-            beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
-          }
+          if (index % 2 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
         } else {
           beep(freq, dur, "square", 0.018, 8);
-          if (index % 4 === 0) {
-            beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
-          }
+          if (index % 4 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
         }
 
         index = (index + 1) % melody.length;
@@ -647,10 +639,9 @@
     function toggleBgm() {
       unlockAudioOnce();
       bgmEnabled = !bgmEnabled;
-
       if (bgmEnabled) {
         startBgm();
-        messageEl.textContent = bgmMode === "boss" ? "BOSS BGM ON" : "BGM ON";
+        messageEl.textContent = "BGM ON";
       } else {
         stopBgm();
         messageEl.textContent = "BGM OFF";
@@ -681,29 +672,63 @@
       }
     }
 
-    function isBossStage() {
-      return stage % 5 === 0;
+    function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
+      if (shadowColor) {
+        ctx.fillStyle = shadowColor;
+        for (let row = 0; row < sprite.length; row++) {
+          for (let col = 0; col < sprite[row].length; col++) {
+            if (sprite[row][col] === "1") {
+              ctx.fillRect(x + col * pixelSize + 2, y + row * pixelSize + 2, pixelSize, pixelSize);
+            }
+          }
+        }
+      }
+      ctx.fillStyle = color;
+      for (let row = 0; row < sprite.length; row++) {
+        for (let col = 0; col < sprite[row].length; col++) {
+          if (sprite[row][col] === "1") {
+            ctx.fillRect(x + col * pixelSize, y + row * pixelSize, pixelSize, pixelSize);
+          }
+        }
+      }
     }
 
-    function getBossTier() {
-      return Math.max(1, Math.floor(stage / 5));
+    function rectHit(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
     }
+
+    function updateBackground() {
+      stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > canvas.height) {
+          star.y = -4;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
+    function isBossStage() { return stage % 5 === 0; }
+    function getBossTier() { return Math.max(1, Math.floor(stage / 5)); }
 
     function createBoss() {
       const tier = getBossTier();
       const hp = 80 + (tier - 1) * 40;
-
       boss = {
         x: canvas.width / 2 - 80,
         y: -130,
         targetY: 60,
         width: 160,
         height: 100,
-        hp: hp,
+        hp,
         maxHp: hp,
         direction: 1,
         speed: 1.4 + (tier - 1) * 0.28,
-        tier: tier,
+        tier,
         entering: true
       };
 
@@ -742,63 +767,12 @@
             });
           }
         }
-
         bgmMode = "normal";
         bossHpWrap.style.display = "none";
         refreshBgm();
       }
 
       updateBossHpBar();
-    }
-
-    function resetPowerUps() {
-      playerSpeedBoostUntil = 0;
-      rapidBoostUntil = 0;
-      tripleShotUntil = 0;
-    }
-
-    function resetGame(fullReset = true) {
-      player = {
-        x: canvas.width / 2 - 16,
-        y: 448,
-        width: 32,
-        height: 32,
-        speed: basePlayerSpeed
-      };
-
-      bullets = [];
-      enemyBullets = [];
-      items = [];
-      effects = [];
-      enemyDirection = 1;
-      lastEnemyShotTime = 0;
-      lastAutoShotTime = 0;
-      gameState = "playing";
-      scoreSaved = false;
-      invincibleUntil = 0;
-      bossDefeatTimer = 0;
-
-      if (fullReset) {
-        score = 0;
-        lives = 3;
-        stage = 1;
-        specialCount = 1;
-        resetPowerUps();
-      }
-
-      initEnemies();
-      createBackground();
-      updateBossHpBar();
-      messageEl.textContent = isBossStage() ? "WARNING!! BOSS APPROACH" : "READY...";
-      if (bgmEnabled) startBgm();
-    }
-
-    function getCurrentShotInterval() {
-      return Date.now() < rapidBoostUntil ? 95 : baseAutoShotInterval;
-    }
-
-    function getCurrentPlayerSpeed() {
-      return Date.now() < playerSpeedBoostUntil ? 9 : basePlayerSpeed;
     }
 
     function updateBossHpBar() {
@@ -810,6 +784,53 @@
       bossHpBarInner.style.width = `${ratio}%`;
     }
 
+    function resetPowerUps() {
+      playerSpeedBoostUntil = 0;
+      rapidBoostUntil = 0;
+      tripleShotUntil = 0;
+    }
+
+    function createSinglePlayer() {
+      player = {
+        x: canvas.width / 2 - 16,
+        y: 448,
+        width: 32,
+        height: 32,
+        speed: basePlayerSpeed
+      };
+    }
+
+    function startSingleMode() {
+      gameMode = "single";
+      gameState = "playing";
+      score = 0;
+      lives = 3;
+      stage = 1;
+      specialCount = 1;
+      scoreSaved = false;
+      invincibleUntil = 0;
+      bossDefeatTimer = 0;
+      bullets = [];
+      enemyBullets = [];
+      items = [];
+      effects = [];
+      enemyDirection = 1;
+      lastEnemyShotTime = 0;
+      lastAutoShotTime = 0;
+      resetPowerUps();
+      createSinglePlayer();
+      initEnemies();
+      messageEl.textContent = "1 PLAYER START";
+    }
+
+    function getCurrentShotInterval() {
+      return Date.now() < rapidBoostUntil ? 95 : baseAutoShotInterval;
+    }
+
+    function getCurrentPlayerSpeed() {
+      return Date.now() < playerSpeedBoostUntil ? 9 : basePlayerSpeed;
+    }
+
     function getPowerStatusText() {
       const now = Date.now();
       const statuses = [];
@@ -819,40 +840,12 @@
       return statuses.join(" / ");
     }
 
-    function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
-      if (shadowColor) {
-        ctx.fillStyle = shadowColor;
-        for (let row = 0; row < sprite.length; row++) {
-          for (let col = 0; col < sprite[row].length; col++) {
-            if (sprite[row][col] === "1") {
-              ctx.fillRect(x + col * pixelSize + 2, y + row * pixelSize + 2, pixelSize, pixelSize);
-            }
-          }
-        }
-      }
-
-      ctx.fillStyle = color;
-      for (let row = 0; row < sprite.length; row++) {
-        for (let col = 0; col < sprite[row].length; col++) {
-          if (sprite[row][col] === "1") {
-            ctx.fillRect(x + col * pixelSize, y + row * pixelSize, pixelSize, pixelSize);
-          }
-        }
-      }
-    }
-
     function createPlayerBullet(x, y, vx = 0) {
-      bullets.push({
-        x, y,
-        width: 4,
-        height: 12,
-        speed: 9,
-        vx
-      });
+      bullets.push({ x, y, width: 4, height: 12, speed: 9, vx });
     }
 
     function shootBullet() {
-      if (gameState !== "playing") return;
+      if (gameState !== "playing" || gameMode !== "single") return;
       if (boss && boss.entering) return;
 
       playShootSound();
@@ -871,23 +864,13 @@
 
     function spawnItem(x, y) {
       if (Math.random() > ITEM_DROP_RATE) return;
-
       const types = ["RAPID", "TRIPLE", "SPEED"];
       const type = types[Math.floor(Math.random() * types.length)];
-
-      items.push({
-        x,
-        y,
-        width: 18,
-        height: 18,
-        speed: 2.1,
-        type
-      });
+      items.push({ x, y, width: 18, height: 18, speed: 2.1, type });
     }
 
     function applyItem(type) {
       const until = Date.now() + POWER_DURATION;
-
       if (type === "RAPID") {
         rapidBoostUntil = until;
         messageEl.textContent = "RAPID BOOST!";
@@ -901,7 +884,7 @@
     }
 
     function enemyShoot() {
-      if (boss || gameState !== "playing") return;
+      if (boss || gameState !== "playing" || gameMode !== "single") return;
 
       const aliveEnemies = enemies.filter(e => e.alive);
       if (aliveEnemies.length === 0) return;
@@ -934,7 +917,7 @@
         y: fromY,
         width: 6,
         height: 14,
-        speed: speed,
+        speed,
         vx: (dx / len) * speed * 0.55,
         vy: (dy / len) * speed * 0.55,
         homing
@@ -974,7 +957,7 @@
     }
 
     function bossShoot() {
-      if (!boss || boss.entering || gameState !== "playing") return;
+      if (!boss || boss.entering || gameState !== "playing" || gameMode !== "single") return;
 
       const now = Date.now();
       const tier = boss.tier;
@@ -1035,7 +1018,7 @@
     }
 
     function useSpecial() {
-      if (gameState !== "playing") return;
+      if (gameMode !== "single" || gameState !== "playing") return;
       if (specialCount <= 0) {
         messageEl.textContent = "NO SPECIAL";
         return;
@@ -1043,14 +1026,9 @@
 
       unlockAudioOnce();
       playSpecialSound();
-
       specialCount--;
       enemyBullets = [];
-
-      effects.push({
-        type: "flash",
-        time: 18
-      });
+      effects.push({ type: "flash", time: 18 });
 
       if (boss) {
         boss.hp -= 30;
@@ -1066,25 +1044,6 @@
         });
         messageEl.textContent = "SPECIAL BLAST!";
       }
-    }
-
-    function rectHit(a, b) {
-      return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
-      );
-    }
-
-    function updateBackground() {
-      stars.forEach(star => {
-        star.y += star.speed;
-        if (star.y > canvas.height) {
-          star.y = -4;
-          star.x = Math.random() * canvas.width;
-        }
-      });
     }
 
     function updateBullets() {
@@ -1104,7 +1063,6 @@
           b.vx += (targetVx - b.vx) * b.homing;
           b.vy += (targetVy - b.vy) * b.homing;
         }
-
         b.vy = b.vy ?? b.speed;
         b.y += b.vy;
         b.x += b.vx || 0;
@@ -1114,9 +1072,7 @@
     }
 
     function updateItems() {
-      items.forEach(item => {
-        item.y += item.speed;
-      });
+      items.forEach(item => item.y += item.speed);
 
       items.forEach(item => {
         if (rectHit(item, player)) {
@@ -1156,9 +1112,7 @@
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
         enemy.x += moveSpeed * enemyDirection;
-        if (enemy.x <= 18 || enemy.x + enemy.width >= canvas.width - 18) {
-          hitEdge = true;
-        }
+        if (enemy.x <= 18 || enemy.x + enemy.width >= canvas.width - 18) hitEdge = true;
       });
 
       if (hitEdge) {
@@ -1173,7 +1127,6 @@
 
     function spawnBossExplosion() {
       if (!boss) return;
-
       const centerX = boss.x + boss.width / 2;
       const centerY = boss.y + boss.height / 2;
 
@@ -1186,11 +1139,7 @@
           maxTime: 48
         });
       }
-
-      effects.push({
-        type: "flash",
-        time: 24
-      });
+      effects.push({ type: "flash", time: 24 });
     }
 
     function checkBulletHits() {
@@ -1243,7 +1192,7 @@
       messageEl.textContent = text;
       playGameOverSound();
 
-      if (!scoreSaved) {
+      if (gameMode === "single" && !scoreSaved) {
         scoreSaved = true;
         saveScoreAuto();
       }
@@ -1251,15 +1200,10 @@
 
     function takePlayerDamage() {
       if (Date.now() < invincibleUntil || gameState !== "playing") return;
-
       lives--;
       invincibleUntil = Date.now() + INVINCIBLE_TIME;
       playDamageSound();
-
-      effects.push({
-        type: "playerHit",
-        time: 14
-      });
+      effects.push({ type: "playerHit", time: 14 });
 
       if (lives <= 0) {
         triggerGameOver("GAME OVER");
@@ -1292,8 +1236,6 @@
     }
 
     function handleBossDefeat() {
-      if (!boss) return;
-
       score += 500;
       playClearSound();
       playBossExplosionSound();
@@ -1313,9 +1255,7 @@
 
     function checkStageClear() {
       if (boss) {
-        if (boss.hp <= 0 && gameState === "playing") {
-          handleBossDefeat();
-        }
+        if (boss.hp <= 0 && gameState === "playing") handleBossDefeat();
         return;
       }
 
@@ -1336,8 +1276,6 @@
     }
 
     function updateBossClear() {
-      if (gameState !== "bossclear") return;
-
       updateBackground();
       updateEffects();
 
@@ -1351,9 +1289,8 @@
       }
     }
 
-    function update() {
+    function updateSingleMode() {
       if (gameState === "gameover") return;
-
       if (gameState === "bossclear") {
         updateBossClear();
         return;
@@ -1364,12 +1301,8 @@
 
       player.speed = getCurrentPlayerSpeed();
 
-      if (keys["ArrowLeft"] && player.x > 10) {
-        player.x -= player.speed;
-      }
-      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
-        player.x += player.speed;
-      }
+      if (keys["ArrowLeft"] && player.x > 10) player.x -= player.speed;
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) player.x += player.speed;
 
       const now = Date.now();
       if (now - lastAutoShotTime > getCurrentShotInterval()) {
@@ -1385,6 +1318,137 @@
       checkStageClear();
     }
 
+    function startVsMode() {
+      gameMode = "vs";
+      gameState = "playing";
+      boss = null;
+      bossHpWrap.style.display = "none";
+      vsWinner = "";
+      vsRoundOver = false;
+      effects = [];
+      vsBullets = [];
+
+      vsPlayer1 = {
+        x: canvas.width / 2 - 100,
+        y: canvas.height - 70,
+        width: 32,
+        height: 32,
+        lives: 5,
+        color: "#7cf8ff",
+        fireCooldown: 0
+      };
+
+      vsPlayer2 = {
+        x: canvas.width / 2 + 70,
+        y: 40,
+        width: 32,
+        height: 32,
+        lives: 5,
+        color: "#ff8fd8",
+        fireCooldown: 0
+      };
+
+      messageEl.textContent = "VS MODE START";
+      bgmMode = "normal";
+      refreshBgm();
+    }
+
+    function shootVsBullet(owner) {
+      if (gameMode !== "vs" || gameState !== "playing" || vsRoundOver) return;
+
+      const shooter = owner === 1 ? vsPlayer1 : vsPlayer2;
+      if (!shooter || shooter.fireCooldown > 0) return;
+
+      playShootSound();
+
+      vsBullets.push({
+        owner,
+        x: shooter.x + shooter.width / 2 - 2,
+        y: owner === 1 ? shooter.y - 10 : shooter.y + shooter.height + 2,
+        width: 4,
+        height: 12,
+        vy: owner === 1 ? -8 : 8
+      });
+
+      shooter.fireCooldown = 12;
+    }
+
+    function updateVsMode() {
+      if (gameState === "gameover") return;
+
+      updateBackground();
+      updateEffects();
+
+      if (!vsRoundOver) {
+        if (keys["KeyA"] && vsPlayer1.x > 10) vsPlayer1.x -= 6;
+        if (keys["KeyD"] && vsPlayer1.x + vsPlayer1.width < canvas.width - 10) vsPlayer1.x += 6;
+
+        if (keys["ArrowLeft"] && vsPlayer2.x > 10) vsPlayer2.x -= 6;
+        if (keys["ArrowRight"] && vsPlayer2.x + vsPlayer2.width < canvas.width - 10) vsPlayer2.x += 6;
+
+        if (keys["KeyF"]) shootVsBullet(1);
+        if (keys["ShiftRight"] || keys["ShiftLeft"]) shootVsBullet(2);
+      }
+
+      if (vsPlayer1.fireCooldown > 0) vsPlayer1.fireCooldown--;
+      if (vsPlayer2.fireCooldown > 0) vsPlayer2.fireCooldown--;
+
+      vsBullets.forEach(b => {
+        b.y += b.vy;
+      });
+
+      vsBullets.forEach(b => {
+        if (b.owner === 1 && rectHit(b, vsPlayer2) && !vsRoundOver) {
+          b.y = -999;
+          vsPlayer2.lives--;
+          playDamageSound();
+          effects.push({ type: "playerHit", time: 10 });
+        }
+
+        if (b.owner === 2 && rectHit(b, vsPlayer1) && !vsRoundOver) {
+          b.y = 9999;
+          vsPlayer1.lives--;
+          playDamageSound();
+          effects.push({ type: "playerHit", time: 10 });
+        }
+      });
+
+      vsBullets = vsBullets.filter(b => b.y > -30 && b.y < canvas.height + 30);
+
+      if (!vsRoundOver) {
+        if (vsPlayer1.lives <= 0) {
+          vsWinner = "PLAYER 2 WIN";
+          vsRoundOver = true;
+          gameState = "gameover";
+          playGameOverSound();
+          messageEl.textContent = vsWinner;
+        } else if (vsPlayer2.lives <= 0) {
+          vsWinner = "PLAYER 1 WIN";
+          vsRoundOver = true;
+          gameState = "gameover";
+          playGameOverSound();
+          messageEl.textContent = vsWinner;
+        }
+      }
+    }
+
+    function updateTitle() {
+      updateBackground();
+    }
+
+    function update() {
+      if (gameState === "title") {
+        updateTitle();
+        return;
+      }
+
+      if (gameMode === "single") {
+        updateSingleMode();
+      } else if (gameMode === "vs") {
+        updateVsMode();
+      }
+    }
+
     function drawBackground() {
       const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
       bg.addColorStop(0, "#120a2a");
@@ -1398,13 +1462,13 @@
         ctx.fillRect(dot.x, dot.y, dot.r * 3, dot.r * 2);
       });
 
-      ctx.fillStyle = boss ? "#ff5a5a" : "#3ff8ff";
+      ctx.fillStyle = gameMode === "vs" ? "#ff79d6" : boss ? "#ff5a5a" : "#3ff8ff";
       ctx.globalAlpha = 0.9;
       ctx.beginPath();
-      ctx.arc(690, 92, boss ? 42 : 34, 0, Math.PI * 2);
+      ctx.arc(690, 92, gameMode === "vs" ? 40 : boss ? 42 : 34, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = boss ? "#ff3c3c" : "#704dff";
+      ctx.fillStyle = gameMode === "vs" ? "#ff4fb0" : boss ? "#ff3c3c" : "#704dff";
       ctx.globalAlpha = 0.2;
       ctx.fillRect(635, 78, 125, 10);
       ctx.fillRect(650, 90, 145, 8);
@@ -1417,12 +1481,11 @@
       });
     }
 
-    function drawPlayer() {
-      if (Date.now() < invincibleUntil) {
+    function drawSinglePlayer() {
+      if (Date.now() < invincibleUntil && gameState === "playing") {
         const blink = Math.floor(Date.now() / 80) % 2 === 0;
         if (!blink) return;
       }
-
       drawPixelSprite(PLAYER_SPRITE, player.x, player.y, 4, "#9affff", "#117c9f");
       ctx.fillStyle = "#ffe66e";
       ctx.fillRect(player.x + 14, player.y + 24, 4, 6);
@@ -1443,16 +1506,12 @@
       ctx.fillRect(boss.x + 110, boss.y + 34, 12, 12);
     }
 
-    function drawBullets() {
+    function drawSingleBullets() {
       ctx.fillStyle = "#fff37a";
-      bullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-      });
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
       ctx.fillStyle = boss ? "#ff5252" : "#ff8b5e";
-      enemyBullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-      });
+      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
     }
 
     function drawItems() {
@@ -1470,6 +1529,18 @@
         ctx.font = "10px 'Press Start 2P', monospace";
         const letter = item.type === "RAPID" ? "R" : item.type === "TRIPLE" ? "T" : "S";
         ctx.fillText(letter, item.x + 4, item.y + 13);
+      });
+    }
+
+    function drawVsPlayers() {
+      drawPixelSprite(PLAYER_SPRITE, vsPlayer1.x, vsPlayer1.y, 4, "#7cf8ff", "#0d6f91");
+      drawPixelSprite(PLAYER_SPRITE, vsPlayer2.x, vsPlayer2.y, 4, "#ff8fd8", "#8b2a67");
+    }
+
+    function drawVsBullets() {
+      vsBullets.forEach(b => {
+        ctx.fillStyle = b.owner === 1 ? "#fff37a" : "#ff9b9b";
+        ctx.fillRect(b.x, b.y, b.width, b.height);
       });
     }
 
@@ -1507,7 +1578,6 @@
 
     function drawBossEntranceWarning() {
       if (!boss || !boss.entering) return;
-
       const blink = Math.floor(Date.now() / 180) % 2 === 0;
       ctx.save();
 
@@ -1530,13 +1600,11 @@
 
       ctx.font = "16px 'Press Start 2P', monospace";
       ctx.fillText("BOSS APPROACH", canvas.width / 2, 223);
-
       ctx.restore();
     }
 
     function drawBossDefeatText() {
       if (gameState !== "bossclear") return;
-
       ctx.save();
       ctx.textAlign = "center";
       ctx.font = "22px 'Press Start 2P', monospace";
@@ -1549,28 +1617,24 @@
       ctx.restore();
     }
 
-    function drawGameUi() {
+    function drawSingleHud() {
       ctx.save();
 
-      const hudY = 10;
-      const hudH = 34;
-
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-      ctx.fillRect(10, hudY, canvas.width - 20, hudH);
+      ctx.fillRect(10, 10, canvas.width - 20, 34);
 
       ctx.strokeStyle = "#7cf8ff";
       ctx.lineWidth = 2;
-      ctx.strokeRect(10, hudY, canvas.width - 20, hudH);
+      ctx.strokeRect(10, 10, canvas.width - 20, 34);
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "12px 'Press Start 2P', monospace";
       ctx.textAlign = "left";
-
       ctx.fillText(`SCORE ${score}`, 24, 32);
       ctx.fillText(`LIFE ${"♥".repeat(Math.max(lives, 0)) || "0"}`, 190, 32);
       ctx.fillText(`STAGE ${stage}`, 340, 32);
       ctx.fillText(`SPECIAL ${specialCount}`, 490, 32);
-      ctx.fillText(`MODE ${isBossStage() ? "BOSS" : "NORMAL"}`, 660, 32);
+      ctx.fillText(`MODE SINGLE`, 660, 32);
 
       const powerText = getPowerStatusText();
       if (powerText) {
@@ -1579,47 +1643,159 @@
         ctx.fillText(powerText, 24, 58);
       }
 
-      if (bgmEnabled) {
-        ctx.fillStyle = "#ffe57e";
-        ctx.font = "10px 'Press Start 2P', monospace";
-        ctx.fillText("BGM ON", canvas.width - 110, 58);
-      }
+      ctx.restore();
+    }
+
+    function drawVsHud() {
+      ctx.save();
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(10, 10, canvas.width - 20, 34);
+      ctx.strokeStyle = "#ff9fe1";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(10, 10, canvas.width - 20, 34);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.textAlign = "left";
+      ctx.fillText(`P1 LIFE ${vsPlayer1?.lives ?? 0}`, 24, 32);
+      ctx.fillText(`P2 LIFE ${vsPlayer2?.lives ?? 0}`, 280, 32);
+      ctx.fillText(`MODE VS`, 620, 32);
+
+      ctx.restore();
+
+      ctx.save();
+      ctx.font = "10px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#7cf8ff";
+      ctx.fillText("P1: A D F", 24, canvas.height - 16);
+      ctx.fillStyle = "#ff9fe1";
+      ctx.fillText("P2: LEFT RIGHT SHIFT", 520, canvas.height - 16);
+      ctx.restore();
+    }
+
+    function drawTitleScreen() {
+      ctx.save();
+      ctx.fillStyle = "rgba(5, 2, 20, 0.45)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.textAlign = "center";
+
+      ctx.fillStyle = "#77f6ff";
+      ctx.font = "30px 'Press Start 2P', monospace";
+      ctx.fillText("PIXEL SPACE", canvas.width / 2, 140);
+      ctx.fillText("BATTLE", canvas.width / 2, 190);
+
+      ctx.font = "14px 'Press Start 2P', monospace";
+      ctx.fillStyle = menuIndex === 0 ? "#ffe57e" : "#ffffff";
+      ctx.fillText(menuIndex === 0 ? "> 1 PLAYER <" : "1 PLAYER", canvas.width / 2, 280);
+
+      ctx.fillStyle = menuIndex === 1 ? "#ffe57e" : "#ffffff";
+      ctx.fillText(menuIndex === 1 ? "> VS MODE <" : "VS MODE", canvas.width / 2, 330);
+
+      ctx.font = "10px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#9ddfff";
+      ctx.fillText("ARROW / TAP TO SELECT", canvas.width / 2, 410);
+      ctx.fillText("ENTER OR START BUTTON TO PLAY", canvas.width / 2, 445);
 
       ctx.restore();
     }
 
-    function drawOverlay() {
-      if (gameState === "playing") return;
+    function drawGameOverOverlay() {
+      if (gameState !== "gameover") return;
 
-      if (gameState === "gameover") {
-        ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        ctx.fillStyle = "#ffffff";
-        ctx.textAlign = "center";
-        ctx.font = "24px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#ffffff";
+      ctx.textAlign = "center";
+      ctx.font = "24px 'Press Start 2P', monospace";
+
+      if (gameMode === "vs") {
+        ctx.fillText(vsWinner || "VS OVER", canvas.width / 2, canvas.height / 2 - 10);
+      } else {
         ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
       }
+
+      ctx.font = "10px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#ffe57e";
+      ctx.fillText("PRESS RESTART OR TITLE", canvas.width / 2, canvas.height / 2 + 40);
     }
 
     function draw() {
       drawBackground();
-      drawPlayer();
-      drawEnemies();
-      drawBoss();
-      drawBullets();
-      drawItems();
-      drawGameUi();
-      drawEffects();
-      drawBossEntranceWarning();
-      drawBossDefeatText();
-      drawOverlay();
+
+      if (gameState === "title") {
+        drawTitleScreen();
+        return;
+      }
+
+      if (gameMode === "single") {
+        drawSinglePlayer();
+        drawEnemies();
+        drawBoss();
+        drawSingleBullets();
+        drawItems();
+        drawSingleHud();
+        drawEffects();
+        drawBossEntranceWarning();
+        drawBossDefeatText();
+        drawGameOverOverlay();
+      } else if (gameMode === "vs") {
+        drawVsPlayers();
+        drawVsBullets();
+        drawVsHud();
+        drawEffects();
+        drawGameOverOverlay();
+      }
     }
 
     function gameLoop() {
       update();
       draw();
       requestAnimationFrame(gameLoop);
+    }
+
+    function confirmMenuSelection() {
+      unlockAudioOnce();
+      if (menuIndex === 0) {
+        startSingleMode();
+      } else {
+        startVsMode();
+      }
+    }
+
+    function moveMenu(dir) {
+      menuIndex += dir;
+      if (menuIndex < 0) menuIndex = 1;
+      if (menuIndex > 1) menuIndex = 0;
+      messageEl.textContent = menuIndex === 0 ? "1 PLAYER SELECTED" : "VS MODE SELECTED";
+    }
+
+    function goToTitle() {
+      gameState = "title";
+      gameMode = null;
+      boss = null;
+      bullets = [];
+      enemyBullets = [];
+      enemies = [];
+      items = [];
+      effects = [];
+      vsBullets = [];
+      bossHpWrap.style.display = "none";
+      messageEl.textContent = "SELECT MODE";
+      bgmMode = "normal";
+      refreshBgm();
+    }
+
+    function restartGame() {
+      unlockAudioOnce();
+      if (gameMode === "single") {
+        startSingleMode();
+      } else if (gameMode === "vs") {
+        startVsMode();
+      } else {
+        goToTitle();
+      }
     }
 
     async function loadRanking() {
@@ -1650,19 +1826,14 @@
       rankingModal.classList.remove("show");
     }
 
-    function restartGame() {
-      unlockAudioOnce();
-      resetGame(true);
-    }
-
     function bindHoldButton(button, code) {
-      button.addEventListener("pointerdown", (e) => {
+      button.addEventListener("pointerdown", e => {
         e.preventDefault();
         unlockAudioOnce();
         keys[code] = true;
       });
 
-      button.addEventListener("pointerup", (e) => {
+      button.addEventListener("pointerup", e => {
         e.preventDefault();
         keys[code] = false;
       });
@@ -1676,24 +1847,57 @@
       });
     }
 
-    document.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-    });
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
     document.addEventListener("keydown", e => {
-      if (["ArrowLeft", "ArrowRight", "Space", "KeyX"].includes(e.code)) {
+      if (["ArrowLeft", "ArrowRight", "Space", "KeyX", "Enter", "ShiftLeft", "ShiftRight"].includes(e.code)) {
         e.preventDefault();
       }
+
       unlockAudioOnce();
       keys[e.code] = true;
 
-      if (e.code === "KeyX") {
+      if (gameState === "title") {
+        if (e.code === "ArrowLeft" || e.code === "ArrowUp") moveMenu(-1);
+        if (e.code === "ArrowRight" || e.code === "ArrowDown") moveMenu(1);
+        if (e.code === "Enter") confirmMenuSelection();
+        return;
+      }
+
+      if (gameMode === "single" && e.code === "KeyX") {
         useSpecial();
+      }
+
+      if (gameMode === "vs") {
+        if (e.code === "KeyF") shootVsBullet(1);
+        if (e.code === "ShiftLeft" || e.code === "ShiftRight") shootVsBullet(2);
       }
     });
 
     document.addEventListener("keyup", e => {
       keys[e.code] = false;
+    });
+
+    canvas.addEventListener("pointerdown", e => {
+      unlockAudioOnce();
+
+      if (gameState === "title") {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        const x = (e.clientX - rect.left) * scaleX;
+        const y = (e.clientY - rect.top) * scaleY;
+
+        if (y >= 255 && y <= 295) {
+          menuIndex = 0;
+          messageEl.textContent = "1 PLAYER SELECTED";
+        } else if (y >= 305 && y <= 345) {
+          menuIndex = 1;
+          messageEl.textContent = "VS MODE SELECTED";
+        } else {
+          confirmMenuSelection();
+        }
+      }
     });
 
     playerNameInput.addEventListener("change", savePlayerName);
@@ -1702,25 +1906,47 @@
     bindHoldButton(leftBtn, "ArrowLeft");
     bindHoldButton(rightBtn, "ArrowRight");
 
-    specialBtn.addEventListener("pointerdown", (e) => {
+    specialBtn.addEventListener("pointerdown", e => {
       e.preventDefault();
       unlockAudioOnce();
-      useSpecial();
-    });
 
-    rankingModal.addEventListener("click", e => {
-      if (e.target === rankingModal) {
-        closeRanking();
+      if (gameState === "title") {
+        moveMenu(1);
+        return;
+      }
+
+      if (gameMode === "single") {
+        useSpecial();
+      } else if (gameMode === "vs") {
+        shootVsBullet(1);
       }
     });
 
+    startBtn.addEventListener("pointerdown", e => {
+      e.preventDefault();
+      unlockAudioOnce();
+
+      if (gameState === "title") {
+        confirmMenuSelection();
+      } else if (gameMode === "vs") {
+        shootVsBullet(2);
+      } else if (gameMode === "single" && gameState === "gameover") {
+        restartGame();
+      }
+    });
+
+    rankingModal.addEventListener("click", e => {
+      if (e.target === rankingModal) closeRanking();
+    });
+
+    window.toggleBgm = toggleBgm;
     window.openRanking = openRanking;
     window.closeRanking = closeRanking;
     window.restartGame = restartGame;
-    window.toggleBgm = toggleBgm;
+    window.goToTitle = goToTitle;
 
     loadPlayerName();
-    resetGame(true);
+    createBackground();
     gameLoop();
   </script>
 </body>
