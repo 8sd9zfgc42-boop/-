@@ -3,36 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Space Battle | レトロ風ブラウザシューティングゲーム</title>
-  <meta name="description" content="レトロなドット絵風デザインで遊べるブラウザシューティングゲーム。オート連射、BGM、ランキング、パワーアップ、ボス戦、必殺技つき。スマホ・タブレット・PC対応。" />
-  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, レトロゲーム, ドット絵, HTMLゲーム, JavaScriptゲーム, ボス戦, パワーアップ" />
-  <meta name="author" content="Rakuten AI User Project" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/" />
-
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Pixel Space Battle | レトロ風ブラウザシューティングゲーム" />
-  <meta property="og:description" content="ドット絵風の宇宙背景、BGM、パワーアップ、ボス戦、必殺技が楽しめるブラウザシューティングゲーム。" />
-  <meta property="og:url" content="https://YOUR_USERNAME.github.io/YOUR_REPOSITORY_NAME/" />
-  <meta property="og:site_name" content="Pixel Space Battle" />
-  <meta property="og:locale" content="ja_JP" />
-
-  <meta name="twitter:card" content="summary" />
-  <meta name="twitter:title" content="Pixel Space Battle" />
-  <meta name="twitter:description" content="レトロ風ブラウザシューティングゲーム" />
-
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "VideoGame",
-    "name": "Pixel Space Battle",
-    "genre": ["Shooter", "Arcade"],
-    "gamePlatform": ["Web Browser"],
-    "inLanguage": "ja",
-    "description": "ドット絵風の宇宙背景、BGM、ランキング、パワーアップ、ボス戦、必殺技を搭載したレトロ風ブラウザシューティングゲーム。"
-  }
-  </script>
-
+  <title>Pixel Space Battle | 完成版ブラウザシューティング</title>
+  <meta name="description" content="レトロなドット絵風で遊べる完成版ブラウザシューティングゲーム。ランキング、ボス演出、必殺技、パワーアップ、BGM、スマホ対応つき。" />
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -57,8 +29,9 @@
       -webkit-touch-callout: none;
     }
 
-    button {
+    button, #gameCanvas, #touchControls {
       -webkit-tap-highlight-color: transparent;
+      touch-action: none;
     }
 
     #gameWrap {
@@ -103,7 +76,6 @@
       border: 4px solid #85fbff;
       box-shadow: 0 0 0 4px #14233f, 0 0 18px rgba(133, 251, 255, 0.45);
       image-rendering: pixelated;
-      touch-action: none;
     }
 
     #scanlines {
@@ -197,7 +169,6 @@
       color: #fff;
       cursor: pointer;
       box-shadow: 0 0 0 2px #120c28 inset;
-      touch-action: none;
     }
 
     button:hover {
@@ -247,6 +218,14 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    #nameHelp {
+      max-width: 880px;
+      margin: 8px auto 0;
+      font-size: 8px;
+      color: #96d8ff;
+      line-height: 1.7;
     }
 
     #seoText {
@@ -322,9 +301,7 @@
       h1 { font-size: 15px; }
       input, button { font-size: 8px; }
       #rankingTitle { font-size: 12px; }
-      #rankingList, #introText, #seoText {
-        font-size: 9px;
-      }
+      #rankingList, #introText, #seoText { font-size: 9px; }
       #seoText h2 { font-size: 11px; }
       #touchControls {
         grid-template-columns: repeat(3, 1fr);
@@ -385,6 +362,10 @@
       <button onclick="openRanking()">RANKING</button>
     </div>
 
+    <div id="nameHelp">
+      一度入力した名前はこのブラウザに保存されます。あとから変更もできます。
+    </div>
+
     <section id="seoText">
       <h2>このゲームについて</h2>
       <p>
@@ -443,10 +424,17 @@
     const rankingModal = document.getElementById("rankingModal");
     const bossHpWrap = document.getElementById("bossHpWrap");
     const bossHpBarInner = document.getElementById("bossHpBarInner");
+    const playerNameInput = document.getElementById("playerName");
 
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
     const specialBtn = document.getElementById("specialBtn");
+
+    const PLAYER_NAME_KEY = "pixel_space_battle_player_name";
+    const POWER_DURATION = 15000;
+    const ITEM_DROP_RATE = 0.12;
+    const INVINCIBLE_TIME = 1500;
+    const MAX_LIVES = 5;
 
     let player;
     let bullets = [];
@@ -478,8 +466,9 @@
     let bossAttackTimer = 0;
     let bossBurstCount = 0;
     let bossBurstTimer = 0;
-    let bossEntranceTimer = 0;
     let scoreSaved = false;
+    let invincibleUntil = 0;
+    let bossDefeatTimer = 0;
 
     let basePlayerSpeed = 6;
     let playerSpeedBoostUntil = 0;
@@ -487,9 +476,6 @@
     let tripleShotUntil = 0;
 
     let baseAutoShotInterval = 190;
-
-    const POWER_DURATION = 15000;
-    const ITEM_DROP_RATE = 0.12;
 
     const PLAYER_SPRITE = [
       "00011000","00111100","01111110","11111111",
@@ -514,6 +500,16 @@
       "1100001111000011"
     ];
 
+    function loadPlayerName() {
+      const savedName = localStorage.getItem(PLAYER_NAME_KEY);
+      if (savedName) playerNameInput.value = savedName;
+    }
+
+    function savePlayerName() {
+      const name = playerNameInput.value.trim();
+      localStorage.setItem(PLAYER_NAME_KEY, name || "NO_NAME");
+    }
+
     function setupAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -525,9 +521,7 @@
     }
 
     function unlockAudioOnce() {
-      if (!audioUnlocked) {
-        setupAudio();
-      }
+      if (!audioUnlocked) setupAudio();
     }
 
     function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
@@ -581,6 +575,12 @@
       setTimeout(() => beep(440, 0.18, "triangle", 0.05, -60), 160);
     }
 
+    function playBossExplosionSound() {
+      beep(120, 0.16, "sawtooth", 0.06, -40);
+      setTimeout(() => beep(90, 0.20, "sawtooth", 0.05, -50), 70);
+      setTimeout(() => beep(70, 0.24, "triangle", 0.05, -20), 150);
+    }
+
     function startBgm() {
       if (bgmInterval || !bgmEnabled) return;
 
@@ -600,7 +600,7 @@
 
       let index = 0;
       bgmInterval = setInterval(() => {
-        if (!bgmEnabled || gameState !== "playing") return;
+        if (!bgmEnabled || (gameState !== "playing" && gameState !== "bossclear")) return;
         if (!audioCtx) return;
 
         const melody = bgmMode === "boss" ? bossMelody : normalMelody;
@@ -608,14 +608,10 @@
 
         if (bgmMode === "boss") {
           beep(freq, dur, "sawtooth", 0.022, -5);
-          if (index % 2 === 0) {
-            beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
-          }
+          if (index % 2 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
         } else {
           beep(freq, dur, "square", 0.018, 8);
-          if (index % 4 === 0) {
-            beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
-          }
+          if (index % 4 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
         }
 
         index = (index + 1) % melody.length;
@@ -637,7 +633,6 @@
     function toggleBgm() {
       unlockAudioOnce();
       bgmEnabled = !bgmEnabled;
-
       if (bgmEnabled) {
         startBgm();
         messageEl.textContent = bgmMode === "boss" ? "BOSS BGM ON" : "BGM ON";
@@ -681,7 +676,7 @@
 
     function createBoss() {
       const tier = getBossTier();
-      const hp = 100 + (tier - 1) * 45;
+      const hp = 80 + (tier - 1) * 40;
 
       boss = {
         x: canvas.width / 2 - 80,
@@ -689,18 +684,17 @@
         targetY: 60,
         width: 160,
         height: 100,
-        hp: hp,
+        hp,
         maxHp: hp,
         direction: 1,
-        speed: 1.5 + (tier - 1) * 0.35,
-        tier: tier,
+        speed: 1.4 + (tier - 1) * 0.28,
+        tier,
         entering: true
       };
 
-      bossAttackTimer = Date.now();
+      bossAttackTimer = Date.now() + 1200;
       bossBurstCount = 0;
       bossBurstTimer = 0;
-      bossEntranceTimer = 120;
       bgmMode = "boss";
       bossHpWrap.style.display = "block";
       refreshBgm();
@@ -713,7 +707,6 @@
       bossAttackTimer = 0;
       bossBurstCount = 0;
       bossBurstTimer = 0;
-      bossEntranceTimer = 0;
 
       if (isBossStage()) {
         createBoss();
@@ -767,6 +760,8 @@
       lastAutoShotTime = 0;
       gameState = "playing";
       scoreSaved = false;
+      invincibleUntil = 0;
+      bossDefeatTimer = 0;
 
       if (fullReset) {
         score = 0;
@@ -803,15 +798,9 @@
     function getPowerStatusText() {
       const now = Date.now();
       const statuses = [];
-      if (now < rapidBoostUntil) {
-        statuses.push(`RAPID ${Math.ceil((rapidBoostUntil - now) / 1000)}s`);
-      }
-      if (now < tripleShotUntil) {
-        statuses.push(`TRIPLE ${Math.ceil((tripleShotUntil - now) / 1000)}s`);
-      }
-      if (now < playerSpeedBoostUntil) {
-        statuses.push(`SPEED ${Math.ceil((playerSpeedBoostUntil - now) / 1000)}s`);
-      }
+      if (now < rapidBoostUntil) statuses.push(`RAPID ${Math.ceil((rapidBoostUntil - now) / 1000)}s`);
+      if (now < tripleShotUntil) statuses.push(`TRIPLE ${Math.ceil((tripleShotUntil - now) / 1000)}s`);
+      if (now < playerSpeedBoostUntil) statuses.push(`SPEED ${Math.ceil((playerSpeedBoostUntil - now) / 1000)}s`);
       return statuses.join(" / ");
     }
 
@@ -838,13 +827,7 @@
     }
 
     function createPlayerBullet(x, y, vx = 0) {
-      bullets.push({
-        x, y,
-        width: 4,
-        height: 12,
-        speed: 9,
-        vx
-      });
+      bullets.push({ x, y, width: 4, height: 12, speed: 9, vx });
     }
 
     function shootBullet() {
@@ -867,13 +850,11 @@
 
     function spawnItem(x, y) {
       if (Math.random() > ITEM_DROP_RATE) return;
-
       const types = ["RAPID", "TRIPLE", "SPEED"];
       const type = types[Math.floor(Math.random() * types.length)];
 
       items.push({
-        x,
-        y,
+        x, y,
         width: 18,
         height: 18,
         speed: 2.1,
@@ -883,7 +864,6 @@
 
     function applyItem(type) {
       const until = Date.now() + POWER_DURATION;
-
       if (type === "RAPID") {
         rapidBoostUntil = until;
         messageEl.textContent = "RAPID BOOST!";
@@ -897,7 +877,7 @@
     }
 
     function enemyShoot() {
-      if (boss) return;
+      if (boss || gameState !== "playing") return;
 
       const aliveEnemies = enemies.filter(e => e.alive);
       if (aliveEnemies.length === 0) return;
@@ -913,24 +893,27 @@
         width: 4,
         height: 12,
         speed: 2.7 + stage * 0.16,
-        vx: 0
+        vx: 0,
+        vy: 2.7 + stage * 0.16
       });
 
       lastEnemyShotTime = now;
     }
 
-    function shootAimedBullet(fromX, fromY, targetX, targetY, speed = 4) {
+    function shootAimedBullet(fromX, fromY, targetX, targetY, speed = 4, homing = 0) {
       const dx = targetX - fromX;
       const dy = targetY - fromY;
       const len = Math.hypot(dx, dy) || 1;
+
       enemyBullets.push({
         x: fromX,
         y: fromY,
         width: 6,
         height: 14,
-        speed: speed,
+        speed,
         vx: (dx / len) * speed * 0.55,
-        vy: (dy / len) * speed * 0.55
+        vy: (dy / len) * speed * 0.55,
+        homing
       });
     }
 
@@ -967,55 +950,60 @@
     }
 
     function bossShoot() {
-      if (!boss || boss.entering) return;
+      if (!boss || boss.entering || gameState !== "playing") return;
 
       const now = Date.now();
       const tier = boss.tier;
 
       if (bossBurstCount > 0 && now >= bossBurstTimer) {
-        fireBossSpread(4 + Math.min(tier, 2), 3.0 + tier * 0.12, 1.8 + tier * 0.2);
+        fireBossSpread(4, 3.0 + tier * 0.08, 1.6 + tier * 0.15);
         bossBurstCount--;
-        bossBurstTimer = now + 220;
+        bossBurstTimer = now + 260;
       }
 
-      const interval = Math.max(650, 1450 - tier * 90);
+      const interval = Math.max(850, 1750 - tier * 90);
       if (now - bossAttackTimer < interval) return;
 
-      fireBossSpread(5, 3.0 + tier * 0.1, 2.0);
-
-      if (tier >= 2) {
-        bossBurstCount = 2;
-        bossBurstTimer = now + 220;
-      }
+      const mainSpreadCount = tier === 1 ? 3 : 5;
+      const mainSpreadWidth = tier === 1 ? 1.2 : 1.8;
+      fireBossSpread(mainSpreadCount, 2.8 + tier * 0.08, mainSpreadWidth);
 
       if (tier >= 3) {
+        bossBurstCount = 2;
+        bossBurstTimer = now + 260;
+      }
+
+      if (tier >= 4) {
         shootAimedBullet(
           boss.x + boss.width / 2,
           boss.y + boss.height - 6,
           player.x + player.width / 2,
           player.y,
-          4.2
+          3.9,
+          0
         );
       }
 
-      if (tier >= 4) {
-        fireBossSpread(7, 3.6 + tier * 0.1, 2.8);
+      if (tier >= 5) {
+        fireBossSpread(7, 3.2 + tier * 0.08, 2.3);
       }
 
-      if (tier >= 5) {
+      if (tier >= 6) {
         shootAimedBullet(
           boss.x + 30,
           boss.y + boss.height - 10,
           player.x + player.width / 2,
           player.y,
-          4.8
+          4.2,
+          0.025
         );
         shootAimedBullet(
           boss.x + boss.width - 30,
           boss.y + boss.height - 10,
           player.x + player.width / 2,
           player.y,
-          4.8
+          4.2,
+          0.025
         );
       }
 
@@ -1034,11 +1022,7 @@
 
       specialCount--;
       enemyBullets = [];
-
-      effects.push({
-        type: "flash",
-        time: 18
-      });
+      effects.push({ type: "flash", time: 18 });
 
       if (boss) {
         boss.hp -= 30;
@@ -1083,17 +1067,26 @@
       bullets = bullets.filter(b => b.y + b.height > 0 && b.x > -20 && b.x < canvas.width + 20);
 
       enemyBullets.forEach(b => {
+        if (b.homing) {
+          const tx = (player.x + player.width / 2) - b.x;
+          const ty = (player.y + player.height / 2) - b.y;
+          const len = Math.hypot(tx, ty) || 1;
+          const targetVx = (tx / len) * b.speed * 0.55;
+          const targetVy = (ty / len) * b.speed * 0.55;
+          b.vx += (targetVx - b.vx) * b.homing;
+          b.vy += (targetVy - b.vy) * b.homing;
+        }
+
         b.vy = b.vy ?? b.speed;
         b.y += b.vy;
         b.x += b.vx || 0;
       });
+
       enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20 && b.x > -40 && b.x < canvas.width + 40);
     }
 
     function updateItems() {
-      items.forEach(item => {
-        item.y += item.speed;
-      });
+      items.forEach(item => item.y += item.speed);
 
       items.forEach(item => {
         if (rectHit(item, player)) {
@@ -1113,6 +1106,7 @@
           } else {
             boss.y = boss.targetY;
             boss.entering = false;
+            bossAttackTimer = Date.now() + 900;
             messageEl.textContent = "BOSS BATTLE START!";
           }
           return;
@@ -1147,6 +1141,25 @@
       enemyShoot();
     }
 
+    function spawnBossExplosion() {
+      if (!boss) return;
+
+      const centerX = boss.x + boss.width / 2;
+      const centerY = boss.y + boss.height / 2;
+
+      for (let i = 0; i < 8; i++) {
+        effects.push({
+          type: "bossExplosion",
+          x: centerX + (Math.random() * 90 - 45),
+          y: centerY + (Math.random() * 55 - 27),
+          time: 34 + Math.floor(Math.random() * 14),
+          maxTime: 48
+        });
+      }
+
+      effects.push({ type: "flash", time: 24 });
+    }
+
     function checkBulletHits() {
       bullets.forEach(bullet => {
         if (boss) {
@@ -1174,7 +1187,7 @@
     }
 
     async function saveScoreAuto() {
-      const name = document.getElementById("playerName").value.trim() || "NO_NAME";
+      const name = playerNameInput.value.trim() || "NO_NAME";
       try {
         await addDoc(collection(db, "ranking"), {
           name,
@@ -1203,18 +1216,26 @@
       }
     }
 
+    function takePlayerDamage() {
+      if (Date.now() < invincibleUntil || gameState !== "playing") return;
+
+      lives--;
+      invincibleUntil = Date.now() + INVINCIBLE_TIME;
+      playDamageSound();
+      effects.push({ type: "playerHit", time: 14 });
+
+      if (lives <= 0) {
+        triggerGameOver("GAME OVER");
+      } else {
+        messageEl.textContent = "WARNING! SHIP DAMAGED";
+      }
+    }
+
     function checkEnemyHitsPlayer() {
       enemyBullets.forEach(bullet => {
         if (rectHit(bullet, player)) {
           bullet.y = canvas.height + 100;
-          lives--;
-          playDamageSound();
-
-          if (lives <= 0) {
-            triggerGameOver("GAME OVER");
-          } else {
-            messageEl.textContent = "WARNING! SHIP DAMAGED";
-          }
+          takePlayerDamage();
         }
       });
 
@@ -1233,19 +1254,30 @@
       });
     }
 
+    function handleBossDefeat() {
+      if (!boss) return;
+
+      score += 500;
+      playClearSound();
+      playBossExplosionSound();
+      spawnBossExplosion();
+
+      bullets = [];
+      enemyBullets = [];
+      items = [];
+
+      lives = Math.min(MAX_LIVES, lives + 1);
+      specialCount = Math.min(3, specialCount + 1);
+
+      gameState = "bossclear";
+      bossDefeatTimer = 50;
+      messageEl.textContent = "BOSS DOWN! LIFE +1 / SPECIAL +1";
+    }
+
     function checkStageClear() {
       if (boss) {
-        if (boss.hp <= 0) {
-          score += 500;
-          playClearSound();
-          stage++;
-          boss = null;
-          bullets = [];
-          enemyBullets = [];
-          items = [];
-          specialCount = Math.min(3, specialCount + 1);
-          messageEl.textContent = "BOSS DOWN! SPECIAL +1";
-          initEnemies();
+        if (boss.hp <= 0 && gameState === "playing") {
+          handleBossDefeat();
         }
         return;
       }
@@ -1266,20 +1298,37 @@
       effects = effects.filter(effect => effect.time > 0);
     }
 
+    function updateBossClear() {
+      if (gameState !== "bossclear") return;
+
+      updateBackground();
+      updateEffects();
+
+      bossDefeatTimer--;
+      if (bossDefeatTimer <= 0) {
+        stage++;
+        boss = null;
+        gameState = "playing";
+        initEnemies();
+        messageEl.textContent = isBossStage() ? "WARNING!! BOSS APPROACH" : "NEXT STAGE";
+      }
+    }
+
     function update() {
-      if (gameState !== "playing") return;
+      if (gameState === "gameover") return;
+
+      if (gameState === "bossclear") {
+        updateBossClear();
+        return;
+      }
 
       updateBackground();
       updateEffects();
 
       player.speed = getCurrentPlayerSpeed();
 
-      if (keys["ArrowLeft"] && player.x > 10) {
-        player.x -= player.speed;
-      }
-      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
-        player.x += player.speed;
-      }
+      if (keys["ArrowLeft"] && player.x > 10) player.x -= player.speed;
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) player.x += player.speed;
 
       const now = Date.now();
       if (now - lastAutoShotTime > getCurrentShotInterval()) {
@@ -1328,6 +1377,11 @@
     }
 
     function drawPlayer() {
+      if (Date.now() < invincibleUntil) {
+        const blink = Math.floor(Date.now() / 80) % 2 === 0;
+        if (!blink) return;
+      }
+
       drawPixelSprite(PLAYER_SPRITE, player.x, player.y, 4, "#9affff", "#117c9f");
       ctx.fillStyle = "#ffe66e";
       ctx.fillRect(player.x + 14, player.y + 24, 4, 6);
@@ -1350,14 +1404,10 @@
 
     function drawBullets() {
       ctx.fillStyle = "#fff37a";
-      bullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-      });
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
 
       ctx.fillStyle = boss ? "#ff5252" : "#ff8b5e";
-      enemyBullets.forEach(b => {
-        ctx.fillRect(b.x, b.y, b.width, b.height);
-      });
+      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
     }
 
     function drawItems() {
@@ -1381,9 +1431,31 @@
     function drawEffects() {
       effects.forEach(effect => {
         if (effect.type === "flash") {
-          const alpha = effect.time / 18;
-          ctx.fillStyle = `rgba(255, 245, 180, ${alpha * 0.65})`;
+          const alpha = effect.time / 24;
+          ctx.fillStyle = `rgba(255,245,180,${alpha * 0.7})`;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (effect.type === "playerHit") {
+          const alpha = effect.time / 14;
+          ctx.fillStyle = `rgba(255,80,80,${alpha * 0.35})`;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (effect.type === "bossExplosion") {
+          const total = effect.maxTime || 48;
+          const progress = 1 - (effect.time / total);
+          const radius = 14 + progress * 54;
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,120,60,${effect.time / total})`;
+          ctx.arc(effect.x, effect.y, radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(255,220,120,${effect.time / total})`;
+          ctx.arc(effect.x, effect.y, radius * 0.55, 0, Math.PI * 2);
+          ctx.fill();
         }
       });
     }
@@ -1414,6 +1486,21 @@
       ctx.font = "16px 'Press Start 2P', monospace";
       ctx.fillText("BOSS APPROACH", canvas.width / 2, 223);
 
+      ctx.restore();
+    }
+
+    function drawBossDefeatText() {
+      if (gameState !== "bossclear") return;
+
+      ctx.save();
+      ctx.textAlign = "center";
+      ctx.font = "22px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#fff4b0";
+      ctx.fillText("BOSS EXPLODED!", canvas.width / 2, canvas.height / 2 - 24);
+
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#9effb7";
+      ctx.fillText("LIFE +1   SPECIAL +1", canvas.width / 2, canvas.height / 2 + 16);
       ctx.restore();
     }
 
@@ -1457,7 +1544,7 @@
     }
 
     function drawOverlay() {
-      if (gameState === "playing") return;
+      if (gameState !== "gameover") return;
 
       ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1465,10 +1552,7 @@
       ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
       ctx.font = "24px 'Press Start 2P', monospace";
-
-      if (gameState === "gameover") {
-        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
-      }
+      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
     }
 
     function draw() {
@@ -1481,6 +1565,7 @@
       drawGameUi();
       drawEffects();
       drawBossEntranceWarning();
+      drawBossDefeatText();
       drawOverlay();
     }
 
@@ -1524,13 +1609,13 @@
     }
 
     function bindHoldButton(button, code) {
-      button.addEventListener("pointerdown", (e) => {
+      button.addEventListener("pointerdown", e => {
         e.preventDefault();
         unlockAudioOnce();
         keys[code] = true;
       });
 
-      button.addEventListener("pointerup", (e) => {
+      button.addEventListener("pointerup", e => {
         e.preventDefault();
         keys[code] = false;
       });
@@ -1544,9 +1629,7 @@
       });
     }
 
-    document.addEventListener("contextmenu", (e) => {
-      e.preventDefault();
-    });
+    document.addEventListener("contextmenu", e => e.preventDefault());
 
     document.addEventListener("keydown", e => {
       if (["ArrowLeft", "ArrowRight", "Space", "KeyX"].includes(e.code)) {
@@ -1555,28 +1638,27 @@
       unlockAudioOnce();
       keys[e.code] = true;
 
-      if (e.code === "KeyX") {
-        useSpecial();
-      }
+      if (e.code === "KeyX") useSpecial();
     });
 
     document.addEventListener("keyup", e => {
       keys[e.code] = false;
     });
 
+    playerNameInput.addEventListener("change", savePlayerName);
+    playerNameInput.addEventListener("blur", savePlayerName);
+
     bindHoldButton(leftBtn, "ArrowLeft");
     bindHoldButton(rightBtn, "ArrowRight");
 
-    specialBtn.addEventListener("pointerdown", (e) => {
+    specialBtn.addEventListener("pointerdown", e => {
       e.preventDefault();
       unlockAudioOnce();
       useSpecial();
     });
 
     rankingModal.addEventListener("click", e => {
-      if (e.target === rankingModal) {
-        closeRanking();
-      }
+      if (e.target === rankingModal) closeRanking();
     });
 
     window.openRanking = openRanking;
@@ -1584,6 +1666,7 @@
     window.restartGame = restartGame;
     window.toggleBgm = toggleBgm;
 
+    loadPlayerName();
     resetGame(true);
     gameLoop();
   </script>
