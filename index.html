@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Pixel Space Battle | 完成版ブラウザシューティング</title>
   <meta name="description" content="レトロなドット絵風で遊べる完成版ブラウザシューティングゲーム。ランキング、ボス演出、必殺技、パワーアップ、BGM、スマホ対応つき。" />
   <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, HTMLゲーム, JavaScriptゲーム, レトロゲーム, ランキング, ボス戦" />
@@ -23,7 +23,16 @@
       --sub: #b7dfff;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+    }
+
+    html, body, button, canvas, div, input {
+      user-select: none;
+      -webkit-user-select: none;
+    }
 
     body {
       margin: 0;
@@ -37,6 +46,7 @@
       min-height: 100vh;
       padding: 10px;
       overflow-x: hidden;
+      touch-action: manipulation;
     }
 
     #gameContainer {
@@ -85,6 +95,8 @@
       image-rendering: pixelated;
       image-rendering: crisp-edges;
       touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     #bossHpWrap {
@@ -229,6 +241,9 @@
     button {
       cursor: pointer;
       background: linear-gradient(180deg, #2d245a 0%, #17132f 100%);
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     button:hover, button:active {
@@ -476,8 +491,14 @@
     ];
 
     const ENEMY_SPRITE = [
-      "00111100","01111110","11100111","11111111",
-      "01111110","00111100"
+      "0000011111000000",
+      "0001111111110000",
+      "0011111111111000",
+      "1111101101111110",
+      "1111111111111111",
+      "0011111111111000",
+      "0001110010010000",
+      "0011000000001100"
     ];
 
     const BOSS_SPRITE = [
@@ -516,7 +537,6 @@
     }
 
     function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
-      if (!audioCtx || !bgmEnabled && volume <= 0.022 && type !== "sawtooth" && type !== "square" && type !== "triangle") return;
       if (!audioCtx) return;
 
       const osc = audioCtx.createOscillator();
@@ -708,7 +728,7 @@
           enemies.push({
             x: 70 + c * 78,
             y: 50 + r * 56,
-            width: 32,
+            width: 48,
             height: 24,
             alive: true
           });
@@ -1329,7 +1349,15 @@
     function drawEnemies() {
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
-        drawPixelSprite(ENEMY_SPRITE, enemy.x, enemy.y, 4, "#ff9c66", "#973800");
+
+        drawPixelSprite(ENEMY_SPRITE, enemy.x, enemy.y, 3, "#ff8a5b", "#5a1f00");
+
+        ctx.fillStyle = "#ffd36e";
+        ctx.fillRect(enemy.x + 21, enemy.y + 9, 6, 3);
+
+        ctx.fillStyle = "#7a1a00";
+        ctx.fillRect(enemy.x + 9, enemy.y + 18, 4, 4);
+        ctx.fillRect(enemy.x + 35, enemy.y + 18, 4, 4);
       });
     }
 
@@ -1587,6 +1615,7 @@
     function bindHoldButton(button, code) {
       button.addEventListener("pointerdown", e => {
         e.preventDefault();
+        e.stopPropagation();
         unlockAudioOnce();
         if (gameState === "title" && code !== "KeyX") {
           resetGame(true);
@@ -1644,6 +1673,7 @@
 
     specialBtn.addEventListener("pointerdown", e => {
       e.preventDefault();
+      e.stopPropagation();
       unlockAudioOnce();
       if (gameState === "title") {
         resetGame(true);
