@@ -324,6 +324,12 @@
       filter: brightness(1.08);
     }
 
+    .upgradeCard.selected {
+      border-color: #ffe57e;
+      box-shadow: 0 0 16px rgba(255,229,126,.35);
+      transform: translateY(-2px);
+    }
+
     .upgradeCard h3 {
       margin: 0 0 10px;
       font-size: 12px;
@@ -341,6 +347,8 @@
       display: flex;
       justify-content: center;
       margin-top: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     @media (max-width: 860px) {
@@ -393,7 +401,7 @@
 
     <div id="help">
       AUTO SHOT MODE / TITLE SCREEN: ENTER で開始、R でランキング<br>
-      KEYBOARD: ← → / X = SPECIAL / P = PAUSE / ENTER = START<br>
+      KEYBOARD: ← → / X = SPECIAL / P = PAUSE / ENTER = START / R = RANKING<br>
       MOBILE: TOUCH LEFT / SPECIAL / RIGHT / PAUSE
     </div>
 
@@ -438,9 +446,12 @@
     <div class="modalCard">
       <h2>ABILITY SELECT</h2>
       <div id="upgradeText" style="text-align:center;font-size:10px;line-height:1.8;color:#d7e8ff;">
-        ボス撃破！ 1つ選んで次の戦いを有利にしよう
+        ボス撃破！ 左右で選択、決定でもう一度押す
       </div>
       <div class="upgradeGrid" id="upgradeGrid"></div>
+      <div class="modalCloseRow">
+        <button id="upgradeSelectBtn">SELECT</button>
+      </div>
     </div>
   </div>
 
@@ -495,19 +506,20 @@
 
     const upgradeModal = document.getElementById("upgradeModal");
     const upgradeGrid = document.getElementById("upgradeGrid");
+    const upgradeSelectBtn = document.getElementById("upgradeSelectBtn");
 
-    const PLAYER_NAME_KEY = "pixel_space_battle_player_name_v2";
+    const PLAYER_NAME_KEY = "pixel_space_battle_player_name_v3";
     const POWER_DURATION = 15000;
     const INVINCIBLE_TIME = 1500;
 
     const keys = {};
     const stars = [];
     const nebulaDots = [];
-    const bullets = [];
-    const enemyBullets = [];
-    const enemies = [];
-    const items = [];
-    const effects = [];
+    let bullets = [];
+    let enemyBullets = [];
+    let enemies = [];
+    let items = [];
+    let effects = [];
 
     let player;
     let boss = null;
@@ -525,10 +537,17 @@
     let invincibleUntil = 0;
     let moveTouchLeft = false;
     let moveTouchRight = false;
+    let enemyDirection = 1;
 
     let audioCtx = null;
     let bgmInterval = null;
     let audioUnlocked = false;
+
+    let titleMenuIndex = 0;
+    const titleMenuItems = ["START", "RANKING"];
+
+    let upgradeChoices = [];
+    let upgradeSelectedIndex = 0;
 
     function rand(min, max) {
       return Math.random() * (max - min) + min;
@@ -578,7 +597,7 @@
     }
 
     function createEnemies() {
-      enemies.length = 0;
+      enemies = [];
       const rows = 3 + Math.min(2, Math.floor((wave - 1) / 2));
       const cols = 8;
       const offsetX = 90;
@@ -591,12 +610,10 @@
           enemies.push({
             x: offsetX + c * gapX,
             y: offsetY + r * gapY,
-            baseX: offsetX + c * gapX,
             alive: true,
-            width: 34,
-            height: 26,
-            hp: 1 + Math.floor((wave - 1) / 3),
-            kind: "enemy"
+            width: 44,
+            height: 22,
+            hp: 1 + Math.floor((wave - 1) / 3)
           });
         }
       }
@@ -628,10 +645,10 @@
 
     function resetGame(fromTitle = false) {
       player = createPlayer();
-      bullets.length = 0;
-      enemyBullets.length = 0;
-      items.length = 0;
-      effects.length = 0;
+      bullets = [];
+      enemyBullets = [];
+      items = [];
+      effects = [];
       boss = null;
       score = 0;
       wave = 1;
@@ -642,6 +659,7 @@
       lastEnemyShotTime = 0;
       lastAutoShotTime = 0;
       lastBossShot = 0;
+      enemyDirection = 1;
       gameState = "playing";
       bgmMode = "normal";
       createEnemies();
@@ -654,16 +672,17 @@
       gameState = "title";
       paused = false;
       boss = null;
-      bullets.length = 0;
-      enemyBullets.length = 0;
-      items.length = 0;
-      effects.length = 0;
+      bullets = [];
+      enemyBullets = [];
+      items = [];
+      effects = [];
       score = 0;
       wave = 1;
+      titleMenuIndex = 0;
       bgmMode = "normal";
       refreshBgm();
       updateBossHpBar();
-      messageEl.textContent = "ENTER: START / R: RANKING";
+      messageEl.textContent = "ENTER: SELECT / ←→: MOVE";
     }
 
     function togglePause() {
@@ -671,14 +690,6 @@
       paused = !paused;
       playPauseSound();
       messageEl.textContent = paused ? "PAUSED" : "RESUME";
-    }
-
-    function getCurrentPlayerSpeed() {
-      return Date.now() < player.speedUntil ? 6.4 : 4.5;
-    }
-
-    function getShotInterval() {
-      return Date.now() < player.rapidUntil ? 110 : 220;
     }
 
     function updateBossHpBar() {
@@ -689,6 +700,14 @@
       bossHpArea.style.display = "block";
       const rate = Math.max(0, boss.hp / boss.maxHp) * 100;
       bossHpBar.style.width = `${rate}%`;
+    }
+
+    function getCurrentPlayerSpeed() {
+      return Date.now() < player.speedUntil ? 6.4 : 4.5;
+    }
+
+    function getShotInterval() {
+      return Date.now() < player.rapidUntil ? 110 : 220;
     }
 
     function unlockAudioOnce() {
@@ -778,6 +797,7 @@
 
     function startBgm() {
       stopBgm();
+
       const normalMelody = [
         [440,0.10],[554,0.10],[659,0.10],[880,0.18],
         [659,0.10],[554,0.10],[494,0.12],[659,0.18],
@@ -863,24 +883,48 @@
 
       const triple = Date.now() < player.tripleUntil;
       const level = player.attackLevel;
-
-      const patterns = [];
+      const shotSpeed = 8 + level * 0.6;
+      const bulletHeight = 12 + level * 2;
+      const centerX = player.x + player.width / 2 - 2;
+      const startY = player.y - 10;
 
       if (triple) {
-        patterns.push(-4, 0, 4);
+        bullets.push(
+          {
+            x: centerX,
+            y: startY,
+            width: 4,
+            height: bulletHeight,
+            vx: -3.2,
+            vy: -shotSpeed
+          },
+          {
+            x: centerX,
+            y: startY,
+            width: 4,
+            height: bulletHeight,
+            vx: 0,
+            vy: -shotSpeed
+          },
+          {
+            x: centerX,
+            y: startY,
+            width: 4,
+            height: bulletHeight,
+            vx: 3.2,
+            vy: -shotSpeed
+          }
+        );
       } else {
-        patterns.push(0);
-      }
-
-      patterns.forEach(dx => {
         bullets.push({
-          x: player.x + player.width / 2 - 2 + dx,
-          y: player.y - 10,
+          x: centerX,
+          y: startY,
           width: 4,
-          height: 12 + level * 2,
-          vy: -(8 + level * 0.6)
+          height: bulletHeight,
+          vx: 0,
+          vy: -shotSpeed
         });
-      });
+      }
     }
 
     function enemyShoot() {
@@ -934,12 +978,13 @@
       playSpecialSound();
       messageEl.textContent = "SPECIAL BLAST!";
 
-      addEffect(player.x + 16, player.y, "#7ef7ff", 28, 5);
+      addEffect(player.x + 16, player.y, "#7ef7ff", 36, 6);
+      addEffect(player.x + 16, player.y - 50, "#ffe57e", 24, 7);
 
       if (boss) {
         boss.hp -= 28 + player.attackLevel * 7;
         updateBossHpBar();
-        addEffect(boss.x + boss.width / 2, boss.y + boss.height / 2, "#ff957e", 26, 6);
+        addEffect(boss.x + boss.width / 2, boss.y + boss.height / 2, "#ff957e", 40, 7);
         if (boss.hp <= 0) defeatBoss();
       }
 
@@ -1055,25 +1100,45 @@
       ].sort(() => Math.random() - 0.5).slice(0, 3);
     }
 
-    function openUpgradeSelect() {
-      upgradeGrid.innerHTML = "";
-      const choices = getUpgradeChoices();
+    function setSelectedUpgrade(index) {
+      upgradeSelectedIndex = index;
+      const cards = [...upgradeGrid.querySelectorAll(".upgradeCard")];
+      cards.forEach((card, i) => {
+        card.classList.toggle("selected", i === upgradeSelectedIndex);
+      });
+    }
 
-      choices.forEach(choice => {
+    function confirmSelectedUpgrade() {
+      const selected = upgradeChoices[upgradeSelectedIndex];
+      if (!selected) return;
+      selected.apply();
+      upgradeModal.style.display = "none";
+      prepareNextWave();
+    }
+
+    function openUpgradeSelect() {
+      upgradeChoices = getUpgradeChoices();
+      upgradeSelectedIndex = 0;
+      upgradeGrid.innerHTML = "";
+
+      upgradeChoices.forEach((choice, index) => {
         const card = document.createElement("div");
         card.className = "upgradeCard";
         card.innerHTML = `
           <h3>${choice.name}</h3>
           <p>${choice.desc}</p>
         `;
-        card.onclick = () => {
-          choice.apply();
-          upgradeModal.style.display = "none";
-          prepareNextWave();
-        };
+        card.addEventListener("click", () => {
+          if (upgradeSelectedIndex === index) {
+            confirmSelectedUpgrade();
+          } else {
+            setSelectedUpgrade(index);
+          }
+        });
         upgradeGrid.appendChild(card);
       });
 
+      setSelectedUpgrade(0);
       upgradeModal.style.display = "flex";
     }
 
@@ -1123,6 +1188,7 @@
     function updateBullets() {
       for (let i = bullets.length - 1; i >= 0; i--) {
         const b = bullets[i];
+        b.x += b.vx || 0;
         b.y += b.vy;
 
         if (boss && hitRect(b, boss)) {
@@ -1156,7 +1222,10 @@
           }
         }
         if (removed) continue;
-        if (b.y < -30) bullets.splice(i, 1);
+
+        if (b.y < -30 || b.x < -30 || b.x > canvas.width + 30) {
+          bullets.splice(i, 1);
+        }
       }
     }
 
@@ -1193,14 +1262,12 @@
       const minX = Math.min(...alive.map(e => e.x));
       const maxX = Math.max(...alive.map(e => e.x + e.width));
       const edge = 14;
-      let dir = window.enemyDirection || 1;
 
-      if (maxX >= canvas.width - edge) dir = -1;
-      if (minX <= edge) dir = 1;
-      window.enemyDirection = dir;
+      if (maxX >= canvas.width - edge) enemyDirection = -1;
+      if (minX <= edge) enemyDirection = 1;
 
       alive.forEach(e => {
-        e.x += dir * (0.45 + wave * 0.04);
+        e.x += enemyDirection * (0.45 + wave * 0.04);
       });
     }
 
@@ -1393,7 +1460,7 @@
       ctx.save();
 
       ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
-      ctx.fillRect(10, 10, 230, 86);
+      ctx.fillRect(10, 10, 250, 92);
 
       ctx.fillStyle = "#dff7ff";
       ctx.font = "10px 'Press Start 2P', monospace";
@@ -1415,29 +1482,36 @@
 
       ctx.fillStyle = "#77f6ff";
       ctx.font = "30px 'Press Start 2P', monospace";
-      ctx.fillText("PIXEL SPACE", canvas.width / 2, 150);
-      ctx.fillText("BATTLE", canvas.width / 2, 200);
+      ctx.fillText("PIXEL SPACE", canvas.width / 2, 145);
+      ctx.fillText("BATTLE", canvas.width / 2, 195);
 
       ctx.fillStyle = "#ffffff";
       ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillText("1 PLAYER MODE", canvas.width / 2, 280);
-      ctx.fillText("RETRO SHOOTING COMPLETE EDITION", canvas.width / 2, 320);
+      ctx.fillText("1 PLAYER MODE", canvas.width / 2, 270);
+      ctx.fillText("RETRO SHOOTING COMPLETE EDITION", canvas.width / 2, 310);
 
-      ctx.fillStyle = "#ffe57e";
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillText("PRESS ENTER TO START", canvas.width / 2, 385);
+      const startSelected = titleMenuIndex === 0;
+      const rankingSelected = titleMenuIndex === 1;
+
+      ctx.fillStyle = startSelected ? "#ffe57e" : "#dff7ff";
+      ctx.fillRect(230, 355, 340, 42);
+      ctx.strokeStyle = startSelected ? "#ffe57e" : "rgba(120,240,255,.35)";
+      ctx.strokeRect(230, 355, 340, 42);
+      ctx.fillStyle = startSelected ? "#201400" : "#dff7ff";
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.fillText("START", canvas.width / 2, 382);
+
+      ctx.fillStyle = rankingSelected ? "#ffe57e" : "#dff7ff";
+      ctx.fillRect(230, 415, 340, 42);
+      ctx.strokeStyle = rankingSelected ? "#ffe57e" : "rgba(120,240,255,.35)";
+      ctx.strokeRect(230, 415, 340, 42);
+      ctx.fillStyle = rankingSelected ? "#201400" : "#dff7ff";
+      ctx.fillText("RANKING", canvas.width / 2, 442);
 
       ctx.fillStyle = "#9ff3ff";
-      ctx.fillText("PRESS R TO OPEN RANKING", canvas.width / 2, 420);
-
-      ctx.fillStyle = "rgba(120,240,255,.16)";
-      ctx.fillRect(210, 438, 380, 30);
-      ctx.strokeStyle = "rgba(120,240,255,.35)";
-      ctx.strokeRect(210, 438, 380, 30);
-
-      ctx.fillStyle = "#dff7ff";
       ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillText("BGM / SPECIAL / BOSS / RANKING / PAUSE", canvas.width / 2, 458);
+      ctx.fillText("MOVE: LEFT / RIGHT   DECIDE: ENTER", canvas.width / 2, 500);
+
       ctx.textAlign = "start";
     }
 
@@ -1575,11 +1649,31 @@
       if (saved) playerNameInput.value = saved;
     }
 
-    function bindHoldButton(button, code, type = "move") {
+    function bindHoldButton(button, code) {
       const down = e => {
         e.preventDefault();
         e.stopPropagation();
         unlockAudioOnce();
+
+        if (gameState === "title") {
+          if (code === "ArrowLeft" || code === "ArrowRight") {
+            titleMenuIndex = code === "ArrowLeft" ? 0 : 1;
+            return;
+          }
+          if (code === "KeyP") return;
+        }
+
+        if (upgradeModal.style.display === "flex") {
+          if (code === "ArrowLeft") {
+            setSelectedUpgrade((upgradeSelectedIndex - 1 + upgradeChoices.length) % upgradeChoices.length);
+            return;
+          }
+          if (code === "ArrowRight") {
+            setSelectedUpgrade((upgradeSelectedIndex + 1) % upgradeChoices.length);
+            return;
+          }
+          if (code === "KeyP") return;
+        }
 
         if (code === "ArrowLeft") moveTouchLeft = true;
         else if (code === "ArrowRight") moveTouchRight = true;
@@ -1604,6 +1698,15 @@
       button.addEventListener("pointerleave", up);
     }
 
+    function handleTitleEnter() {
+      const current = titleMenuItems[titleMenuIndex];
+      if (current === "START") {
+        resetGame(true);
+      } else {
+        openRanking();
+      }
+    }
+
     document.addEventListener("contextmenu", e => e.preventDefault());
 
     document.addEventListener("keydown", e => {
@@ -1614,9 +1717,32 @@
       unlockAudioOnce();
       keys[e.code] = true;
 
-      if (gameState === "title") {
+      if (upgradeModal.style.display === "flex") {
+        if (e.code === "ArrowLeft") {
+          setSelectedUpgrade((upgradeSelectedIndex - 1 + upgradeChoices.length) % upgradeChoices.length);
+          return;
+        }
+        if (e.code === "ArrowRight") {
+          setSelectedUpgrade((upgradeSelectedIndex + 1) % upgradeChoices.length);
+          return;
+        }
         if (e.code === "Enter") {
-          resetGame(true);
+          confirmSelectedUpgrade();
+          return;
+        }
+      }
+
+      if (gameState === "title") {
+        if (e.code === "ArrowLeft") {
+          titleMenuIndex = 0;
+          return;
+        }
+        if (e.code === "ArrowRight") {
+          titleMenuIndex = 1;
+          return;
+        }
+        if (e.code === "Enter") {
+          handleTitleEnter();
           return;
         }
         if (e.code === "KeyR") {
@@ -1646,10 +1772,16 @@
       e.stopPropagation();
       unlockAudioOnce();
 
-      if (gameState === "title") {
-        resetGame(true);
+      if (upgradeModal.style.display === "flex") {
+        confirmSelectedUpgrade();
         return;
       }
+
+      if (gameState === "title") {
+        handleTitleEnter();
+        return;
+      }
+
       useSpecial();
     });
 
@@ -1669,6 +1801,7 @@
     restartBtn.addEventListener("click", () => resetGame(false));
     titleBtn.addEventListener("click", showTitle);
     saveNameBtn.addEventListener("click", savePlayerName);
+    upgradeSelectBtn.addEventListener("click", confirmSelectedUpgrade);
 
     playerNameInput.addEventListener("keydown", e => {
       if (e.key === "Enter") savePlayerName();
