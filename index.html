@@ -2,1570 +2,1310 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Space Battle</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>PIXEL SPACE BATTLE - FIXED</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(circle at top, #241041 0%, #090714 45%, #020207 100%);
-      color: #d8f6ff;
-      font-family: 'Press Start 2P', monospace;
-      text-align: center;
-      overflow-x: hidden;
-      -webkit-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
+    :root{
+      --bg:#060816;
+      --panel:#10162a;
+      --panel2:#17203a;
+      --line:#4fd1ff;
+      --line2:#8a7dff;
+      --text:#ecf6ff;
+      --sub:#9db5d1;
+      --danger:#ff5d7a;
+      --warn:#ffd166;
+      --heal:#52e0a1;
+      --shot:#8df0ff;
+      --enemy:#ff7b54;
     }
-
-    button, canvas, input {
-      font-family: 'Press Start 2P', monospace;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        radial-gradient(circle at 50% 20%, #142044 0%, #0a1025 35%, #050814 70%, #02030a 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      overflow:hidden;
+      touch-action:manipulation;
     }
-
-    #wrap {
-      width: 100%;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 10px;
+    #app{
+      width:100vw;
+      height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:10px;
     }
-
-    h1 {
-      margin: 8px 0 6px;
-      font-size: 18px;
-      color: #7ef7ff;
-      text-shadow: 0 0 12px rgba(126,247,255,0.7);
+    .frame{
+      width:min(100vw,520px);
+      height:min(100vh,940px);
+      display:flex;
+      flex-direction:column;
+      gap:8px;
     }
-
-    #subText {
-      font-size: 9px;
-      line-height: 1.8;
-      color: #bfefff;
-      margin-bottom: 10px;
+    .topbar,.bottombar,.panel{
+      background:linear-gradient(180deg,rgba(20,28,52,.95),rgba(10,15,30,.95));
+      border:2px solid rgba(79,209,255,.35);
+      border-radius:16px;
+      box-shadow:0 0 0 1px rgba(255,255,255,.04) inset,0 8px 24px rgba(0,0,0,.35);
     }
-
-    #canvasWrap {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 880px;
+    .topbar{
+      padding:10px 12px;
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      align-items:center;
     }
-
-    #gameCanvas {
-      width: 100%;
-      max-width: 880px;
-      height: auto;
-      display: block;
-      margin: 0 auto;
-      background: #040814;
-      border: 4px solid #86fbff;
-      box-shadow: 0 0 0 4px #14233f, 0 0 18px rgba(133,251,255,0.45);
-      image-rendering: pixelated;
+    .hudRow{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 12px;
+      font-size:13px;
+      align-items:center;
     }
-
-    #scanlines {
-      pointer-events: none;
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        to bottom,
-        rgba(255,255,255,0.05) 0px,
-        rgba(255,255,255,0.05) 2px,
-        rgba(0,0,0,0) 2px,
-        rgba(0,0,0,0) 4px
-      );
-      mix-blend-mode: soft-light;
+    .chip{
+      padding:6px 10px;
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      white-space:nowrap;
     }
-
-    #message {
-      min-height: 30px;
-      margin: 12px auto 8px;
-      color: #ffe57e;
-      font-size: 10px;
-      line-height: 1.6;
-      max-width: 880px;
+    .bossWrap{
+      display:none;
+      align-items:center;
+      gap:8px;
+      width:100%;
+      margin-top:6px;
     }
-
-    #touchControls {
-      margin: 12px auto 0;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      max-width: 720px;
+    .bossWrap.show{display:flex}
+    .bar{
+      flex:1;
+      height:12px;
+      background:#1b2340;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
     }
-
-    #touchControls button {
-      min-height: 58px;
-      font-size: 11px;
-      border: 3px solid #79f4ff;
-      background: linear-gradient(180deg, #352868 0%, #17132f 100%);
-      color: #fff;
-      box-shadow: 0 0 0 2px #120c28 inset;
-      cursor: pointer;
+    .fill{
+      height:100%;
+      width:100%;
+      transition:width .12s linear;
     }
-
-    #okBtn {
-      border-color: #ffe57e !important;
-      background: linear-gradient(180deg, #6a5615 0%, #2b240c 100%) !important;
-      color: #fff7c2 !important;
+    .bossFill{background:linear-gradient(90deg,#ff6b6b,#ffb36b)}
+    .panel{
+      flex:1;
+      padding:8px;
+      position:relative;
+      overflow:hidden;
     }
-
-    #pauseBtn {
-      border-color: #ffb3cf !important;
-      background: linear-gradient(180deg, #7f2c4c 0%, #311220 100%) !important;
+    canvas{
+      width:100%;
+      height:100%;
+      display:block;
+      background:
+        linear-gradient(180deg, rgba(14,20,40,.95), rgba(4,8,20,.98));
+      border-radius:12px;
+      image-rendering:pixelated;
+      image-rendering:crisp-edges;
     }
-
-    #help {
-      margin-top: 12px;
-      font-size: 8px;
-      line-height: 1.8;
-      color: #9ddfff;
-      max-width: 880px;
-      margin-left: auto;
-      margin-right: auto;
+    .overlay{
+      position:absolute;
+      inset:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:20px;
+      background:rgba(4,8,20,.55);
+      border-radius:12px;
+      backdrop-filter: blur(2px);
     }
-
-    footer {
-      margin: 18px 0 10px;
-      font-size: 8px;
-      color: #7ab9d8;
+    .menuCard{
+      width:min(100%,420px);
+      background:linear-gradient(180deg,rgba(22,31,58,.96),rgba(10,15,29,.96));
+      border:2px solid rgba(79,209,255,.35);
+      border-radius:20px;
+      padding:18px 16px;
+      box-shadow:0 14px 32px rgba(0,0,0,.4);
     }
-
-    @media (max-width: 700px) {
-      h1 { font-size: 15px; }
-      #touchControls button { font-size: 10px; min-height: 52px; }
+    h1,h2,h3,p{margin:0}
+    .title{
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:.06em;
+      text-shadow:0 0 18px rgba(79,209,255,.25);
+      margin-bottom:8px;
+    }
+    .subtitle{
+      color:var(--sub);
+      font-size:13px;
+      margin-bottom:16px;
+      line-height:1.55;
+    }
+    .menuList{
+      display:grid;
+      gap:10px;
+      margin:16px 0 14px;
+    }
+    .menuBtn,.ctrlBtn,.smallBtn,.toggleBtn{
+      border:none;
+      border-radius:14px;
+      color:var(--text);
+      background:linear-gradient(180deg,#23345f,#162342);
+      box-shadow:0 6px 14px rgba(0,0,0,.25),0 0 0 1px rgba(255,255,255,.06) inset;
+      cursor:pointer;
+      font-weight:700;
+    }
+    .menuBtn{
+      padding:14px 14px;
+      font-size:16px;
+    }
+    .menuBtn.active,.ctrlBtn.active,.smallBtn.active,.toggleBtn.active{
+      outline:2px solid rgba(79,209,255,.65);
+      background:linear-gradient(180deg,#2b4687,#1a2f63);
+    }
+    .hint{
+      font-size:12px;
+      color:var(--sub);
+      line-height:1.6;
+    }
+    .bottombar{
+      padding:10px;
+      display:grid;
+      grid-template-columns:repeat(6,1fr);
+      gap:8px;
+    }
+    .ctrlBtn{
+      min-height:58px;
+      font-size:13px;
+      padding:8px 4px;
+    }
+    .ctrlBtn.special{background:linear-gradient(180deg,#5639a8,#32205f)}
+    .ctrlBtn.pause{background:linear-gradient(180deg,#6c4a20,#4a3112)}
+    .ctrlBtn.action{background:linear-gradient(180deg,#0f7e76,#07534d)}
+    .row{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top:12px;
+    }
+    .smallBtn,.toggleBtn{
+      padding:10px 14px;
+      font-size:13px;
+    }
+    .rankBadge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-width:88px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      margin-top:10px;
+      background:linear-gradient(180deg,#3d4c74,#243250);
+      border:1px solid rgba(255,255,255,.12);
+    }
+    .hidden{display:none!important}
+    .left{text-align:left}
+    .pauseText{
+      font-size:14px;
+      color:var(--sub);
+      line-height:1.7;
+      margin-top:10px;
+    }
+    @media (max-width:420px){
+      .title{font-size:24px}
+      .bottombar{gap:6px}
+      .ctrlBtn{min-height:54px;font-size:12px}
+      .topbar{padding:8px}
     }
   </style>
 </head>
 <body>
-  <div id="wrap">
-    <h1>PIXEL SPACE BATTLE</h1>
-    <div id="subText">
-      SINGLE / NORMAL MATCH / ROOM MATCH / RP RANK / ITEM DROP / ENEMY SHOT
+  <div id="app">
+    <div class="frame">
+      <div class="topbar">
+        <div>
+          <div class="hudRow">
+            <div class="chip">MODE: <span id="hudMode">TITLE</span></div>
+            <div class="chip">HP: <span id="hudHp">100</span></div>
+            <div class="chip">LIFE: <span id="hudLife">3</span></div>
+            <div class="chip">SCORE: <span id="hudScore">0</span></div>
+            <div class="chip">RANK: <span id="hudRank">BEGINNER</span></div>
+            <div class="chip">ITEM: <span id="hudItem">NONE</span></div>
+          </div>
+          <div id="bossWrap" class="bossWrap">
+            <span style="font-size:12px;color:var(--warn);font-weight:700;">BOSS HP</span>
+            <div class="bar"><div id="bossFill" class="fill bossFill"></div></div>
+          </div>
+        </div>
+        <div class="hudRow" style="justify-content:flex-end">
+          <div class="chip">SPECIAL: <span id="hudSp">100</span>%</div>
+          <div class="chip">WAVE: <span id="hudWave">1</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <canvas id="game" width="480" height="720"></canvas>
+
+        <div id="titleOverlay" class="overlay">
+          <div class="menuCard">
+            <div class="title">PIXEL SPACE BATTLE</div>
+            <div class="subtitle">
+              音・アイテム・ゲームループを安定化した修正版。<br>
+              BGM / 効果音 / 敵弾 / HP / 残機 / アイテム効果 / ポーズを修正。
+            </div>
+            <div class="menuList">
+              <button class="menuBtn" data-menu="single">1 PLAYER</button>
+            </div>
+            <div class="row" style="margin-top:0">
+              <button id="bgmToggle" class="toggleBtn active">BGM ON</button>
+              <button id="seToggle" class="toggleBtn active">SE ON</button>
+            </div>
+            <div class="hint">
+              PC: ← → 移動 / Z 攻撃 / X 必殺技 / Enter 決定 / P ポーズ<br>
+              MOBILE: 下のボタンで操作
+            </div>
+            <div class="rankBadge" id="titleRankBadge">RP BADGE: BEGINNER</div>
+          </div>
+        </div>
+
+        <div id="pauseOverlay" class="overlay hidden">
+          <div class="menuCard">
+            <div class="title">PAUSE</div>
+            <div class="pauseText left">
+              ・LEFT / RIGHT で移動<br>
+              ・ACTION で通常攻撃<br>
+              ・SPECIAL で全体攻撃<br>
+              ・HEAL / POWER / RAPID / SHIELD の4種アイテム<br>
+              ・残機がある間は復活します
+            </div>
+            <div class="row">
+              <button id="resumeBtn" class="smallBtn">再開</button>
+              <button id="backTitleBtn" class="smallBtn">タイトルへ</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="messageOverlay" class="overlay hidden">
+          <div class="menuCard">
+            <div class="title" id="messageTitle">GAME OVER</div>
+            <div class="subtitle" id="messageText"></div>
+            <div class="row">
+              <button id="retryBtn" class="smallBtn">RESTART</button>
+              <button id="messageTitleBtn" class="smallBtn">TITLE</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottombar">
+        <button id="btnLeft" class="ctrlBtn">LEFT</button>
+        <button id="btnSpecial" class="ctrlBtn special">SPECIAL</button>
+        <button id="btnRight" class="ctrlBtn">RIGHT</button>
+        <button id="btnAction" class="ctrlBtn action">ACTION</button>
+        <button id="btnOk" class="ctrlBtn">OK</button>
+        <button id="btnPause" class="ctrlBtn pause">PAUSE</button>
+      </div>
     </div>
-
-    <div id="canvasWrap">
-      <canvas id="gameCanvas" width="880" height="520"></canvas>
-      <div id="scanlines"></div>
-    </div>
-
-    <div id="message">TITLE MENU</div>
-
-    <div id="touchControls">
-      <button id="leftBtn">◀ LEFT</button>
-      <button id="rightBtn">RIGHT ▶</button>
-      <button id="actionBtn">ACTION</button>
-      <button id="specialBtn">SPECIAL</button>
-      <button id="okBtn">OK</button>
-      <button id="pauseBtn">PAUSE</button>
-    </div>
-
-    <div id="help">
-      MENU: LEFT / RIGHT / OK<br>
-      SINGLE: LEFT / RIGHT / ACTION / SPECIAL / PAUSE<br>
-      VS: NORMAL MATCH HAS RP RANK SYSTEM
-    </div>
-
-    <footer>PIXEL SPACE BATTLE / CLEAN UI EDITION</footer>
   </div>
 
   <script>
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-    const messageEl = document.getElementById("message");
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
 
-    const leftBtn = document.getElementById("leftBtn");
-    const rightBtn = document.getElementById("rightBtn");
-    const actionBtn = document.getElementById("actionBtn");
-    const specialBtn = document.getElementById("specialBtn");
-    const okBtn = document.getElementById("okBtn");
-    const pauseBtn = document.getElementById("pauseBtn");
+    const hudMode = document.getElementById('hudMode');
+    const hudHp = document.getElementById('hudHp');
+    const hudLife = document.getElementById('hudLife');
+    const hudScore = document.getElementById('hudScore');
+    const hudRank = document.getElementById('hudRank');
+    const hudItem = document.getElementById('hudItem');
+    const hudSp = document.getElementById('hudSp');
+    const hudWave = document.getElementById('hudWave');
+    const bossWrap = document.getElementById('bossWrap');
+    const bossFill = document.getElementById('bossFill');
 
-    const PLAYER_NAME_KEY = "pixel_space_battle_player_name";
-    const RANK_DATA_KEY = "pixel_space_battle_rank_data";
+    const titleOverlay = document.getElementById('titleOverlay');
+    const pauseOverlay = document.getElementById('pauseOverlay');
+    const messageOverlay = document.getElementById('messageOverlay');
+    const messageTitle = document.getElementById('messageTitle');
+    const messageText = document.getElementById('messageText');
+    const titleRankBadge = document.getElementById('titleRankBadge');
+    const bgmToggle = document.getElementById('bgmToggle');
+    const seToggle = document.getElementById('seToggle');
 
-    let keys = {};
-    let stars = [];
-    let items = [];
-    let particles = [];
-    let enemyBullets = [];
-    let playerBullets = [];
+    const menuButtons = [...document.querySelectorAll('.menuBtn')];
+    const resumeBtn = document.getElementById('resumeBtn');
+    const backTitleBtn = document.getElementById('backTitleBtn');
+    const retryBtn = document.getElementById('retryBtn');
+    const messageTitleBtn = document.getElementById('messageTitleBtn');
 
-    let audioCtx = null;
-    let audioUnlocked = false;
+    const btnLeft = document.getElementById('btnLeft');
+    const btnSpecial = document.getElementById('btnSpecial');
+    const btnRight = document.getElementById('btnRight');
+    const btnAction = document.getElementById('btnAction');
+    const btnOk = document.getElementById('btnOk');
+    const btnPause = document.getElementById('btnPause');
 
-    let gameState = "title";
-    let previousStateBeforePause = "title";
+    const keys = { left:false, right:false, action:false };
 
-    let titleMenuIndex = 0;
-    let vsMenuIndex = 0;
-    let roomMenuIndex = 0;
-    let pauseMenuIndex = 0;
-    let resultTimer = 0;
-
-    let playerName = "PLAYER";
-
-    let singlePlayer = null;
-    let singleEnemies = [];
-    let singleScore = 0;
-    let singleLives = 3;
-    let singleHp = 100;
-    let singleLastShot = 0;
-    let singleEnemyDir = 1;
-    let singleSpecial = 1;
-    let singleInvincible = 0;
-
-    let normalVs = null;
-    let roomWaitData = null;
-    let roomBattleData = null;
-
-    const rankDefs = [
-      { name: "BEGINNER", min: 0, color: "#8f99a8", accent: "#eef3ff", shape: "hex" },
-      { name: "BRONZE", min: 100, color: "#b87333", accent: "#f0be8f", shape: "bronze" },
-      { name: "SILVER", min: 220, color: "#c7d2dd", accent: "#ffffff", shape: "shield" },
-      { name: "GOLD", min: 380, color: "#ffd84d", accent: "#fff7b0", shape: "crown" },
-      { name: "PLATINUM", min: 580, color: "#9fe8ff", accent: "#ecffff", shape: "crystal" },
-      { name: "DIAMOND", min: 820, color: "#39d8ff", accent: "#dbf9ff", shape: "diamond" },
-      { name: "MASTER", min: 1150, color: "#b04cff", accent: "#ffd45c", shape: "winged" }
-    ];
-
-    let rankData = {
-      rp: 0,
-      wins: 0,
-      loses: 0,
-      streak: 0
+    const state = {
+      scene:'title',
+      mode:'TITLE',
+      score:0,
+      wave:1,
+      rp:120,
+      paused:false,
+      gameOver:false,
+      clear:false,
+      enemySpawnTimer:0,
+      specialFlash:0,
+      itemTextTimer:0,
+      currentItemLabel:'NONE',
+      boss:null,
+      bgmEnabled:true,
+      seEnabled:true,
+      audioUnlocked:false
     };
 
-    const PLAYER_SPRITE = [
-      "00011000","00111100","01111110","11111111",
-      "11011011","00100100","01000010","10100101"
-    ];
+    const player = {
+      x:240,
+      y:620,
+      w:26,
+      h:26,
+      speed:4.8,
+      hp:100,
+      maxHp:100,
+      life:3,
+      fireCooldown:0,
+      inv:0,
+      special:100,
+      itemTimer:0,
+      power:1,
+      rapid:0,
+      shield:0
+    };
 
-    const ENEMY_SPRITE = [
-      "00111100","01111110","11111111","11011011",
-      "11111111","00100100","01000010","10000001"
-    ];
+    let bullets = [];
+    let enemies = [];
+    let enemyBullets = [];
+    let items = [];
+    let stars = [];
+    let particles = [];
 
-    function loadPlayerData() {
-      const savedName = localStorage.getItem(PLAYER_NAME_KEY);
-      if (savedName) playerName = savedName;
+    const audioState = {
+      ctx:null,
+      bgmGain:null,
+      seGain:null,
+      bgmNodes:[]
+    };
 
-      const savedRank = localStorage.getItem(RANK_DATA_KEY);
-      if (savedRank) {
-        try {
-          rankData = JSON.parse(savedRank);
-        } catch (e) {}
+    function ensureAudio(){
+      if(state.audioUnlocked) return;
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return;
+      audioState.ctx = new AC();
+      audioState.bgmGain = audioState.ctx.createGain();
+      audioState.seGain = audioState.ctx.createGain();
+      audioState.bgmGain.gain.value = state.bgmEnabled ? 0.05 : 0;
+      audioState.seGain.gain.value = state.seEnabled ? 0.12 : 0;
+      audioState.bgmGain.connect(audioState.ctx.destination);
+      audioState.seGain.connect(audioState.ctx.destination);
+      state.audioUnlocked = true;
+      startBgm();
+    }
+
+    function beep(type='square', freq=440, duration=0.08, volume=0.08, target='se', ramp='exp'){
+      if(!state.audioUnlocked || !audioState.ctx) return;
+      const ctxa = audioState.ctx;
+      const osc = ctxa.createOscillator();
+      const gain = ctxa.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctxa.currentTime);
+      gain.gain.setValueAtTime(volume, ctxa.currentTime);
+      if(ramp === 'exp'){
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctxa.currentTime + duration);
+      }else{
+        gain.gain.linearRampToValueAtTime(0.0001, ctxa.currentTime + duration);
+      }
+      osc.connect(gain);
+      gain.connect(target === 'bgm' ? audioState.bgmGain : audioState.seGain);
+      osc.start();
+      osc.stop(ctxa.currentTime + duration);
+    }
+
+    function noise(duration=0.12, volume=0.08){
+      if(!state.audioUnlocked || !audioState.ctx) return;
+      const ctxa = audioState.ctx;
+      const buffer = ctxa.createBuffer(1, ctxa.sampleRate * duration, ctxa.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<data.length;i++){
+        data[i] = (Math.random()*2-1) * (1 - i/data.length);
+      }
+      const source = ctxa.createBufferSource();
+      const gain = ctxa.createGain();
+      source.buffer = buffer;
+      gain.gain.value = volume;
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctxa.currentTime + duration);
+      source.connect(gain);
+      gain.connect(audioState.seGain);
+      source.start();
+    }
+
+    function playShotSe(){ beep('square', 760, 0.05, 0.03); }
+    function playHitSe(){ beep('sawtooth', 180, 0.12, 0.06); noise(0.08, 0.03); }
+    function playItemSe(){ beep('triangle', 740, 0.06, 0.05); setTimeout(()=>beep('triangle', 980, 0.09, 0.04), 35); }
+    function playExplodeSe(){ beep('sawtooth', 140, 0.18, 0.08, 'se', 'linear'); noise(0.15, 0.05); }
+    function playGameOverSe(){ beep('triangle', 330, 0.12, 0.06); setTimeout(()=>beep('triangle', 220, 0.22, 0.05), 90); }
+    function playClearSe(){ beep('triangle', 520, 0.10, 0.06); setTimeout(()=>beep('triangle', 660, 0.12, 0.05), 80); setTimeout(()=>beep('triangle', 840, 0.15, 0.04), 170); }
+
+    function stopBgm(){
+      for(const node of audioState.bgmNodes){
+        try{ node.stop(); }catch(e){}
+      }
+      audioState.bgmNodes = [];
+    }
+
+    function startBgm(){
+      if(!state.audioUnlocked || !audioState.ctx) return;
+      stopBgm();
+      if(!state.bgmEnabled) return;
+
+      const notes = [220, 277.18, 329.63, 392.0];
+      const ctxa = audioState.ctx;
+      let t = ctxa.currentTime + 0.02;
+
+      for(let i=0;i<32;i++){
+        const osc = ctxa.createOscillator();
+        const gain = ctxa.createGain();
+        osc.type = i % 2 === 0 ? 'triangle' : 'square';
+        osc.frequency.setValueAtTime(notes[i % notes.length], t);
+        gain.gain.setValueAtTime(0.0001, t);
+        gain.gain.linearRampToValueAtTime(0.018, t + 0.02);
+        gain.gain.linearRampToValueAtTime(0.0001, t + 0.36);
+        osc.connect(gain);
+        gain.connect(audioState.bgmGain);
+        osc.start(t);
+        osc.stop(t + 0.38);
+        audioState.bgmNodes.push(osc);
+        t += 0.38;
+      }
+
+      clearTimeout(startBgm.timer);
+      startBgm.timer = setTimeout(() => {
+        if(state.scene !== 'message') startBgm();
+      }, 32 * 380);
+    }
+
+    function setBgmEnabled(on){
+      state.bgmEnabled = on;
+      bgmToggle.textContent = on ? 'BGM ON' : 'BGM OFF';
+      bgmToggle.classList.toggle('active', on);
+      if(state.audioUnlocked && audioState.bgmGain){
+        audioState.bgmGain.gain.value = on ? 0.05 : 0;
+      }
+      if(on) startBgm();
+      else stopBgm();
+    }
+
+    function setSeEnabled(on){
+      state.seEnabled = on;
+      seToggle.textContent = on ? 'SE ON' : 'SE OFF';
+      seToggle.classList.toggle('active', on);
+      if(state.audioUnlocked && audioState.seGain){
+        audioState.seGain.gain.value = on ? 0.12 : 0;
       }
     }
 
-    function saveRankData() {
-      localStorage.setItem(RANK_DATA_KEY, JSON.stringify(rankData));
+    function safeSe(fn){
+      if(state.seEnabled) fn();
     }
 
-    function getCurrentRank(rp) {
-      let current = rankDefs[0];
-      for (const rank of rankDefs) {
-        if (rp >= rank.min) current = rank;
-      }
-      return current;
-    }
-
-    function createBackground() {
+    function initStars(){
       stars = [];
-      for (let i = 0; i < 75; i++) {
+      for(let i=0;i<70;i++){
         stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: Math.random() < 0.7 ? 2 : 3,
-          speed: 0.15 + Math.random() * 0.4,
-          color: Math.random() < 0.7 ? "#c8f7ff" : "#8f9bff"
+          x:Math.random()*canvas.width,
+          y:Math.random()*canvas.height,
+          s:Math.random()*2+1,
+          v:Math.random()*1.3+0.4
         });
       }
     }
 
-    function updateBackground() {
-      stars.forEach(star => {
-        star.y += star.speed;
-        if (star.y > canvas.height) {
-          star.y = -4;
-          star.x = Math.random() * canvas.width;
-        }
-      });
+    function rankFromRP(rp){
+      if(rp >= 2200) return 'MASTER';
+      if(rp >= 1600) return 'DIAMOND';
+      if(rp >= 1100) return 'GOLD';
+      if(rp >= 700) return 'SILVER';
+      return 'BEGINNER';
     }
 
-    function drawBackground() {
-      const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bg.addColorStop(0, "#110825");
-      bg.addColorStop(0.45, "#141c52");
-      bg.addColorStop(1, "#05101d");
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function updateHud(){
+      hudMode.textContent = state.mode;
+      hudHp.textContent = Math.max(0, Math.ceil(player.hp));
+      hudLife.textContent = player.life;
+      hudScore.textContent = state.score;
+      hudRank.textContent = rankFromRP(state.rp);
+      hudItem.textContent = state.currentItemLabel;
+      hudSp.textContent = Math.max(0, Math.min(100, Math.floor(player.special)));
+      hudWave.textContent = state.wave;
+      titleRankBadge.textContent = `RP BADGE: ${rankFromRP(state.rp)}`;
 
-      ctx.fillStyle = "#3ff8ff";
-      ctx.globalAlpha = 0.85;
-      ctx.beginPath();
-      ctx.arc(690, 92, 34, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = "#704dff";
-      ctx.globalAlpha = 0.18;
-      ctx.fillRect(635, 78, 125, 10);
-      ctx.fillRect(650, 90, 145, 8);
-      ctx.fillRect(615, 105, 105, 8);
-
-      ctx.globalAlpha = 1;
-      stars.forEach(star => {
-        ctx.fillStyle = star.color;
-        ctx.fillRect(star.x, star.y, star.size, star.size);
-      });
-    }
-
-    function setupAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      audioUnlocked = true;
-    }
-
-    function unlockAudioOnce() {
-      if (!audioUnlocked) setupAudio();
-    }
-
-    function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
-      if (!audioCtx) return;
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      if (slide !== 0) {
-        osc.frequency.linearRampToValueAtTime(freq + slide, audioCtx.currentTime + duration);
-      }
-
-      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-
-    function playCursorSound() { beep(520, 0.04, "square", 0.018, 20); }
-    function playDecisionSound() {
-      beep(660, 0.06, "square", 0.03, 40);
-      setTimeout(() => beep(880, 0.08, "square", 0.03, 50), 50);
-    }
-    function playShootSound() { beep(720, 0.04, "square", 0.018, -120); }
-    function playEnemyShootSound() { beep(300, 0.05, "square", 0.018, -40); }
-    function playHitSound() {
-      beep(220, 0.08, "square", 0.04, 100);
-      setTimeout(() => beep(180, 0.06, "square", 0.03, -80), 30);
-    }
-    function playItemSound() {
-      beep(940, 0.08, "triangle", 0.04, 40);
-      setTimeout(() => beep(1180, 0.09, "triangle", 0.04, 60), 60);
-    }
-    function playSpecialSound() {
-      beep(880, 0.12, "square", 0.05, 120);
-      setTimeout(() => beep(660, 0.12, "square", 0.05, 80), 80);
-      setTimeout(() => beep(440, 0.18, "triangle", 0.05, -60), 160);
-    }
-    function playPauseSound() { beep(320, 0.08, "triangle", 0.03, -20); }
-    function playResumeSound() { beep(420, 0.08, "triangle", 0.03, 30); }
-    function playWinSound() {
-      beep(660, 0.08, "square", 0.03, 50);
-      setTimeout(() => beep(880, 0.08, "square", 0.03, 60), 80);
-      setTimeout(() => beep(1180, 0.12, "triangle", 0.04, 0), 160);
-    }
-    function playLoseSound() {
-      beep(320, 0.12, "square", 0.03, -30);
-      setTimeout(() => beep(260, 0.12, "square", 0.03, -30), 90);
-      setTimeout(() => beep(190, 0.18, "triangle", 0.04, -20), 180);
-    }
-
-    function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
-      if (shadowColor) {
-        ctx.fillStyle = shadowColor;
-        for (let row = 0; row < sprite.length; row++) {
-          for (let col = 0; col < sprite[row].length; col++) {
-            if (sprite[row][col] === "1") {
-              ctx.fillRect(x + col * pixelSize + 2, y + row * pixelSize + 2, pixelSize, pixelSize);
-            }
-          }
-        }
-      }
-      ctx.fillStyle = color;
-      for (let row = 0; row < sprite.length; row++) {
-        for (let col = 0; col < sprite[row].length; col++) {
-          if (sprite[row][col] === "1") {
-            ctx.fillRect(x + col * pixelSize, y + row * pixelSize, pixelSize, pixelSize);
-          }
-        }
+      if(state.boss){
+        bossWrap.classList.add('show');
+        bossFill.style.width = `${Math.max(0, state.boss.hp / state.boss.maxHp * 100)}%`;
+      }else{
+        bossWrap.classList.remove('show');
       }
     }
 
-    function rectHit(a, b) {
-      return (
-        a.x < b.x + b.width &&
-        a.x + a.width > b.x &&
-        a.y < b.y + b.height &&
-        a.y + a.height > b.y
-      );
-    }
-
-    function moveMenu(current, min, max, dir) {
-      current += dir;
-      if (current < min) current = max;
-      if (current > max) current = min;
-      return current;
-    }
-
-    function addParticles(x, y, color, count = 10) {
-      for (let i = 0; i < count; i++) {
+    function spawnBurst(x,y,color,count=10){
+      for(let i=0;i<count;i++){
         particles.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 4,
-          vy: (Math.random() - 0.5) * 4,
-          size: 2 + Math.random() * 2,
-          life: 20 + Math.random() * 20,
+          x,y,
+          vx:(Math.random()-0.5)*4,
+          vy:(Math.random()-0.5)*4,
+          life:20 + Math.random()*20,
           color
         });
       }
     }
 
-    function updateParticles() {
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        p.life--;
-      });
-      particles = particles.filter(p => p.life > 0);
+    function rectsHit(a,b){
+      return (
+        a.x - a.w/2 < b.x + b.w/2 &&
+        a.x + a.w/2 > b.x - b.w/2 &&
+        a.y - a.h/2 < b.y + b.h/2 &&
+        a.y + a.h/2 > b.y - b.h/2
+      );
     }
 
-    function drawParticles() {
-      particles.forEach(p => {
-        ctx.globalAlpha = p.life / 40;
-        ctx.fillStyle = p.color;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
-      });
-      ctx.globalAlpha = 1;
+    function circleRectHit(c, r){
+      const cx = Math.max(r.x-r.w/2, Math.min(c.x, r.x+r.w/2));
+      const cy = Math.max(r.y-r.h/2, Math.min(c.y, r.y+r.h/2));
+      const dx = c.x - cx;
+      const dy = c.y - cy;
+      return dx*dx + dy*dy <= c.r*c.r;
     }
 
-    function createEnemyGrid() {
-      singleEnemies = [];
-      for (let row = 0; row < 3; row++) {
-        for (let col = 0; col < 10; col++) {
-          singleEnemies.push({
-            x: 95 + col * 62,
-            y: 70 + row * 38,
-            width: 24,
-            height: 24,
-            alive: true,
-            shotCooldown: 40 + Math.random() * 120
-          });
-        }
-      }
-    }
+    function resetGame(){
+      state.scene = 'play';
+      state.mode = 'SINGLE';
+      state.score = 0;
+      state.wave = 1;
+      state.paused = false;
+      state.gameOver = false;
+      state.clear = false;
+      state.enemySpawnTimer = 60;
+      state.specialFlash = 0;
+      state.itemTextTimer = 0;
+      state.currentItemLabel = 'NONE';
+      state.boss = null;
 
-    function initSingleMode() {
-      singlePlayer = {
-        x: canvas.width / 2 - 16,
-        y: 430,
-        width: 32,
-        height: 32,
-        speed: 6
-      };
-      playerBullets = [];
+      player.x = 240;
+      player.y = 620;
+      player.hp = 100;
+      player.maxHp = 100;
+      player.life = 3;
+      player.fireCooldown = 0;
+      player.inv = 0;
+      player.special = 100;
+      player.itemTimer = 0;
+      player.power = 1;
+      player.rapid = 0;
+      player.shield = 0;
+
+      bullets = [];
+      enemies = [];
       enemyBullets = [];
       items = [];
       particles = [];
-      singleScore = 0;
-      singleLives = 3;
-      singleHp = 100;
-      singleLastShot = 0;
-      singleEnemyDir = 1;
-      singleSpecial = 1;
-      singleInvincible = 0;
-      createEnemyGrid();
+
+      titleOverlay.classList.add('hidden');
+      pauseOverlay.classList.add('hidden');
+      messageOverlay.classList.add('hidden');
+      updateHud();
+      if(state.audioUnlocked && state.bgmEnabled) startBgm();
     }
 
-    function startSingleMode() {
-      initSingleMode();
-      gameState = "single";
-      messageEl.textContent = "1 PLAYER START";
-      playDecisionSound();
+    function returnToTitle(){
+      state.scene = 'title';
+      state.mode = 'TITLE';
+      state.paused = false;
+      state.boss = null;
+      titleOverlay.classList.remove('hidden');
+      pauseOverlay.classList.add('hidden');
+      messageOverlay.classList.add('hidden');
+      updateHud();
+      if(state.audioUnlocked && state.bgmEnabled) startBgm();
     }
 
-    function startVsMenu() {
-      gameState = "vs_menu";
-      vsMenuIndex = 0;
-      messageEl.textContent = "SELECT VS MODE";
-      playDecisionSound();
+    function spawnPlayerShot(){
+      const arr = [{x:player.x,y:player.y-16,vx:0,vy:-8.5,r:3,dmg:10}];
+      if(player.power >= 2){
+        arr.push({x:player.x-10,y:player.y-8,vx:-0.4,vy:-8.2,r:3,dmg:10});
+        arr.push({x:player.x+10,y:player.y-8,vx:0.4,vy:-8.2,r:3,dmg:10});
+      }
+      if(player.power >= 3){
+        arr.push({x:player.x-18,y:player.y-4,vx:-0.9,vy:-7.8,r:3,dmg:12});
+        arr.push({x:player.x+18,y:player.y-4,vx:0.9,vy:-7.8,r:3,dmg:12});
+      }
+      bullets.push(...arr);
+      safeSe(playShotSe);
     }
 
-    function startNormalMatch() {
-      gameState = "normal_vs";
-      normalVs = {
-        leftX: 140,
-        rightX: 660,
-        leftY: 340,
-        rightY: 140,
-        leftHp: 100,
-        rightHp: 100,
-        leftGauge: 35,
-        rightGauge: 68,
-        timer: 99,
-        battleTimer: 0,
-        result: null,
-        rpDelta: 0
-      };
-      messageEl.textContent = "NORMAL MATCH START";
-      playDecisionSound();
-    }
-
-    function startRoomMenu() {
-      gameState = "room_menu";
-      roomMenuIndex = 0;
-      messageEl.textContent = "ROOM MATCH MENU";
-      playDecisionSound();
-    }
-
-    function createRoomFlow() {
-      gameState = "room_wait";
-      roomWaitData = {
-        roomId: Math.random().toString(36).slice(2, 8).toUpperCase(),
-        hostName: playerName,
-        guestName: "WAITING...",
-        hostReady: false,
-        guestReady: false,
-        blink: 0
-      };
-      messageEl.textContent = "ROOM CREATED";
-      playDecisionSound();
-    }
-
-    function joinRoomFlow() {
-      gameState = "room_wait";
-      roomWaitData = {
-        roomId: "JOIN-" + Math.random().toString(36).slice(2, 6).toUpperCase(),
-        hostName: "HOST PLAYER",
-        guestName: playerName,
-        hostReady: true,
-        guestReady: false,
-        blink: 0
-      };
-      messageEl.textContent = "JOINED ROOM";
-      playDecisionSound();
-    }
-
-    function startRoomBattleDemo() {
-      gameState = "room_battle";
-      roomBattleData = {
-        leftName: playerName,
-        rightName: "RIVAL",
-        leftHp: 100,
-        rightHp: 100,
-        leftGauge: 24,
-        rightGauge: 52,
-        leftX: 120,
-        leftY: 330,
-        rightX: 640,
-        rightY: 160,
-        timer: 99
-      };
-      messageEl.textContent = "ROOM MATCH START";
-      playDecisionSound();
-    }
-
-    function pauseGame() {
-      if (!["single","normal_vs","room_wait","room_battle"].includes(gameState)) return;
-      previousStateBeforePause = gameState;
-      gameState = "paused";
-      pauseMenuIndex = 0;
-      playPauseSound();
-      messageEl.textContent = "PAUSED";
-    }
-
-    function resumeGame() {
-      gameState = previousStateBeforePause;
-      playResumeSound();
-      messageEl.textContent = "RESUMED";
-    }
-
-    function retryCurrentMode() {
-      playDecisionSound();
-      if (previousStateBeforePause === "single" || gameState === "single") startSingleMode();
-      else if (previousStateBeforePause === "normal_vs" || gameState === "normal_vs") startNormalMatch();
-      else if (previousStateBeforePause === "room_wait" || gameState === "room_wait") createRoomFlow();
-      else if (previousStateBeforePause === "room_battle" || gameState === "room_battle") startRoomBattleDemo();
-    }
-
-    function dropItem(x, y) {
-      const roll = Math.random();
-      let type = null;
-      if (roll < 0.15) type = "heal";
-      else if (roll < 0.27) type = "special";
-      else if (roll < 0.42) type = "score";
-      if (!type) return;
-
-      items.push({
-        x,
-        y,
-        width: 18,
-        height: 18,
-        type,
-        vy: 1.5
-      });
-    }
-
-    function updateItems() {
-      items.forEach(item => {
-        item.y += item.vy;
-      });
-
-      items.forEach(item => {
-        if (rectHit(item, singlePlayer)) {
-          if (item.type === "heal") {
-            singleHp = Math.min(100, singleHp + 25);
-            messageEl.textContent = "ITEM: HP UP";
-          } else if (item.type === "special") {
-            singleSpecial++;
-            messageEl.textContent = "ITEM: SPECIAL +1";
-          } else if (item.type === "score") {
-            singleScore += 50;
-            messageEl.textContent = "ITEM: SCORE +50";
-          }
-          addParticles(item.x + 8, item.y + 8, "#ffe57e", 12);
-          playItemSound();
-          item.y = canvas.height + 100;
-        }
-      });
-
-      items = items.filter(item => item.y < canvas.height + 30);
-    }
-
-    function updateSingleMode() {
-      updateBackground();
-      updateParticles();
-
-      if (singleInvincible > 0) singleInvincible--;
-
-      if (keys["ArrowLeft"] && singlePlayer.x > 10) singlePlayer.x -= singlePlayer.speed;
-      if (keys["ArrowRight"] && singlePlayer.x + singlePlayer.width < canvas.width - 10) singlePlayer.x += singlePlayer.speed;
-
-      const now = Date.now();
-      if (keys["Space"] || keys["KeyZ"]) {
-        if (now - singleLastShot > 180) {
-          playerBullets.push({
-            x: singlePlayer.x + singlePlayer.width / 2 - 2,
-            y: singlePlayer.y - 8,
-            width: 4,
-            height: 12,
-            speed: 8
-          });
-          singleLastShot = now;
-          playShootSound();
-        }
+    function spawnEnemy(){
+      const isBossWave = state.wave % 5 === 0 && !state.boss;
+      if(isBossWave && enemies.length === 0){
+        const boss = {
+          type:'boss',
+          x:canvas.width/2,
+          y:90,
+          w:82,
+          h:58,
+          hp:360 + state.wave * 40,
+          maxHp:360 + state.wave * 40,
+          speed:1.4,
+          dir:1,
+          shotCd:24
+        };
+        enemies.push(boss);
+        state.boss = boss;
+        updateHud();
+        return;
       }
 
-      playerBullets.forEach(b => b.y -= b.speed);
-      playerBullets = playerBullets.filter(b => b.y > -20);
+      const amount = Math.min(2 + Math.floor(state.wave / 2), 5);
+      for(let i=0;i<amount;i++){
+        const typeRoll = Math.random();
+        let type = 'normal';
+        if(typeRoll > 0.72) type = 'zigzag';
+        if(typeRoll > 0.9) type = 'tank';
 
-      let hitEdge = false;
-      singleEnemies.forEach(e => {
-        if (!e.alive) return;
-        e.x += 0.6 * singleEnemyDir;
-        e.shotCooldown--;
+        enemies.push({
+          type,
+          x:40 + Math.random() * (canvas.width - 80),
+          y:-20 - Math.random()*130,
+          w:type === 'tank' ? 30 : 24,
+          h:type === 'tank' ? 24 : 20,
+          hp:type === 'tank' ? 48 + state.wave * 6 : 20 + state.wave * 4,
+          speed:type === 'tank' ? 0.85 + state.wave * 0.03 : 1.3 + Math.random()*0.8 + state.wave * 0.04,
+          phase:Math.random()*Math.PI*2,
+          shotCd:50 + Math.random()*60
+        });
+      }
+    }
 
-        if (e.shotCooldown <= 0) {
+    function spawnEnemyShot(enemy){
+      const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+      const speed = enemy.type === 'boss' ? 3.2 : enemy.type === 'tank' ? 2.2 : 2.6;
+      enemyBullets.push({
+        x:enemy.x,
+        y:enemy.y + 10,
+        vx:Math.cos(angle)*speed,
+        vy:Math.sin(angle)*speed,
+        r: enemy.type === 'boss' ? 5 : 4,
+        dmg: enemy.type === 'boss' ? 18 : enemy.type === 'tank' ? 14 : 10
+      });
+
+      if(enemy.type === 'boss'){
+        for(let i=-1;i<=1;i++){
+          const a = angle + i * 0.3;
           enemyBullets.push({
-            x: e.x + 10,
-            y: e.y + 16,
-            width: 4,
-            height: 10,
-            speed: 3.8 + Math.random() * 1.2
+            x:enemy.x,
+            y:enemy.y + 10,
+            vx:Math.cos(a)*2.8,
+            vy:Math.sin(a)*2.8,
+            r:4,
+            dmg:11
           });
-          e.shotCooldown = 70 + Math.random() * 140;
-          playEnemyShootSound();
         }
+      }
+    }
 
-        if (e.x <= 20 || e.x + e.width >= canvas.width - 20) hitEdge = true;
-      });
+    function dropItem(x,y){
+      const roll = Math.random();
+      let kind = null;
+      if(roll < 0.22) kind = 'heal';
+      else if(roll < 0.40) kind = 'power';
+      else if(roll < 0.57) kind = 'rapid';
+      else if(roll < 0.72) kind = 'shield';
+      if(!kind) return;
+      items.push({ x, y, kind, r:9, vy:1.5, pulse:0 });
+    }
 
-      if (hitEdge) {
-        singleEnemyDir *= -1;
-        singleEnemies.forEach(e => {
-          if (e.alive) e.y += 10;
-        });
+    function applyItem(kind){
+      safeSe(playItemSe);
+      state.itemTextTimer = 120;
+      if(kind === 'heal'){
+        player.hp = Math.min(player.maxHp, player.hp + 30);
+        state.currentItemLabel = 'HEAL';
+      }else if(kind === 'power'){
+        player.power = Math.min(3, player.power + 1);
+        player.itemTimer = 720;
+        state.currentItemLabel = 'POWER';
+      }else if(kind === 'rapid'){
+        player.rapid = 720;
+        state.currentItemLabel = 'RAPID';
+      }else if(kind === 'shield'){
+        player.shield = 720;
+        state.currentItemLabel = 'SHIELD';
+      }
+      updateHud();
+    }
+
+    function damagePlayer(amount){
+      if(player.inv > 0) return;
+
+      if(player.shield > 0){
+        player.shield = Math.max(0, player.shield - amount * 40);
+        player.inv = 14;
+        safeSe(playHitSe);
+        if(player.shield <= 0 && state.currentItemLabel === 'SHIELD'){
+          state.currentItemLabel = 'NONE';
+        }
+        updateHud();
+        return;
       }
 
-      enemyBullets.forEach(b => b.y += b.speed);
-      enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20);
+      player.hp -= amount;
+      player.inv = 42;
+      spawnBurst(player.x, player.y, '#ff8ba7', 14);
+      safeSe(playHitSe);
 
-      playerBullets.forEach(b => {
-        singleEnemies.forEach(e => {
-          if (!e.alive) return;
-          if (rectHit(b, e)) {
-            e.alive = false;
-            b.y = -100;
-            singleScore += 10;
-            addParticles(e.x + 12, e.y + 12, "#ff74c8", 10);
-            dropItem(e.x + 4, e.y + 4);
-            playHitSound();
-          }
-        });
+      if(player.hp <= 0){
+        player.life--;
+        if(player.life > 0){
+          player.hp = player.maxHp;
+          player.x = canvas.width/2;
+          player.inv = 110;
+          state.currentItemLabel = 'RESPAWN';
+        }else{
+          endGame(false);
+          return;
+        }
+      }
+      updateHud();
+    }
+
+    function endGame(clear){
+      state.scene = 'message';
+      state.gameOver = !clear;
+      state.clear = clear;
+      messageOverlay.classList.remove('hidden');
+      pauseOverlay.classList.add('hidden');
+      stopBgm();
+
+      if(clear){
+        const gain = 100 + state.wave * 14;
+        state.rp += gain;
+        messageTitle.textContent = 'STAGE CLEAR';
+        messageText.textContent = `クリア！ SCORE ${state.score} / RP +${gain} / BADGE ${rankFromRP(state.rp)}`;
+        safeSe(playClearSe);
+      }else{
+        const loss = 30;
+        state.rp = Math.max(0, state.rp - loss);
+        messageTitle.textContent = 'GAME OVER';
+        messageText.textContent = `SCORE ${state.score} / RP -${loss} / BADGE ${rankFromRP(state.rp)}`;
+        safeSe(playGameOverSe);
+      }
+      updateHud();
+    }
+
+    function useSpecial(){
+      if(state.scene !== 'play' || state.paused) return;
+      if(player.special < 100) return;
+
+      player.special = 0;
+      state.specialFlash = 20;
+      let bonus = 0;
+
+      enemies = enemies.filter(e=>{
+        const dmg = e.type === 'boss' ? 140 : 9999;
+        e.hp -= dmg;
+        spawnBurst(e.x, e.y, '#8bffcf', e.type === 'boss' ? 18 : 10);
+
+        if(e.hp <= 0){
+          bonus += e.type === 'boss' ? 600 : 100;
+          dropItem(e.x,e.y);
+          if(state.boss === e) state.boss = null;
+          return false;
+        }
+        return true;
       });
 
-      if (singleInvincible <= 0) {
-        enemyBullets.forEach(b => {
-          if (rectHit(b, singlePlayer)) {
-            b.y = canvas.height + 50;
-            singleHp -= 20;
-            singleInvincible = 60;
-            addParticles(singlePlayer.x + 16, singlePlayer.y + 16, "#ff6464", 12);
-            playHitSound();
-            messageEl.textContent = "PLAYER HIT";
+      enemyBullets = [];
+      state.score += bonus;
+      safeSe(()=>{ beep('triangle', 320, 0.08, 0.08); setTimeout(()=>beep('triangle', 180, 0.22, 0.07),50); });
+      updateHud();
+    }
 
-            if (singleHp <= 0) {
-              singleLives--;
-              singleHp = 100;
-              singleInvincible = 90;
-              messageEl.textContent = "LIFE LOST";
+    function update(){
+      if(state.scene === 'title' || state.scene === 'message') return;
+      if(state.paused) return;
 
-              if (singleLives <= 0) {
-                gameState = "single_gameover";
-                resultTimer = 180;
-                playLoseSound();
-                messageEl.textContent = `GAME OVER / SCORE ${singleScore}`;
+      for(const s of stars){
+        s.y += s.v;
+        if(s.y > canvas.height){
+          s.y = -2;
+          s.x = Math.random()*canvas.width;
+        }
+      }
+
+      if(keys.left) player.x -= player.speed;
+      if(keys.right) player.x += player.speed;
+      player.x = Math.max(18, Math.min(canvas.width - 18, player.x));
+
+      if(player.fireCooldown > 0) player.fireCooldown--;
+      if(player.inv > 0) player.inv--;
+      if(player.rapid > 0) player.rapid--;
+      if(player.shield > 0) player.shield--;
+      if(player.itemTimer > 0){
+        player.itemTimer--;
+        if(player.itemTimer <= 0){
+          player.power = 1;
+          if(state.currentItemLabel === 'POWER') state.currentItemLabel = 'NONE';
+        }
+      }
+      if(player.rapid <= 0 && state.currentItemLabel === 'RAPID') state.currentItemLabel = 'NONE';
+      if(player.shield <= 0 && state.currentItemLabel === 'SHIELD') state.currentItemLabel = 'NONE';
+
+      if(state.itemTextTimer > 0){
+        state.itemTextTimer--;
+        if(state.itemTextTimer <= 0){
+          if(player.shield > 0) state.currentItemLabel = 'SHIELD';
+          else if(player.rapid > 0) state.currentItemLabel = 'RAPID';
+          else if(player.itemTimer > 0 && player.power > 1) state.currentItemLabel = 'POWER';
+          else state.currentItemLabel = 'NONE';
+        }
+      }
+
+      if(keys.action){
+        const cd = player.rapid > 0 ? 4 : 10;
+        if(player.fireCooldown <= 0){
+          spawnPlayerShot();
+          player.fireCooldown = cd;
+        }
+      }
+
+      player.special = Math.min(100, player.special + 0.08);
+
+      state.enemySpawnTimer--;
+      if(state.enemySpawnTimer <= 0){
+        spawnEnemy();
+        state.enemySpawnTimer = state.boss ? 240 : Math.max(38, 95 - state.wave * 4);
+      }
+
+      for(const b of bullets){
+        b.x += b.vx;
+        b.y += b.vy;
+      }
+      bullets = bullets.filter(b => b.y > -20 && b.x > -30 && b.x < canvas.width + 30);
+
+      for(const e of enemies){
+        if(e.type === 'boss'){
+          e.x += e.speed * e.dir;
+          if(e.x < 54 || e.x > canvas.width - 54) e.dir *= -1;
+          e.shotCd--;
+          if(e.shotCd <= 0){
+            spawnEnemyShot(e);
+            e.shotCd = 24;
+          }
+        }else if(e.type === 'zigzag'){
+          e.y += e.speed;
+          e.x += Math.sin((e.y + e.phase) * 0.06) * 2.4;
+          e.shotCd--;
+          if(e.shotCd <= 0){
+            spawnEnemyShot(e);
+            e.shotCd = 48 + Math.random() * 24;
+          }
+        }else{
+          e.y += e.speed;
+          if(e.type === 'normal'){
+            e.x += Math.sin((e.y + e.phase) * 0.03) * 1.2;
+          }
+          e.shotCd--;
+          if(e.shotCd <= 0){
+            spawnEnemyShot(e);
+            e.shotCd = e.type === 'tank' ? 75 + Math.random()*25 : 62 + Math.random()*30;
+          }
+        }
+      }
+
+      for(const eb of enemyBullets){
+        eb.x += eb.vx;
+        eb.y += eb.vy;
+      }
+
+      for(const it of items){
+        it.y += it.vy;
+        it.pulse += 0.15;
+      }
+
+      for(const p of particles){
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+      }
+      particles = particles.filter(p => p.life > 0);
+
+      for(let i=bullets.length-1;i>=0;i--){
+        const b = bullets[i];
+        let hit = false;
+
+        for(let j=enemies.length-1;j>=0;j--){
+          const e = enemies[j];
+          if(circleRectHit(b,e)){
+            e.hp -= b.dmg;
+            bullets.splice(i,1);
+            spawnBurst(b.x,b.y,'#8df0ff',4);
+            hit = true;
+
+            if(e.hp <= 0){
+              const gain = e.type === 'boss' ? 1500 : e.type === 'tank' ? 160 : 100;
+              state.score += gain;
+              dropItem(e.x,e.y);
+              safeSe(playExplodeSe);
+              spawnBurst(e.x,e.y,e.type==='boss' ? '#ffd166' : '#ff9f6e', e.type==='boss' ? 24 : 10);
+
+              if(e.type === 'boss'){
+                state.boss = null;
+                enemies.splice(j,1);
+                state.wave++;
+                if(state.wave >= 8){
+                  endGame(true);
+                  return;
+                }
+              }else{
+                enemies.splice(j,1);
+                if(!state.boss && enemies.length === 0){
+                  state.wave++;
+                }
               }
             }
+            break;
           }
-        });
-      }
-
-      updateItems();
-
-      if (singleEnemies.every(e => !e.alive)) {
-        createEnemyGrid();
-        singleScore += 100;
-        singleSpecial = Math.min(singleSpecial + 1, 5);
-        messageEl.textContent = "WAVE CLEAR";
-      }
-    }
-
-    function applyRankResult(win) {
-      const beforeRank = getCurrentRank(rankData.rp);
-      let delta = 0;
-
-      if (win) {
-        delta = 20 + Math.min(rankData.streak * 2, 10);
-        rankData.wins++;
-        rankData.streak++;
-      } else {
-        delta = -12;
-        rankData.loses++;
-        rankData.streak = 0;
-      }
-
-      rankData.rp = Math.max(0, rankData.rp + delta);
-      saveRankData();
-
-      const afterRank = getCurrentRank(rankData.rp);
-      normalVs.rpDelta = delta;
-
-      if (afterRank.name !== beforeRank.name && win) {
-        messageEl.textContent = `RANK UP! ${afterRank.name}`;
-      } else if (afterRank.name !== beforeRank.name && !win) {
-        messageEl.textContent = `RANK DOWN! ${afterRank.name}`;
-      } else {
-        messageEl.textContent = win ? `RP +${delta}` : `RP ${delta}`;
-      }
-    }
-
-    function updateNormalVsMode() {
-      updateBackground();
-      normalVs.battleTimer++;
-
-      if (normalVs.result === null) {
-        normalVs.timer -= 0.02;
-        if (normalVs.timer < 0) normalVs.timer = 0;
-
-        if (keys["ArrowLeft"] && normalVs.leftX > 50) normalVs.leftX -= 3.2;
-        if (keys["ArrowRight"] && normalVs.leftX < 350) normalVs.leftX += 3.2;
-
-        normalVs.rightX += Math.sin(Date.now() * 0.002) * 0.8;
-        normalVs.rightY += Math.cos(Date.now() * 0.0024) * 0.7;
-
-        if (keys["Space"] || keys["KeyZ"]) {
-          normalVs.rightHp -= 0.5;
-          normalVs.leftGauge = Math.min(100, normalVs.leftGauge + 0.6);
         }
+        if(hit) continue;
+      }
 
-        normalVs.leftGauge = Math.max(0, normalVs.leftGauge - 0.03);
-        normalVs.rightGauge = 20 + ((Math.cos(Date.now() * 0.0022) + 1) * 35);
+      enemies = enemies.filter(e => {
+        if(e.type !== 'boss' && e.y > canvas.height + 30) return false;
+        return true;
+      });
 
-        if (normalVs.battleTimer % 12 === 0) {
-          normalVs.leftHp -= Math.random() < 0.42 ? 0 : 0.4;
-          normalVs.rightHp -= Math.random() < 0.55 ? 0 : 0.7;
+      enemyBullets = enemyBullets.filter(eb => {
+        if(eb.x < -20 || eb.x > canvas.width+20 || eb.y < -20 || eb.y > canvas.height+20) return false;
+        if(circleRectHit(eb, player)){
+          damagePlayer(eb.dmg);
+          return false;
         }
+        return true;
+      });
 
-        if (normalVs.leftHp <= 0 || normalVs.rightHp <= 0 || normalVs.timer <= 0) {
-          const win = normalVs.rightHp <= 0 || normalVs.leftHp > normalVs.rightHp;
-          normalVs.result = win ? "WIN" : "LOSE";
-          applyRankResult(win);
-          resultTimer = 180;
-          if (win) playWinSound(); else playLoseSound();
+      enemies = enemies.filter(e => {
+        if(rectsHit(player,e)){
+          damagePlayer(e.type === 'boss' ? 26 : e.type === 'tank' ? 18 : 14);
+          if(e.type !== 'boss') return false;
         }
-      } else {
-        resultTimer--;
-        if (resultTimer <= 0) {
-          startVsMenu();
+        return true;
+      });
+
+      items = items.filter(it => {
+        const dx = it.x - player.x;
+        const dy = it.y - player.y;
+        if(dx*dx + dy*dy < (it.r + 16)*(it.r + 16)){
+          applyItem(it.kind);
+          return false;
         }
+        return it.y < canvas.height + 30;
+      });
+
+      updateHud();
+    }
+
+    function drawStars(){
+      for(const s of stars){
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + s.s * 0.2})`;
+        ctx.fillRect(s.x,s.y,s.s,s.s);
       }
     }
 
-    function updateRoomWaitMode() {
-      updateBackground();
-      roomWaitData.blink++;
-
-      if (roomWaitData.hostName === playerName) {
-        roomWaitData.guestName = roomWaitData.blink > 150 ? "RIVAL PLAYER" : "WAITING...";
-        if (roomWaitData.blink > 150) {
-          roomWaitData.guestReady = Math.floor(roomWaitData.blink / 50) % 2 === 0;
-        }
-      }
-    }
-
-    function updateRoomBattleMode() {
-      updateBackground();
-
-      roomBattleData.timer -= 0.02;
-      if (roomBattleData.timer < 0) roomBattleData.timer = 99;
-
-      if (keys["ArrowLeft"] && roomBattleData.leftX > 50) roomBattleData.leftX -= 3.2;
-      if (keys["ArrowRight"] && roomBattleData.leftX < 350) roomBattleData.leftX += 3.2;
-
-      roomBattleData.rightX += Math.sin(Date.now() * 0.0023) * 0.8;
-      roomBattleData.rightY += Math.cos(Date.now() * 0.0025) * 0.7;
-      roomBattleData.leftGauge = 25 + ((Math.sin(Date.now() * 0.0025) + 1) * 30);
-      roomBattleData.rightGauge = 20 + ((Math.cos(Date.now() * 0.0021) + 1) * 33);
-    }
-
-    function update() {
-      if (gameState === "title" || gameState === "vs_menu" || gameState === "room_menu" || gameState === "paused") {
-        updateBackground();
-      } else if (gameState === "single") {
-        updateSingleMode();
-      } else if (gameState === "single_gameover") {
-        updateBackground();
-        updateParticles();
-        resultTimer--;
-        if (resultTimer <= 0) gameState = "title";
-      } else if (gameState === "normal_vs") {
-        updateNormalVsMode();
-      } else if (gameState === "room_wait") {
-        updateRoomWaitMode();
-      } else if (gameState === "room_battle") {
-        updateRoomBattleMode();
-      }
-    }
-
-    function drawRankBadge(x, y, size, rank) {
+    function drawPlayer(){
+      const blink = player.inv > 0 && Math.floor(player.inv / 4) % 2 === 0;
+      if(blink) return;
       ctx.save();
-      ctx.translate(x, y);
+      ctx.translate(player.x, player.y);
 
-      const c = rank.color;
-      const a = rank.accent;
+      ctx.fillStyle = '#86e8ff';
+      ctx.beginPath();
+      ctx.moveTo(0,-16);
+      ctx.lineTo(-12,14);
+      ctx.lineTo(0,8);
+      ctx.lineTo(12,14);
+      ctx.closePath();
+      ctx.fill();
 
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = c;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-2,-8,4,10);
 
-      if (rank.shape === "hex") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size * 0.86, -size * 0.5);
-        ctx.lineTo(size * 0.86, size * 0.5);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size * 0.86, size * 0.5);
-        ctx.lineTo(-size * 0.86, -size * 0.5);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = a;
-        ctx.fillRect(-3, -3, 6, 6);
-      }
-      else if (rank.shape === "bronze") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size, -size * 0.2);
-        ctx.lineTo(size * 0.6, size);
-        ctx.lineTo(-size * 0.6, size);
-        ctx.lineTo(-size, -size * 0.2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = a;
+      if(player.shield > 0){
+        ctx.strokeStyle = 'rgba(82,224,161,.8)';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        ctx.moveTo(-8, 0);
-        ctx.lineTo(0, 8);
-        ctx.lineTo(8, 0);
+        ctx.arc(0,0,22,0,Math.PI*2);
         ctx.stroke();
       }
-      else if (rank.shape === "shield") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size, -size * 0.2);
-        ctx.lineTo(size * 0.7, size * 0.7);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size * 0.7, size * 0.7);
-        ctx.lineTo(-size, -size * 0.2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = a;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(-6, -2);
-        ctx.lineTo(-6, 8);
-        ctx.moveTo(6, -2);
-        ctx.lineTo(6, 8);
-        ctx.stroke();
-      }
-      else if (rank.shape === "crown") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(-size, size * 0.7);
-        ctx.lineTo(-size * 0.7, -size * 0.6);
-        ctx.lineTo(0, 0);
-        ctx.lineTo(size * 0.7, -size * 0.6);
-        ctx.lineTo(size, size * 0.7);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = a;
-        ctx.beginPath();
-        ctx.arc(0, -2, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      else if (rank.shape === "crystal") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size * 0.7, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size * 0.7, 0);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = a;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(0, size);
-        ctx.moveTo(-size * 0.7, 0);
-        ctx.lineTo(size * 0.7, 0);
-        ctx.stroke();
-      }
-      else if (rank.shape === "diamond") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size, 0);
-        ctx.lineTo(0, size);
-        ctx.lineTo(-size, 0);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.strokeStyle = a;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(0, size);
-        ctx.moveTo(-size, 0);
-        ctx.lineTo(size, 0);
-        ctx.moveTo(-size * 0.45, -size * 0.45);
-        ctx.lineTo(size * 0.45, size * 0.45);
-        ctx.stroke();
-      }
-      else if (rank.shape === "winged") {
-        ctx.fillStyle = c;
-        ctx.beginPath();
-        ctx.moveTo(0, -size);
-        ctx.lineTo(size * 0.7, -size * 0.2);
-        ctx.lineTo(size * 0.5, size * 0.9);
-        ctx.lineTo(-size * 0.5, size * 0.9);
-        ctx.lineTo(-size * 0.7, -size * 0.2);
-        ctx.closePath();
-        ctx.fill();
-
-        ctx.fillStyle = a;
-        ctx.beginPath();
-        ctx.arc(0, -2, 5, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.strokeStyle = a;
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(-size * 1.05, 0);
-        ctx.lineTo(-size * 0.35, -4);
-        ctx.moveTo(size * 1.05, 0);
-        ctx.lineTo(size * 0.35, -4);
-        ctx.stroke();
-      }
-
       ctx.restore();
     }
 
-    function drawTitleMenu() {
-      ctx.fillStyle = "rgba(5,2,20,0.46)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function drawEnemies(){
+      for(const e of enemies){
+        ctx.save();
+        ctx.translate(e.x,e.y);
 
-      const rank = getCurrentRank(rankData.rp);
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#77f6ff";
-      ctx.font = "30px 'Press Start 2P', monospace";
-      ctx.fillText("PIXEL SPACE", canvas.width / 2, 130);
-      ctx.fillText("BATTLE", canvas.width / 2, 180);
-
-      drawRankBadge(canvas.width / 2 - 170, 255, 18, rank);
-
-      ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillStyle = rank.color;
-      ctx.fillText(rank.name, canvas.width / 2, 260);
-
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#c6f5ff";
-      ctx.fillText(`${playerName} / RP ${rankData.rp}`, canvas.width / 2, 290);
-      ctx.fillText(`W ${rankData.wins}  L ${rankData.loses}`, canvas.width / 2, 314);
-
-      const menu = ["1 PLAYER", "VS MODE", "ROOM MATCH"];
-      ctx.font = "14px 'Press Start 2P', monospace";
-
-      for (let i = 0; i < menu.length; i++) {
-        ctx.fillStyle = i === titleMenuIndex ? "#ffe57e" : "#ffffff";
-        const label = i === titleMenuIndex ? `> ${menu[i]} <` : menu[i];
-        ctx.fillText(label, canvas.width / 2, 375 + i * 46);
+        if(e.type === 'boss'){
+          ctx.fillStyle = '#ff885f';
+          ctx.fillRect(-41,-26,82,52);
+          ctx.fillStyle = '#ffd166';
+          ctx.fillRect(-20,-10,40,14);
+          ctx.fillStyle = '#2a1020';
+          ctx.fillRect(-28,11,56,8);
+        }else if(e.type === 'tank'){
+          ctx.fillStyle = '#c96b52';
+          ctx.fillRect(-15,-12,30,24);
+          ctx.fillStyle = '#43201d';
+          ctx.fillRect(-8,-4,16,8);
+        }else if(e.type === 'zigzag'){
+          ctx.fillStyle = '#ff9d54';
+          ctx.beginPath();
+          ctx.moveTo(0,-12);
+          ctx.lineTo(-12,10);
+          ctx.lineTo(12,10);
+          ctx.closePath();
+          ctx.fill();
+        }else{
+          ctx.fillStyle = '#ff7b54';
+          ctx.fillRect(-12,-10,24,20);
+          ctx.fillStyle = '#2a1020';
+          ctx.fillRect(-8,-4,16,8);
+        }
+        ctx.restore();
       }
     }
 
-    function drawVsMenu() {
-      ctx.fillStyle = "rgba(5,2,20,0.46)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function drawBullets(){
+      ctx.fillStyle = '#8df0ff';
+      for(const b of bullets){
+        ctx.beginPath();
+        ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+        ctx.fill();
+      }
 
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#ff9fe1";
-      ctx.font = "26px 'Press Start 2P', monospace";
-      ctx.fillText("VS MODE", canvas.width / 2, 150);
-
-      const menu = ["NORMAL MATCH", "ROOM MATCH", "BACK"];
-      ctx.font = "14px 'Press Start 2P', monospace";
-
-      for (let i = 0; i < menu.length; i++) {
-        ctx.fillStyle = i === vsMenuIndex ? "#ffe57e" : "#ffffff";
-        const label = i === vsMenuIndex ? `> ${menu[i]} <` : menu[i];
-        ctx.fillText(label, canvas.width / 2, 255 + i * 52);
+      ctx.fillStyle = '#ff5d7a';
+      for(const eb of enemyBullets){
+        ctx.beginPath();
+        ctx.arc(eb.x,eb.y,eb.r,0,Math.PI*2);
+        ctx.fill();
       }
     }
 
-    function drawRoomMenu() {
-      ctx.fillStyle = "rgba(5,2,20,0.46)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#79f4ff";
-      ctx.font = "24px 'Press Start 2P', monospace";
-      ctx.fillText("ROOM MATCH", canvas.width / 2, 145);
-
-      const menu = ["CREATE ROOM", "JOIN ROOM", "BACK"];
-      ctx.font = "14px 'Press Start 2P', monospace";
-
-      for (let i = 0; i < menu.length; i++) {
-        ctx.fillStyle = i === roomMenuIndex ? "#ffe57e" : "#ffffff";
-        const label = i === roomMenuIndex ? `> ${menu[i]} <` : menu[i];
-        ctx.fillText(label, canvas.width / 2, 255 + i * 52);
+    function drawItems(){
+      for(const it of items){
+        const size = 8 + Math.sin(it.pulse)*1.5;
+        if(it.kind === 'heal') ctx.fillStyle = '#52e0a1';
+        if(it.kind === 'power') ctx.fillStyle = '#ffd166';
+        if(it.kind === 'rapid') ctx.fillStyle = '#7ab8ff';
+        if(it.kind === 'shield') ctx.fillStyle = '#c48bff';
+        ctx.fillRect(it.x - size/2, it.y - size/2, size, size);
       }
     }
 
-    function drawSingleMode() {
-      if (!(singleInvincible > 0 && Math.floor(singleInvincible / 5) % 2 === 0)) {
-        drawPixelSprite(PLAYER_SPRITE, singlePlayer.x, singlePlayer.y, 4, "#9affff", "#117c9f");
+    function drawParticles(){
+      for(const p of particles){
+        ctx.globalAlpha = Math.max(0, p.life / 30);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x,p.y,3,3);
+      }
+      ctx.globalAlpha = 1;
+    }
+
+    function drawTitleScene(){
+      ctx.fillStyle = 'rgba(255,255,255,.08)';
+      ctx.fillRect(70,120,340,120);
+      ctx.fillStyle = '#9db5d1';
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('FIXED SINGLE MODE', canvas.width/2, 185);
+      ctx.font = '12px sans-serif';
+      ctx.fillText('BGM / SE / ITEM / LOOP / HP / LIFE', canvas.width/2, 210);
+    }
+
+    function render(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+
+      if(state.specialFlash > 0) state.specialFlash--;
+
+      drawStars();
+
+      if(state.scene === 'play' || state.scene === 'message'){
+        drawItems();
+        drawBullets();
+        drawEnemies();
+        drawPlayer();
+        drawParticles();
+
+        if(player.inv > 0){
+          ctx.fillStyle = 'rgba(255,255,255,.05)';
+          ctx.fillRect(0,0,canvas.width,canvas.height);
+        }
+
+        if(state.specialFlash > 0){
+          ctx.fillStyle = `rgba(120,255,220,${state.specialFlash/40})`;
+          ctx.fillRect(0,0,canvas.width,canvas.height);
+        }
       }
 
-      singleEnemies.forEach(e => {
-        if (!e.alive) return;
-        drawPixelSprite(ENEMY_SPRITE, e.x, e.y, 3, "#ff74c8", "#8e2f79");
-      });
+      if(state.scene === 'title'){
+        drawTitleScene();
+      }
 
-      ctx.fillStyle = "#fff37a";
-      playerBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
-
-      ctx.fillStyle = "#ff8f8f";
-      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
-
-      items.forEach(item => {
-        if (item.type === "heal") ctx.fillStyle = "#69ff98";
-        else if (item.type === "special") ctx.fillStyle = "#ffd968";
-        else ctx.fillStyle = "#71e8ff";
-        ctx.fillRect(item.x, item.y, item.width, item.height);
-        ctx.strokeStyle = "#ffffff";
-        ctx.strokeRect(item.x, item.y, item.width, item.height);
-      });
-
-      drawParticles();
-
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.fillRect(10, 10, canvas.width - 20, 38);
-      ctx.strokeStyle = "#7cf8ff";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, canvas.width - 20, 38);
-
-      ctx.fillStyle = "#fff";
-      ctx.font = "11px 'Press Start 2P', monospace";
-      ctx.textAlign = "left";
-      ctx.fillText(`SINGLE`, 22, 34);
-      ctx.fillText(`SCORE ${singleScore}`, 145, 34);
-      ctx.fillText(`HP ${singleHp}`, 390, 34);
-      ctx.fillText(`LIFE ${singleLives}`, 530, 34);
-      ctx.fillText(`SP ${singleSpecial}`, 690, 34);
-    }
-
-    function drawBattleSplitBase(leftName, rightName, leftHp, rightHp, leftGauge, rightGauge, timer) {
-      ctx.fillStyle = "rgba(255,255,255,0.08)";
-      ctx.fillRect(canvas.width / 2 - 2, 0, 4, canvas.height);
-
-      ctx.fillStyle = "rgba(0,0,0,0.42)";
-      ctx.fillRect(10, 10, 380, 56);
-      ctx.fillRect(490, 10, 380, 56);
-
-      ctx.strokeStyle = "#7cf8ff";
-      ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, 380, 56);
-
-      ctx.strokeStyle = "#ff9fe1";
-      ctx.strokeRect(490, 10, 380, 56);
-
-      ctx.fillStyle = "#7cf8ff";
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.textAlign = "left";
-      ctx.fillText(leftName, 24, 28);
-      ctx.fillStyle = "#fff";
-      ctx.fillText(`HP`, 24, 48);
-      ctx.strokeStyle = "#7cf8ff";
-      ctx.strokeRect(70, 38, 180, 12);
-      ctx.fillStyle = "#42f5ff";
-      ctx.fillRect(72, 40, Math.max(0, (leftHp / 100) * 176), 8);
-
-      ctx.fillStyle = "#ff9fe1";
-      ctx.fillText(rightName, 504, 28);
-      ctx.fillStyle = "#fff";
-      ctx.fillText(`HP`, 504, 48);
-      ctx.strokeStyle = "#ff9fe1";
-      ctx.strokeRect(550, 38, 180, 12);
-      ctx.fillStyle = "#ff65c7";
-      ctx.fillRect(552, 40, Math.max(0, (rightHp / 100) * 176), 8);
-
-      ctx.fillStyle = "#7cf8ff";
-      ctx.fillText(`G`, 274, 48);
-      ctx.strokeStyle = "#7cf8ff";
-      ctx.strokeRect(300, 38, 70, 12);
-      ctx.fillStyle = "#42f5ff";
-      ctx.fillRect(302, 40, Math.max(0, (leftGauge / 100) * 66), 8);
-
-      ctx.fillStyle = "#ff9fe1";
-      ctx.fillText(`G`, 754, 48);
-      ctx.strokeStyle = "#ff9fe1";
-      ctx.strokeRect(780, 38, 70, 12);
-      ctx.fillStyle = "#ff65c7";
-      ctx.fillRect(782, 40, Math.max(0, (rightGauge / 100) * 66), 8);
-
-      ctx.fillStyle = "#fff27a";
-      ctx.textAlign = "center";
-      ctx.font = "16px 'Press Start 2P', monospace";
-      ctx.fillText(String(Math.floor(timer)).padStart(2, "0"), canvas.width / 2, 44);
-
-      ctx.strokeStyle = "#2f7fff";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(40, 90, 340, 360);
-
-      ctx.strokeStyle = "#ff4faf";
-      ctx.strokeRect(500, 90, 340, 360);
-    }
-
-    function drawNormalVsMode() {
-      const rank = getCurrentRank(rankData.rp);
-
-      drawBattleSplitBase(
-        playerName,
-        "RIVAL CPU",
-        normalVs.leftHp,
-        normalVs.rightHp,
-        normalVs.leftGauge,
-        normalVs.rightGauge,
-        normalVs.timer
-      );
-
-      drawPixelSprite(PLAYER_SPRITE, normalVs.leftX, normalVs.leftY, 4, "#7cf8ff", "#0d6f91");
-      drawPixelSprite(PLAYER_SPRITE, normalVs.rightX, normalVs.rightY, 4, "#ff8fd8", "#8b2a67");
-
-      drawRankBadge(360, 105, 14, rank);
-      ctx.textAlign = "left";
-      ctx.fillStyle = rank.color;
-      ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillText(rank.name, 380, 110);
-
-      ctx.fillStyle = "#d8f6ff";
-      ctx.fillText(`RP ${rankData.rp}`, 380, 128);
-      ctx.fillText(`W ${rankData.wins} / L ${rankData.loses}`, 380, 146);
-
-      if (normalVs.result) {
-        ctx.fillStyle = "rgba(0,0,0,0.55)";
-        ctx.fillRect(220, 180, 440, 150);
-        ctx.strokeStyle = normalVs.result === "WIN" ? "#ffe57e" : "#ff8fa8";
-        ctx.lineWidth = 4;
-        ctx.strokeRect(220, 180, 440, 150);
-
-        ctx.textAlign = "center";
-        ctx.fillStyle = normalVs.result === "WIN" ? "#ffe57e" : "#ff8fa8";
-        ctx.font = "24px 'Press Start 2P', monospace";
-        ctx.fillText(normalVs.result, canvas.width / 2, 230);
-
-        ctx.font = "11px 'Press Start 2P', monospace";
-        ctx.fillStyle = "#d8f6ff";
-        const rpText = normalVs.rpDelta >= 0 ? `RP +${normalVs.rpDelta}` : `RP ${normalVs.rpDelta}`;
-        ctx.fillText(rpText, canvas.width / 2, 270);
-        ctx.fillText(`TOTAL RP ${rankData.rp}`, canvas.width / 2, 300);
+      if(state.scene === 'play' && state.paused){
+        ctx.fillStyle = 'rgba(0,0,0,.32)';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
       }
     }
 
-    function drawRoomWaitMode() {
-      ctx.fillStyle = "rgba(255,255,255,0.08)";
-      ctx.fillRect(canvas.width / 2 - 2, 80, 4, 310);
-
-      ctx.textAlign = "center";
-      ctx.fillStyle = "#79f4ff";
-      ctx.font = "22px 'Press Start 2P', monospace";
-      ctx.fillText("ROOM WAIT", canvas.width / 2, 90);
-
-      ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#ffe57e";
-      ctx.fillText(`ROOM ID : ${roomWaitData.roomId}`, canvas.width / 2, 135);
-
-      ctx.strokeStyle = "#7cf8ff";
-      ctx.lineWidth = 3;
-      ctx.strokeRect(70, 170, 300, 180);
-
-      ctx.strokeStyle = "#ff9fe1";
-      ctx.strokeRect(510, 170, 300, 180);
-
-      drawPixelSprite(PLAYER_SPRITE, 175, 220, 5, "#7cf8ff", "#0d6f91");
-      if (roomWaitData.guestName !== "WAITING...") {
-        drawPixelSprite(PLAYER_SPRITE, 615, 220, 5, "#ff8fd8", "#8b2a67");
-      }
-
-      ctx.fillStyle = "#7cf8ff";
-      ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillText(roomWaitData.hostName, 220, 315);
-
-      ctx.fillStyle = roomWaitData.hostReady ? "#9effb7" : "#ffffff";
-      ctx.fillText(`READY: ${roomWaitData.hostReady ? "YES" : "NO"}`, 220, 340);
-
-      ctx.fillStyle = "#ff9fe1";
-      ctx.fillText(roomWaitData.guestName, 660, 315);
-
-      ctx.fillStyle = roomWaitData.guestReady ? "#9effb7" : "#ffffff";
-      ctx.fillText(`READY: ${roomWaitData.guestReady ? "YES" : "NO"}`, 660, 340);
-
-      const blink = Math.floor(roomWaitData.blink / 25) % 2 === 0;
-      if (blink) {
-        ctx.fillStyle = "#bfefff";
-        ctx.font = "10px 'Press Start 2P', monospace";
-        ctx.fillText("ACTION = READY", canvas.width / 2, 410);
-        ctx.fillText("OK = START DEMO", canvas.width / 2, 440);
-      }
-    }
-
-    function drawRoomBattleMode() {
-      drawBattleSplitBase(
-        roomBattleData.leftName,
-        roomBattleData.rightName,
-        roomBattleData.leftHp,
-        roomBattleData.rightHp,
-        roomBattleData.leftGauge,
-        roomBattleData.rightGauge,
-        roomBattleData.timer
-      );
-
-      drawPixelSprite(PLAYER_SPRITE, roomBattleData.leftX, roomBattleData.leftY, 4, "#7cf8ff", "#0d6f91");
-      drawPixelSprite(PLAYER_SPRITE, roomBattleData.rightX, roomBattleData.rightY, 4, "#ff8fd8", "#8b2a67");
-
-      ctx.fillStyle = "#ffe57e";
-      ctx.textAlign = "center";
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillText("ROOM MATCH DEMO UI", canvas.width / 2, 485);
-    }
-
-    function drawPauseOverlay() {
-      ctx.fillStyle = "rgba(0,0,0,0.62)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "rgba(10,10,30,0.95)";
-      ctx.fillRect(240, 120, 400, 280);
-
-      ctx.strokeStyle = "#ffe57e";
-      ctx.lineWidth = 4;
-      ctx.strokeRect(240, 120, 400, 280);
-
-      ctx.fillStyle = "#ffe57e";
-      ctx.textAlign = "center";
-      ctx.font = "22px 'Press Start 2P', monospace";
-      ctx.fillText("PAUSE", canvas.width / 2, 170);
-
-      const menu = ["RESUME", "RETRY", "TITLE"];
-      ctx.font = "14px 'Press Start 2P', monospace";
-
-      for (let i = 0; i < menu.length; i++) {
-        ctx.fillStyle = i === pauseMenuIndex ? "#79f4ff" : "#ffffff";
-        const label = i === pauseMenuIndex ? `> ${menu[i]} <` : menu[i];
-        ctx.fillText(label, canvas.width / 2, 245 + i * 55);
-      }
-
-      ctx.font = "9px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#bfefff";
-      ctx.fillText("LEFT / RIGHT / OK", canvas.width / 2, 370);
-    }
-
-    function drawSingleGameOver() {
-      drawSingleMode();
-
-      ctx.fillStyle = "rgba(0,0,0,0.62)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "#ff8fa8";
-      ctx.textAlign = "center";
-      ctx.font = "24px 'Press Start 2P', monospace";
-      ctx.fillText("GAME OVER", canvas.width / 2, 220);
-
-      ctx.fillStyle = "#d8f6ff";
-      ctx.font = "12px 'Press Start 2P', monospace";
-      ctx.fillText(`SCORE ${singleScore}`, canvas.width / 2, 270);
-    }
-
-    function draw() {
-      drawBackground();
-
-      if (gameState === "title") {
-        drawTitleMenu();
-      } else if (gameState === "vs_menu") {
-        drawVsMenu();
-      } else if (gameState === "room_menu") {
-        drawRoomMenu();
-      } else if (gameState === "single") {
-        drawSingleMode();
-      } else if (gameState === "single_gameover") {
-        drawSingleGameOver();
-      } else if (gameState === "normal_vs") {
-        drawNormalVsMode();
-      } else if (gameState === "room_wait") {
-        drawRoomWaitMode();
-      } else if (gameState === "room_battle") {
-        drawRoomBattleMode();
-      } else if (gameState === "paused") {
-        if (previousStateBeforePause === "single") drawSingleMode();
-        else if (previousStateBeforePause === "normal_vs") drawNormalVsMode();
-        else if (previousStateBeforePause === "room_wait") drawRoomWaitMode();
-        else if (previousStateBeforePause === "room_battle") drawRoomBattleMode();
-        drawPauseOverlay();
-      }
-    }
-
-    function gameLoop() {
+    function gameLoop(){
       update();
-      draw();
+      render();
       requestAnimationFrame(gameLoop);
     }
 
-    function confirmCurrentMenu() {
-      unlockAudioOnce();
-
-      if (gameState === "title") {
-        playDecisionSound();
-        if (titleMenuIndex === 0) startSingleMode();
-        else if (titleMenuIndex === 1) startVsMenu();
-        else if (titleMenuIndex === 2) startRoomMenu();
-      }
-      else if (gameState === "vs_menu") {
-        playDecisionSound();
-        if (vsMenuIndex === 0) startNormalMatch();
-        else if (vsMenuIndex === 1) startRoomMenu();
-        else if (vsMenuIndex === 2) gameState = "title";
-      }
-      else if (gameState === "room_menu") {
-        playDecisionSound();
-        if (roomMenuIndex === 0) createRoomFlow();
-        else if (roomMenuIndex === 1) joinRoomFlow();
-        else if (roomMenuIndex === 2) startVsMenu();
-      }
-      else if (gameState === "paused") {
-        playDecisionSound();
-        if (pauseMenuIndex === 0) resumeGame();
-        else if (pauseMenuIndex === 1) retryCurrentMode();
-        else if (pauseMenuIndex === 2) gameState = "title";
-      }
-      else if (gameState === "room_wait") {
-        if (roomWaitData.hostReady && roomWaitData.guestName !== "WAITING...") {
-          startRoomBattleDemo();
-        } else {
-          messageEl.textContent = "WAIT READY / WAIT PLAYER";
-          playCursorSound();
-        }
-      }
+    function togglePause(){
+      if(state.scene !== 'play') return;
+      state.paused = !state.paused;
+      pauseOverlay.classList.toggle('hidden', !state.paused);
     }
 
-    function menuMove(dir) {
-      if (gameState === "title") {
-        titleMenuIndex = moveMenu(titleMenuIndex, 0, 2, dir);
-        playCursorSound();
-      } else if (gameState === "vs_menu") {
-        vsMenuIndex = moveMenu(vsMenuIndex, 0, 2, dir);
-        playCursorSound();
-      } else if (gameState === "room_menu") {
-        roomMenuIndex = moveMenu(roomMenuIndex, 0, 2, dir);
-        playCursorSound();
-      } else if (gameState === "paused") {
-        pauseMenuIndex = moveMenu(pauseMenuIndex, 0, 2, dir);
-        playCursorSound();
-      }
-    }
-
-    function handleActionButton() {
-      unlockAudioOnce();
-
-      if (gameState === "single") {
-        const now = Date.now();
-        if (now - singleLastShot > 180) {
-          playerBullets.push({
-            x: singlePlayer.x + singlePlayer.width / 2 - 2,
-            y: singlePlayer.y - 8,
-            width: 4,
-            height: 12,
-            speed: 8
-          });
-          singleLastShot = now;
-          playShootSound();
-        }
-      } else if (gameState === "room_wait") {
-        roomWaitData.hostReady = !roomWaitData.hostReady;
-        playDecisionSound();
-      }
-    }
-
-    function handleSpecialButton() {
-      unlockAudioOnce();
-
-      if (gameState === "single" && singleSpecial > 0) {
-        singleSpecial--;
-        singleEnemies.forEach(e => {
-          if (e.alive) {
-            e.alive = false;
-            dropItem(e.x + 4, e.y + 4);
-            addParticles(e.x + 12, e.y + 12, "#ffe57e", 10);
-          }
-        });
-        playSpecialSound();
-        messageEl.textContent = "SPECIAL BLAST";
-      }
-    }
-
-    function handleOkButton() {
-      unlockAudioOnce();
-      confirmCurrentMenu();
-    }
-
-    function handlePauseToggle() {
-      unlockAudioOnce();
-      if (["single","normal_vs","room_wait","room_battle"].includes(gameState)) {
-        pauseGame();
-      } else if (gameState === "paused") {
-        resumeGame();
-      }
-    }
-
-    document.addEventListener("keydown", (e) => {
-      if (["ArrowLeft","ArrowRight","Enter","Space","KeyZ","KeyX","KeyP","Escape"].includes(e.code)) {
+    function setTouchButton(el, keyName){
+      const on = (e) => {
         e.preventDefault();
-      }
+        ensureAudio();
+        keys[keyName] = true;
+        el.classList.add('active');
+      };
+      const off = (e) => {
+        e.preventDefault();
+        keys[keyName] = false;
+        el.classList.remove('active');
+      };
+      el.addEventListener('pointerdown', on);
+      el.addEventListener('pointerup', off);
+      el.addEventListener('pointercancel', off);
+      el.addEventListener('pointerleave', off);
+    }
 
-      unlockAudioOnce();
-      keys[e.code] = true;
+    setTouchButton(btnLeft, 'left');
+    setTouchButton(btnRight, 'right');
+    setTouchButton(btnAction, 'action');
 
-      if (["title","vs_menu","room_menu","paused"].includes(gameState)) {
-        if (e.code === "ArrowLeft") menuMove(-1);
-        if (e.code === "ArrowRight") menuMove(1);
-        if (e.code === "Enter") handleOkButton();
-      }
-      else if (["single","normal_vs","room_wait","room_battle"].includes(gameState)) {
-        if (e.code === "KeyP" || e.code === "Escape") handlePauseToggle();
-        if (e.code === "KeyX") handleSpecialButton();
-        if (e.code === "Enter") handleOkButton();
-      }
+    btnSpecial.addEventListener('click', (e)=>{
+      e.preventDefault();
+      ensureAudio();
+      useSpecial();
+      btnSpecial.classList.add('active');
+      setTimeout(()=>btnSpecial.classList.remove('active'),120);
     });
 
-    document.addEventListener("keyup", (e) => {
-      keys[e.code] = false;
+    btnPause.addEventListener('click', (e)=>{
+      e.preventDefault();
+      ensureAudio();
+      togglePause();
     });
 
-    function bindHoldButton(button, code) {
-      button.addEventListener("pointerdown", (e) => {
-        e.preventDefault();
-        unlockAudioOnce();
-        keys[code] = true;
+    btnOk.addEventListener('click', (e)=>{
+      e.preventDefault();
+      ensureAudio();
+      if(state.scene === 'title') resetGame();
+      else if(state.scene === 'message') resetGame();
+    });
+
+    menuButtons.forEach((btn)=>{
+      btn.addEventListener('click', ()=>{
+        ensureAudio();
+        resetGame();
       });
-      button.addEventListener("pointerup", (e) => {
-        e.preventDefault();
-        keys[code] = false;
-      });
-      button.addEventListener("pointercancel", () => keys[code] = false);
-      button.addEventListener("pointerleave", () => keys[code] = false);
-    }
-
-    bindHoldButton(leftBtn, "ArrowLeft");
-    bindHoldButton(rightBtn, "ArrowRight");
-
-    actionBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      handleActionButton();
     });
 
-    specialBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      handleSpecialButton();
+    bgmToggle.addEventListener('click', ()=>{
+      ensureAudio();
+      setBgmEnabled(!state.bgmEnabled);
     });
 
-    okBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      handleOkButton();
+    seToggle.addEventListener('click', ()=>{
+      ensureAudio();
+      setSeEnabled(!state.seEnabled);
     });
 
-    pauseBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      handlePauseToggle();
+    resumeBtn.addEventListener('click', ()=>{
+      ensureAudio();
+      togglePause();
     });
 
-    loadPlayerData();
-    createBackground();
+    backTitleBtn.addEventListener('click', ()=>{
+      ensureAudio();
+      returnToTitle();
+    });
+
+    retryBtn.addEventListener('click', ()=>{
+      ensureAudio();
+      resetGame();
+    });
+
+    messageTitleBtn.addEventListener('click', ()=>{
+      ensureAudio();
+      returnToTitle();
+    });
+
+    window.addEventListener('pointerdown', ()=>{
+      ensureAudio();
+    }, { once:true });
+
+    window.addEventListener('keydown', (e)=>{
+      ensureAudio();
+
+      if(e.code === 'ArrowLeft') keys.left = true;
+      if(e.code === 'ArrowRight') keys.right = true;
+      if(e.code === 'KeyZ') keys.action = true;
+
+      if(state.scene === 'title' && (e.code === 'Enter' || e.code === 'Space')){
+        resetGame();
+      }else if(state.scene === 'message' && (e.code === 'Enter' || e.code === 'Space')){
+        resetGame();
+      }
+
+      if(e.code === 'KeyX'){
+        useSpecial();
+      }
+
+      if(e.code === 'KeyP' || e.code === 'Escape'){
+        togglePause();
+      }
+    });
+
+    window.addEventListener('keyup', (e)=>{
+      if(e.code === 'ArrowLeft') keys.left = false;
+      if(e.code === 'ArrowRight') keys.right = false;
+      if(e.code === 'KeyZ') keys.action = false;
+    });
+
+    initStars();
+    updateHud();
     gameLoop();
   </script>
 </body>
