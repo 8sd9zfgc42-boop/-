@@ -7,50 +7,115 @@
   <style>
     body {
       margin: 0;
-      background: black;
-      color: white;
+      background: #000;
+      color: #fff;
       font-family: sans-serif;
       text-align: center;
     }
+
     h1 {
-      margin: 10px 0;
+      margin: 12px 0 8px;
+      font-size: 28px;
     }
-    #topBar {
-      margin: 10px;
+
+    #hud {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+      font-size: 18px;
     }
+
     #gameCanvas {
       background: #111;
       display: block;
       margin: 0 auto;
-      border: 2px solid white;
+      border: 2px solid #fff;
+      max-width: 95vw;
+      height: auto;
+      touch-action: none;
     }
-    #info {
+
+    #message {
       margin-top: 10px;
+      min-height: 28px;
+      font-size: 18px;
+      color: #0f0;
     }
-    #ranking {
-      margin-top: 20px;
+
+    #controls {
+      margin-top: 14px;
     }
+
     button, input {
       font-size: 16px;
-      padding: 8px;
-      margin: 5px;
+      padding: 8px 12px;
+      margin: 4px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #touchControls {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #touchControls button {
+      min-width: 90px;
+      min-height: 50px;
+      font-size: 20px;
+      background: #222;
+      color: #fff;
+      border: 1px solid #666;
+    }
+
+    #ranking {
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: left;
+    }
+
+    #ranking h2 {
+      text-align: center;
+    }
+
+    #rankingList {
+      padding-left: 24px;
     }
   </style>
 </head>
 <body>
   <h1>オンライン Space Invaders</h1>
 
-  <div id="topBar">
-    <input id="playerName" placeholder="名前を入力" />
-    <button onclick="saveScore()">スコア保存</button>
-    <button onclick="loadRanking()">ランキング更新</button>
+  <div id="hud">
+    <div>スコア: <span id="score">0</span></div>
+    <div>残機: <span id="lives">3</span></div>
+    <div>ステージ: <span id="stage">1</span></div>
   </div>
 
   <canvas id="gameCanvas" width="400" height="600"></canvas>
 
-  <div id="info">
-    <p>← → で移動 / スペースで弾発射</p>
-    <p>スコア: <span id="score">0</span></p>
+  <div id="message"></div>
+
+  <div id="controls">
+    <input id="playerName" placeholder="名前を入力" />
+    <button onclick="saveScore()">スコア保存</button>
+    <button onclick="loadRanking()">ランキング更新</button>
+    <button onclick="restartGame()">再スタート</button>
+  </div>
+
+  <div id="touchControls">
+    <button id="leftBtn">← 左</button>
+    <button id="fireBtn">発射</button>
+    <button id="rightBtn">右 →</button>
   </div>
 
   <div id="ranking">
@@ -85,53 +150,116 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const scoreEl = document.getElementById("score");
+    const livesEl = document.getElementById("lives");
+    const stageEl = document.getElementById("stage");
     const rankingList = document.getElementById("rankingList");
+    const messageEl = document.getElementById("message");
 
-    let player = {
-      x: 180,
-      y: 560,
-      width: 40,
-      height: 20,
-      speed: 5
-    };
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+    const fireBtn = document.getElementById("fireBtn");
 
-    let bullets = [];
-    let enemies = [];
+    let player;
+    let bullets;
+    let enemyBullets;
+    let enemies;
     let keys = {};
-    let score = 0;
-    let gameOver = false;
+    let score;
+    let lives;
+    let stage;
+    let gameState;
+    let enemyDirection;
+    let lastShotTime;
+    let lastEnemyShotTime;
 
-    for (let row = 0; row < 4; row++) {
-      for (let col = 0; col < 8; col++) {
-        enemies.push({
-          x: 30 + col * 40,
-          y: 30 + row * 40,
-          width: 30,
-          height: 20,
-          alive: true
-        });
+    function initEnemies() {
+      enemies = [];
+      const rows = Math.min(3 + stage, 6);
+      const cols = 8;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          enemies.push({
+            x: 30 + col * 40,
+            y: 30 + row * 35,
+            width: 28,
+            height: 20,
+            alive: true
+          });
+        }
       }
     }
 
-    document.addEventListener("keydown", e => {
-      keys[e.code] = true;
-      if (e.code === "Space") {
-        bullets.push({
-          x: player.x + player.width / 2 - 2,
-          y: player.y,
-          width: 4,
-          height: 10,
-          speed: 7
-        });
-      }
-    });
+    function resetGame(fullReset = true) {
+      player = {
+        x: 180,
+        y: 560,
+        width: 40,
+        height: 20,
+        speed: 5
+      };
 
-    document.addEventListener("keyup", e => {
-      keys[e.code] = false;
-    });
+      bullets = [];
+      enemyBullets = [];
+      enemyDirection = 1;
+      lastShotTime = 0;
+      lastEnemyShotTime = 0;
+      gameState = "playing";
+
+      if (fullReset) {
+        score = 0;
+        lives = 3;
+        stage = 1;
+      }
+
+      initEnemies();
+      updateHud();
+      messageEl.textContent = "";
+    }
+
+    function updateHud() {
+      scoreEl.textContent = score;
+      livesEl.textContent = lives;
+      stageEl.textContent = stage;
+    }
+
+    function shootBullet() {
+      const now = Date.now();
+      if (gameState !== "playing") return;
+      if (now - lastShotTime < 300) return;
+
+      bullets.push({
+        x: player.x + player.width / 2 - 2,
+        y: player.y - 10,
+        width: 4,
+        height: 10,
+        speed: 8
+      });
+
+      lastShotTime = now;
+    }
+
+    function enemyShoot() {
+      const aliveEnemies = enemies.filter(e => e.alive);
+      if (aliveEnemies.length === 0) return;
+
+      const now = Date.now();
+      const interval = Math.max(350, 1200 - stage * 120);
+      if (now - lastEnemyShotTime < interval) return;
+
+      const shooter = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
+      enemyBullets.push({
+        x: shooter.x + shooter.width / 2 - 2,
+        y: shooter.y + shooter.height,
+        width: 4,
+        height: 10,
+        speed: 4 + stage * 0.4
+      });
+
+      lastEnemyShotTime = now;
+    }
 
     function update() {
-      if (gameOver) return;
+      if (gameState !== "playing") return;
 
       if (keys["ArrowLeft"] && player.x > 0) {
         player.x -= player.speed;
@@ -141,61 +269,136 @@
       }
 
       bullets.forEach(b => b.y -= b.speed);
-      bullets = bullets.filter(b => b.y > 0);
+      bullets = bullets.filter(b => b.y + b.height > 0);
+
+      enemyBullets.forEach(b => b.y += b.speed);
+      enemyBullets = enemyBullets.filter(b => b.y < canvas.height);
+
+      let hitEdge = false;
 
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
-        enemy.y += 0.05;
+        enemy.x += 1.1 * enemyDirection + stage * 0.15;
 
-        if (
-          enemy.x < player.x + player.width &&
-          enemy.x + enemy.width > player.x &&
-          enemy.y < player.y + player.height &&
-          enemy.y + enemy.height > player.y
-        ) {
-          gameOver = true;
-          alert("ゲームオーバー！");
+        if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
+          hitEdge = true;
         }
+      });
 
-        bullets.forEach(bullet => {
+      if (hitEdge) {
+        enemyDirection *= -1;
+        enemies.forEach(enemy => {
+          if (enemy.alive) {
+            enemy.y += 18;
+          }
+        });
+      }
+
+      enemyShoot();
+
+      bullets.forEach(bullet => {
+        enemies.forEach(enemy => {
+          if (!enemy.alive) return;
+
           if (
             bullet.x < enemy.x + enemy.width &&
             bullet.x + bullet.width > enemy.x &&
             bullet.y < enemy.y + enemy.height &&
-            bullet.y + bullet.height > enemy.y &&
-            enemy.alive
+            bullet.y + bullet.height > enemy.y
           ) {
             enemy.alive = false;
             bullet.y = -100;
             score += 10;
-            scoreEl.textContent = score;
+            updateHud();
           }
         });
       });
 
+      enemyBullets.forEach(bullet => {
+        if (
+          bullet.x < player.x + player.width &&
+          bullet.x + bullet.width > player.x &&
+          bullet.y < player.y + player.height &&
+          bullet.y + bullet.height > player.y
+        ) {
+          bullet.y = canvas.height + 100;
+          lives--;
+          updateHud();
+
+          if (lives <= 0) {
+            gameState = "gameover";
+            messageEl.textContent = "ゲームオーバー！ 再スタートできます";
+          }
+        }
+      });
+
+      enemies.forEach(enemy => {
+        if (!enemy.alive) return;
+
+        if (enemy.y + enemy.height >= player.y) {
+          gameState = "gameover";
+          messageEl.textContent = "敵が到達！ ゲームオーバー";
+        }
+      });
+
       if (enemies.every(e => !e.alive)) {
-        gameOver = true;
-        alert("クリア！");
+        stage++;
+        updateHud();
+        messageEl.textContent = "ステージクリア！ 次のステージへ";
+        bullets = [];
+        enemyBullets = [];
+        initEnemies();
+        enemyDirection = 1;
       }
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "lime";
+    function drawPlayer() {
+      ctx.fillStyle = "#00ff66";
       ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
 
-      ctx.fillStyle = "yellow";
+    function drawBullets() {
+      ctx.fillStyle = "#ffff00";
       bullets.forEach(b => {
         ctx.fillRect(b.x, b.y, b.width, b.height);
       });
 
-      ctx.fillStyle = "red";
+      ctx.fillStyle = "#00bfff";
+      enemyBullets.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+    }
+
+    function drawEnemies() {
+      ctx.fillStyle = "#ff3b3b";
       enemies.forEach(enemy => {
         if (enemy.alive) {
           ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
         }
       });
+    }
+
+    function drawOverlay() {
+      if (gameState === "playing") return;
+
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#fff";
+      ctx.font = "28px sans-serif";
+      ctx.textAlign = "center";
+
+      if (gameState === "gameover") {
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawBullets();
+      drawEnemies();
+      drawOverlay();
     }
 
     function gameLoop() {
@@ -210,31 +413,96 @@
         await addDoc(collection(db, "ranking"), {
           name: name,
           score: score,
+          stage: stage,
           createdAt: Date.now()
         });
-        alert("スコア保存成功！");
+        messageEl.textContent = "スコア保存成功！";
         loadRanking();
       } catch (e) {
-        alert("保存失敗: " + e.message);
+        messageEl.textContent = "保存失敗: " + e.message;
       }
     }
 
     async function loadRanking() {
       rankingList.innerHTML = "";
-      const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(10));
-      const querySnapshot = await getDocs(q);
+      try {
+        const q = query(
+          collection(db, "ranking"),
+          orderBy("score", "desc"),
+          limit(10)
+        );
+        const querySnapshot = await getDocs(q);
 
-      querySnapshot.forEach(doc => {
-        const data = doc.data();
+        querySnapshot.forEach(doc => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.textContent = `${data.name} - ${data.score}点 - Stage ${data.stage ?? 1}`;
+          rankingList.appendChild(li);
+        });
+      } catch (e) {
         const li = document.createElement("li");
-        li.textContent = `${data.name} - ${data.score}`;
+        li.textContent = "ランキング読み込み失敗: " + e.message;
         rankingList.appendChild(li);
+      }
+    }
+
+    function restartGame() {
+      resetGame(true);
+    }
+
+    document.addEventListener("keydown", e => {
+      keys[e.code] = true;
+      if (e.code === "Space") {
+        e.preventDefault();
+        shootBullet();
+      }
+    });
+
+    document.addEventListener("keyup", e => {
+      keys[e.code] = false;
+    });
+
+    function bindHoldButton(button, code) {
+      button.addEventListener("touchstart", e => {
+        e.preventDefault();
+        keys[code] = true;
+      });
+      button.addEventListener("touchend", e => {
+        e.preventDefault();
+        keys[code] = false;
+      });
+      button.addEventListener("mousedown", e => {
+        e.preventDefault();
+        keys[code] = true;
+      });
+      button.addEventListener("mouseup", e => {
+        e.preventDefault();
+        keys[code] = false;
+      });
+      button.addEventListener("mouseleave", e => {
+        e.preventDefault();
+        keys[code] = false;
       });
     }
 
+    bindHoldButton(leftBtn, "ArrowLeft");
+    bindHoldButton(rightBtn, "ArrowRight");
+
+    fireBtn.addEventListener("touchstart", e => {
+      e.preventDefault();
+      shootBullet();
+    });
+
+    fireBtn.addEventListener("mousedown", e => {
+      e.preventDefault();
+      shootBullet();
+    });
+
     window.saveScore = saveScore;
     window.loadRanking = loadRanking;
+    window.restartGame = restartGame;
 
+    resetGame(true);
     loadRanking();
     gameLoop();
   </script>
