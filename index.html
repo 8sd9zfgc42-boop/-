@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixel Space Battle | 完成版ブラウザシューティング</title>
   <meta name="description" content="レトロなドット絵風で遊べる完成版ブラウザシューティングゲーム。ランキング、ボス演出、必殺技、パワーアップ、BGM、スマホ対応つき。" />
+  <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, HTMLゲーム, JavaScriptゲーム, レトロゲーム, ランキング, ボス戦" />
+  <meta name="author" content="Rakuten AI User Project" />
+  <meta name="robots" content="index, follow" />
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -301,7 +305,9 @@
       h1 { font-size: 15px; }
       input, button { font-size: 8px; }
       #rankingTitle { font-size: 12px; }
-      #rankingList, #introText, #seoText { font-size: 9px; }
+      #rankingList, #introText, #seoText {
+        font-size: 9px;
+      }
       #seoText h2 { font-size: 11px; }
       #touchControls {
         grid-template-columns: repeat(3, 1fr);
@@ -502,7 +508,9 @@
 
     function loadPlayerName() {
       const savedName = localStorage.getItem(PLAYER_NAME_KEY);
-      if (savedName) playerNameInput.value = savedName;
+      if (savedName) {
+        playerNameInput.value = savedName;
+      }
     }
 
     function savePlayerName() {
@@ -521,7 +529,9 @@
     }
 
     function unlockAudioOnce() {
-      if (!audioUnlocked) setupAudio();
+      if (!audioUnlocked) {
+        setupAudio();
+      }
     }
 
     function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
@@ -608,10 +618,14 @@
 
         if (bgmMode === "boss") {
           beep(freq, dur, "sawtooth", 0.022, -5);
-          if (index % 2 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
+          if (index % 2 === 0) {
+            beep(freq / 2, dur * 0.9, "triangle", 0.014, 0);
+          }
         } else {
           beep(freq, dur, "square", 0.018, 8);
-          if (index % 4 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
+          if (index % 4 === 0) {
+            beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
+          }
         }
 
         index = (index + 1) % melody.length;
@@ -633,6 +647,7 @@
     function toggleBgm() {
       unlockAudioOnce();
       bgmEnabled = !bgmEnabled;
+
       if (bgmEnabled) {
         startBgm();
         messageEl.textContent = bgmMode === "boss" ? "BOSS BGM ON" : "BGM ON";
@@ -684,11 +699,11 @@
         targetY: 60,
         width: 160,
         height: 100,
-        hp,
+        hp: hp,
         maxHp: hp,
         direction: 1,
         speed: 1.4 + (tier - 1) * 0.28,
-        tier,
+        tier: tier,
         entering: true
       };
 
@@ -827,7 +842,13 @@
     }
 
     function createPlayerBullet(x, y, vx = 0) {
-      bullets.push({ x, y, width: 4, height: 12, speed: 9, vx });
+      bullets.push({
+        x, y,
+        width: 4,
+        height: 12,
+        speed: 9,
+        vx
+      });
     }
 
     function shootBullet() {
@@ -850,11 +871,13 @@
 
     function spawnItem(x, y) {
       if (Math.random() > ITEM_DROP_RATE) return;
+
       const types = ["RAPID", "TRIPLE", "SPEED"];
       const type = types[Math.floor(Math.random() * types.length)];
 
       items.push({
-        x, y,
+        x,
+        y,
         width: 18,
         height: 18,
         speed: 2.1,
@@ -864,6 +887,7 @@
 
     function applyItem(type) {
       const until = Date.now() + POWER_DURATION;
+
       if (type === "RAPID") {
         rapidBoostUntil = until;
         messageEl.textContent = "RAPID BOOST!";
@@ -910,7 +934,7 @@
         y: fromY,
         width: 6,
         height: 14,
-        speed,
+        speed: speed,
         vx: (dx / len) * speed * 0.55,
         vy: (dy / len) * speed * 0.55,
         homing
@@ -1022,7 +1046,11 @@
 
       specialCount--;
       enemyBullets = [];
-      effects.push({ type: "flash", time: 18 });
+
+      effects.push({
+        type: "flash",
+        time: 18
+      });
 
       if (boss) {
         boss.hp -= 30;
@@ -1086,7 +1114,9 @@
     }
 
     function updateItems() {
-      items.forEach(item => item.y += item.speed);
+      items.forEach(item => {
+        item.y += item.speed;
+      });
 
       items.forEach(item => {
         if (rectHit(item, player)) {
@@ -1157,7 +1187,10 @@
         });
       }
 
-      effects.push({ type: "flash", time: 24 });
+      effects.push({
+        type: "flash",
+        time: 24
+      });
     }
 
     function checkBulletHits() {
@@ -1222,7 +1255,11 @@
       lives--;
       invincibleUntil = Date.now() + INVINCIBLE_TIME;
       playDamageSound();
-      effects.push({ type: "playerHit", time: 14 });
+
+      effects.push({
+        type: "playerHit",
+        time: 14
+      });
 
       if (lives <= 0) {
         triggerGameOver("GAME OVER");
@@ -1327,8 +1364,12 @@
 
       player.speed = getCurrentPlayerSpeed();
 
-      if (keys["ArrowLeft"] && player.x > 10) player.x -= player.speed;
-      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) player.x += player.speed;
+      if (keys["ArrowLeft"] && player.x > 10) {
+        player.x -= player.speed;
+      }
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
+        player.x += player.speed;
+      }
 
       const now = Date.now();
       if (now - lastAutoShotTime > getCurrentShotInterval()) {
@@ -1404,10 +1445,14 @@
 
     function drawBullets() {
       ctx.fillStyle = "#fff37a";
-      bullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+      bullets.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
 
       ctx.fillStyle = boss ? "#ff5252" : "#ff8b5e";
-      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+      enemyBullets.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
     }
 
     function drawItems() {
@@ -1544,15 +1589,17 @@
     }
 
     function drawOverlay() {
-      if (gameState !== "gameover") return;
+      if (gameState === "playing") return;
 
-      ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (gameState === "gameover") {
+        ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#ffffff";
-      ctx.textAlign = "center";
-      ctx.font = "24px 'Press Start 2P', monospace";
-      ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.font = "24px 'Press Start 2P', monospace";
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
+      }
     }
 
     function draw() {
@@ -1609,13 +1656,13 @@
     }
 
     function bindHoldButton(button, code) {
-      button.addEventListener("pointerdown", e => {
+      button.addEventListener("pointerdown", (e) => {
         e.preventDefault();
         unlockAudioOnce();
         keys[code] = true;
       });
 
-      button.addEventListener("pointerup", e => {
+      button.addEventListener("pointerup", (e) => {
         e.preventDefault();
         keys[code] = false;
       });
@@ -1629,7 +1676,9 @@
       });
     }
 
-    document.addEventListener("contextmenu", e => e.preventDefault());
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
 
     document.addEventListener("keydown", e => {
       if (["ArrowLeft", "ArrowRight", "Space", "KeyX"].includes(e.code)) {
@@ -1638,7 +1687,9 @@
       unlockAudioOnce();
       keys[e.code] = true;
 
-      if (e.code === "KeyX") useSpecial();
+      if (e.code === "KeyX") {
+        useSpecial();
+      }
     });
 
     document.addEventListener("keyup", e => {
@@ -1651,14 +1702,16 @@
     bindHoldButton(leftBtn, "ArrowLeft");
     bindHoldButton(rightBtn, "ArrowRight");
 
-    specialBtn.addEventListener("pointerdown", e => {
+    specialBtn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       unlockAudioOnce();
       useSpecial();
     });
 
     rankingModal.addEventListener("click", e => {
-      if (e.target === rankingModal) closeRanking();
+      if (e.target === rankingModal) {
+        closeRanking();
+      }
     });
 
     window.openRanking = openRanking;
