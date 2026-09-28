@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pixel Space Battle UI Edition</title>
-  <meta name="description" content="1人モード、VS MODE、NORMAL MATCH、ROOM MATCH、ポーズ画面、ランキング、名前登録つきのレトロ風ブラウザゲームUI版。" />
+  <title>Pixel Space Battle</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -13,7 +12,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      background: radial-gradient(circle at top, #271149 0%, #0a0820 40%, #03030a 100%);
+      background: radial-gradient(circle at top, #241041 0%, #090714 45%, #020207 100%);
       color: #d8f6ff;
       font-family: 'Press Start 2P', monospace;
       text-align: center;
@@ -23,16 +22,10 @@
       -webkit-touch-callout: none;
     }
 
-    body, canvas, button, input, div, span, p, h1 {
-      -webkit-user-select: none;
-      user-select: none;
-      -webkit-touch-callout: none;
-    }
-
-    button, input, canvas {
+    button, canvas, input {
       font-family: 'Press Start 2P', monospace;
       -webkit-tap-highlight-color: transparent;
-      touch-action: none;
+      touch-action: manipulation;
     }
 
     #wrap {
@@ -43,18 +36,17 @@
     }
 
     h1 {
-      margin: 10px 0 8px;
+      margin: 8px 0 6px;
       font-size: 18px;
-      color: #79f4ff;
-      text-shadow: 0 0 10px rgba(121,244,255,0.7);
+      color: #7ef7ff;
+      text-shadow: 0 0 12px rgba(126,247,255,0.7);
     }
 
     #subText {
-      font-size: 10px;
+      font-size: 9px;
       line-height: 1.8;
       color: #bfefff;
-      max-width: 880px;
-      margin: 0 auto 12px;
+      margin-bottom: 10px;
     }
 
     #canvasWrap {
@@ -92,66 +84,44 @@
 
     #message {
       min-height: 30px;
-      margin: 12px auto 6px;
+      margin: 12px auto 8px;
       color: #ffe57e;
       font-size: 10px;
       line-height: 1.6;
       max-width: 880px;
     }
 
-    #controls {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin: 10px auto 0;
-      max-width: 880px;
-    }
-
-    button, input {
-      border: 3px solid #79f4ff;
-      background: #171233;
-      color: #fff;
-      font-size: 9px;
-      padding: 10px;
-    }
-
-    input {
-      width: 220px;
-      outline: none;
-    }
-
-    button {
-      cursor: pointer;
-      box-shadow: 0 0 0 2px #120c28 inset;
-    }
-
-    button:hover {
-      filter: brightness(1.1);
-    }
-
     #touchControls {
-      margin: 14px auto 0;
+      margin: 12px auto 0;
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(3, 1fr);
       gap: 10px;
-      max-width: 700px;
+      max-width: 720px;
     }
 
     #touchControls button {
-      min-height: 54px;
+      min-height: 58px;
       font-size: 11px;
+      border: 3px solid #79f4ff;
       background: linear-gradient(180deg, #352868 0%, #17132f 100%);
+      color: #fff;
+      box-shadow: 0 0 0 2px #120c28 inset;
+      cursor: pointer;
+    }
+
+    #okBtn {
+      border-color: #ffe57e !important;
+      background: linear-gradient(180deg, #6a5615 0%, #2b240c 100%) !important;
+      color: #fff7c2 !important;
     }
 
     #pauseBtn {
-      border-color: #ffe57e;
-      color: #fff7c2;
-      background: linear-gradient(180deg, #6a5615 0%, #2b240c 100%) !important;
+      border-color: #ffb3cf !important;
+      background: linear-gradient(180deg, #7f2c4c 0%, #311220 100%) !important;
     }
 
     #help {
-      margin-top: 14px;
+      margin-top: 12px;
       font-size: 8px;
       line-height: 1.8;
       color: #9ddfff;
@@ -160,79 +130,15 @@
       margin-right: auto;
     }
 
-    #rankingModal, #nameModal, #howToModal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.72);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      padding: 20px;
-    }
-
-    .showModal {
-      display: flex !important;
-    }
-
-    .modalPanel {
-      width: min(92vw, 560px);
-      background: rgba(8,8,24,0.98);
-      border: 4px solid #ffdb70;
-      box-shadow: 0 0 0 4px #241a00 inset, 0 0 24px rgba(255,219,112,0.25);
-      padding: 18px 16px;
-      text-align: left;
-    }
-
-    .modalTitle {
-      text-align: center;
-      color: #ffdb70;
-      margin: 0 0 14px;
-      font-size: 14px;
-    }
-
-    #rankingList {
-      min-height: 160px;
-      padding-left: 24px;
-      font-size: 10px;
-      line-height: 1.9;
-    }
-
-    .modalButtons {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: 12px;
-    }
-
-    .modalButtons button {
-      min-width: 140px;
-    }
-
-    .smallText {
-      font-size: 8px;
-      line-height: 1.8;
-      color: #bfefff;
-    }
-
     footer {
-      margin: 20px 0 10px;
+      margin: 18px 0 10px;
       font-size: 8px;
       color: #7ab9d8;
     }
 
     @media (max-width: 700px) {
       h1 { font-size: 15px; }
-      #touchControls {
-        grid-template-columns: repeat(2, 1fr);
-        max-width: 100%;
-      }
-      #touchControls button {
-        font-size: 10px;
-        min-height: 50px;
-      }
-      button, input { font-size: 8px; }
+      #touchControls button { font-size: 10px; min-height: 52px; }
     }
   </style>
 </head>
@@ -240,7 +146,7 @@
   <div id="wrap">
     <h1>PIXEL SPACE BATTLE</h1>
     <div id="subText">
-      UI強化版。1人モード、VS MODE、NORMAL MATCH、ROOM MATCH、ポーズ画面、名前登録、ランキングつき。
+      SINGLE / NORMAL MATCH / ROOM MATCH / RP RANK / ITEM DROP / ENEMY SHOT
     </div>
 
     <div id="canvasWrap">
@@ -250,135 +156,48 @@
 
     <div id="message">TITLE MENU</div>
 
-    <div id="controls">
-      <button onclick="toggleBgm()">BGM ON/OFF</button>
-      <button onclick="openRanking()">RANKING</button>
-      <button onclick="openHowTo()">HOW TO PLAY</button>
-      <button onclick="openNameModal()">NAME</button>
-      <button onclick="goToTitle()">TITLE</button>
-    </div>
-
     <div id="touchControls">
       <button id="leftBtn">◀ LEFT</button>
       <button id="rightBtn">RIGHT ▶</button>
-      <button id="upBtn">▲ UP</button>
-      <button id="downBtn">▼ DOWN</button>
       <button id="actionBtn">ACTION</button>
       <button id="specialBtn">SPECIAL</button>
-      <button id="startBtn">START / OK</button>
+      <button id="okBtn">OK</button>
       <button id="pauseBtn">PAUSE</button>
     </div>
 
     <div id="help">
-      TITLE: ↑ ↓ / ENTER / TAP<br>
-      SINGLE: ← → / X / P or ESC = PAUSE<br>
-      VS MODE: UI DEMO / ONLINE-LIKE SCREEN / ROOM FLOW
+      MENU: LEFT / RIGHT / OK<br>
+      SINGLE: LEFT / RIGHT / ACTION / SPECIAL / PAUSE<br>
+      VS: NORMAL MATCH HAS RP RANK SYSTEM
     </div>
 
-    <footer>
-      PIXEL SPACE BATTLE / UI & FLOW EDITION
-    </footer>
+    <footer>PIXEL SPACE BATTLE / CLEAN UI EDITION</footer>
   </div>
 
-  <div id="rankingModal">
-    <div class="modalPanel">
-      <div class="modalTitle">RANKING</div>
-      <ol id="rankingList"></ol>
-      <div class="modalButtons">
-        <button onclick="closeRanking()">CLOSE</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="nameModal">
-    <div class="modalPanel">
-      <div class="modalTitle">NAME ENTRY</div>
-      <div class="smallText">ランキングと対戦画面に表示する名前です。</div>
-      <div style="margin-top:12px;">
-        <input id="nameInputModal" placeholder="PLAYER NAME" />
-      </div>
-      <div class="modalButtons">
-        <button onclick="saveNameFromModal()">SAVE</button>
-        <button onclick="closeNameModal()">CLOSE</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="howToModal">
-    <div class="modalPanel">
-      <div class="modalTitle">HOW TO PLAY</div>
-      <div class="smallText">
-        1 PLAYER:<br>
-        ・← → で移動<br>
-        ・X で必殺技<br>
-        ・P または ESC でポーズ<br><br>
-
-        VS MODE:<br>
-        ・NORMAL MATCH は通常対戦風UI<br>
-        ・ROOM MATCH はルーム制の待機画面つき<br>
-        ・この版はUI重視のため、通信中身は仮です
-      </div>
-      <div class="modalButtons">
-        <button onclick="closeHowTo()">CLOSE</button>
-      </div>
-    </div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      getDocs,
-      query,
-      orderBy,
-      limit
-    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAD2nUaqq8NLxBsfLylsHZQPlOoxbNWDG4",
-      authDomain: "space-invader-656c8.firebaseapp.com",
-      projectId: "space-invader-656c8",
-      storageBucket: "space-invader-656c8.firebasestorage.app",
-      messagingSenderId: "966615206229",
-      appId: "1:966615206229:web:5c9ff044bdcea422af47dc"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
+  <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-
     const messageEl = document.getElementById("message");
-    const rankingList = document.getElementById("rankingList");
-    const rankingModal = document.getElementById("rankingModal");
-    const nameModal = document.getElementById("nameModal");
-    const howToModal = document.getElementById("howToModal");
-    const nameInputModal = document.getElementById("nameInputModal");
 
     const leftBtn = document.getElementById("leftBtn");
     const rightBtn = document.getElementById("rightBtn");
-    const upBtn = document.getElementById("upBtn");
-    const downBtn = document.getElementById("downBtn");
     const actionBtn = document.getElementById("actionBtn");
     const specialBtn = document.getElementById("specialBtn");
-    const startBtn = document.getElementById("startBtn");
+    const okBtn = document.getElementById("okBtn");
     const pauseBtn = document.getElementById("pauseBtn");
 
     const PLAYER_NAME_KEY = "pixel_space_battle_player_name";
-    const PLAYER_ID_KEY = "pixel_space_battle_player_id";
+    const RANK_DATA_KEY = "pixel_space_battle_rank_data";
 
     let keys = {};
     let stars = [];
-    let effects = [];
+    let items = [];
+    let particles = [];
+    let enemyBullets = [];
+    let playerBullets = [];
 
     let audioCtx = null;
     let audioUnlocked = false;
-    let bgmEnabled = false;
-    let bgmInterval = null;
-    let bgmMode = "normal";
 
     let gameState = "title";
     let previousStateBeforePause = "title";
@@ -387,22 +206,40 @@
     let vsMenuIndex = 0;
     let roomMenuIndex = 0;
     let pauseMenuIndex = 0;
+    let resultTimer = 0;
 
-    let playerName = "NO_NAME";
-    let localPlayerId = "";
+    let playerName = "PLAYER";
 
     let singlePlayer = null;
-    let singleBullets = [];
     let singleEnemies = [];
     let singleScore = 0;
     let singleLives = 3;
+    let singleHp = 100;
     let singleLastShot = 0;
     let singleEnemyDir = 1;
     let singleSpecial = 1;
+    let singleInvincible = 0;
 
     let normalVs = null;
     let roomWaitData = null;
     let roomBattleData = null;
+
+    const rankDefs = [
+      { name: "BEGINNER", min: 0, color: "#8f99a8", accent: "#eef3ff", shape: "hex" },
+      { name: "BRONZE", min: 100, color: "#b87333", accent: "#f0be8f", shape: "bronze" },
+      { name: "SILVER", min: 220, color: "#c7d2dd", accent: "#ffffff", shape: "shield" },
+      { name: "GOLD", min: 380, color: "#ffd84d", accent: "#fff7b0", shape: "crown" },
+      { name: "PLATINUM", min: 580, color: "#9fe8ff", accent: "#ecffff", shape: "crystal" },
+      { name: "DIAMOND", min: 820, color: "#39d8ff", accent: "#dbf9ff", shape: "diamond" },
+      { name: "MASTER", min: 1150, color: "#b04cff", accent: "#ffd45c", shape: "winged" }
+    ];
+
+    let rankData = {
+      rp: 0,
+      wins: 0,
+      loses: 0,
+      streak: 0
+    };
 
     const PLAYER_SPRITE = [
       "00011000","00111100","01111110","11111111",
@@ -414,180 +251,38 @@
       "11111111","00100100","01000010","10000001"
     ];
 
-    function ensurePlayerId() {
-      let id = localStorage.getItem(PLAYER_ID_KEY);
-      if (!id) {
-        id = "p_" + Math.random().toString(36).slice(2, 10);
-        localStorage.setItem(PLAYER_ID_KEY, id);
-      }
-      localPlayerId = id;
-    }
+    function loadPlayerData() {
+      const savedName = localStorage.getItem(PLAYER_NAME_KEY);
+      if (savedName) playerName = savedName;
 
-    function loadPlayerName() {
-      const saved = localStorage.getItem(PLAYER_NAME_KEY);
-      if (saved) playerName = saved;
-      nameInputModal.value = playerName;
-    }
-
-    function saveNameFromModal() {
-      const name = nameInputModal.value.trim() || "NO_NAME";
-      playerName = name;
-      localStorage.setItem(PLAYER_NAME_KEY, name);
-      closeNameModal();
-      messageEl.textContent = `NAME SAVED: ${name}`;
-      playDecisionSound();
-    }
-
-    function openNameModal() {
-      nameInputModal.value = playerName;
-      nameModal.classList.add("showModal");
-    }
-
-    function closeNameModal() {
-      nameModal.classList.remove("showModal");
-    }
-
-    function openHowTo() {
-      howToModal.classList.add("showModal");
-    }
-
-    function closeHowTo() {
-      howToModal.classList.remove("showModal");
-    }
-
-    function openRanking() {
-      loadRanking();
-      rankingModal.classList.add("showModal");
-    }
-
-    function closeRanking() {
-      rankingModal.classList.remove("showModal");
-    }
-
-    function setupAudio() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === "suspended") audioCtx.resume();
-      audioUnlocked = true;
-    }
-
-    function unlockAudioOnce() {
-      if (!audioUnlocked) setupAudio();
-    }
-
-    function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
-      if (!audioCtx) return;
-
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      osc.type = type;
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      if (slide !== 0) {
-        osc.frequency.linearRampToValueAtTime(freq + slide, audioCtx.currentTime + duration);
-      }
-
-      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
-
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + duration);
-    }
-
-    function playDecisionSound() {
-      beep(660, 0.06, "square", 0.03, 40);
-      setTimeout(() => beep(880, 0.08, "square", 0.03, 50), 60);
-    }
-
-    function playCursorSound() {
-      beep(520, 0.04, "square", 0.018, 20);
-    }
-
-    function playShootSound() {
-      beep(720, 0.04, "square", 0.018, -120);
-    }
-
-    function playHitSound() {
-      beep(220, 0.08, "square", 0.04, 100);
-      setTimeout(() => beep(180, 0.06, "square", 0.03, -80), 30);
-    }
-
-    function playPauseSound() {
-      beep(320, 0.08, "triangle", 0.03, -20);
-    }
-
-    function playResumeSound() {
-      beep(420, 0.08, "triangle", 0.03, 30);
-    }
-
-    function playSpecialSound() {
-      beep(880, 0.12, "square", 0.05, 120);
-      setTimeout(() => beep(660, 0.12, "square", 0.05, 80), 80);
-      setTimeout(() => beep(440, 0.18, "triangle", 0.05, -60), 160);
-    }
-
-    function startBgm() {
-      if (bgmInterval || !bgmEnabled) return;
-
-      const normalMelody = [
-        [262, 0.16], [330, 0.16], [392, 0.18], [330, 0.16],
-        [294, 0.16], [349, 0.16], [440, 0.20], [349, 0.16],
-        [262, 0.16], [330, 0.16], [392, 0.18], [523, 0.22]
-      ];
-
-      const vsMelody = [
-        [196, 0.16], [262, 0.16], [330, 0.18], [262, 0.16],
-        [220, 0.16], [294, 0.16], [370, 0.18], [294, 0.16],
-        [196, 0.16], [247, 0.16], [330, 0.18], [392, 0.20]
-      ];
-
-      let index = 0;
-      bgmInterval = setInterval(() => {
-        if (!bgmEnabled || !audioCtx) return;
-        const melody = bgmMode === "vs" ? vsMelody : normalMelody;
-        const [freq, dur] = melody[index];
-        beep(freq, dur, bgmMode === "vs" ? "sawtooth" : "square", 0.018, 8);
-        if (index % 4 === 0) beep(freq / 2, dur * 0.9, "triangle", 0.012, 4);
-        index = (index + 1) % melody.length;
-      }, 190);
-    }
-
-    function stopBgm() {
-      if (bgmInterval) {
-        clearInterval(bgmInterval);
-        bgmInterval = null;
+      const savedRank = localStorage.getItem(RANK_DATA_KEY);
+      if (savedRank) {
+        try {
+          rankData = JSON.parse(savedRank);
+        } catch (e) {}
       }
     }
 
-    function refreshBgm() {
-      stopBgm();
-      if (bgmEnabled) startBgm();
+    function saveRankData() {
+      localStorage.setItem(RANK_DATA_KEY, JSON.stringify(rankData));
     }
 
-    function toggleBgm() {
-      unlockAudioOnce();
-      bgmEnabled = !bgmEnabled;
-      if (bgmEnabled) {
-        startBgm();
-        messageEl.textContent = "BGM ON";
-      } else {
-        stopBgm();
-        messageEl.textContent = "BGM OFF";
+    function getCurrentRank(rp) {
+      let current = rankDefs[0];
+      for (const rank of rankDefs) {
+        if (rp >= rank.min) current = rank;
       }
-      playDecisionSound();
+      return current;
     }
 
     function createBackground() {
       stars = [];
-      for (let i = 0; i < 70; i++) {
+      for (let i = 0; i < 75; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
           size: Math.random() < 0.7 ? 2 : 3,
-          speed: 0.15 + Math.random() * 0.35,
+          speed: 0.15 + Math.random() * 0.4,
           color: Math.random() < 0.7 ? "#c8f7ff" : "#8f9bff"
         });
       }
@@ -605,7 +300,7 @@
 
     function drawBackground() {
       const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      bg.addColorStop(0, "#120a2a");
+      bg.addColorStop(0, "#110825");
       bg.addColorStop(0.45, "#141c52");
       bg.addColorStop(1, "#05101d");
       ctx.fillStyle = bg;
@@ -628,6 +323,71 @@
         ctx.fillStyle = star.color;
         ctx.fillRect(star.x, star.y, star.size, star.size);
       });
+    }
+
+    function setupAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      audioUnlocked = true;
+    }
+
+    function unlockAudioOnce() {
+      if (!audioUnlocked) setupAudio();
+    }
+
+    function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      if (slide !== 0) {
+        osc.frequency.linearRampToValueAtTime(freq + slide, audioCtx.currentTime + duration);
+      }
+
+      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playCursorSound() { beep(520, 0.04, "square", 0.018, 20); }
+    function playDecisionSound() {
+      beep(660, 0.06, "square", 0.03, 40);
+      setTimeout(() => beep(880, 0.08, "square", 0.03, 50), 50);
+    }
+    function playShootSound() { beep(720, 0.04, "square", 0.018, -120); }
+    function playEnemyShootSound() { beep(300, 0.05, "square", 0.018, -40); }
+    function playHitSound() {
+      beep(220, 0.08, "square", 0.04, 100);
+      setTimeout(() => beep(180, 0.06, "square", 0.03, -80), 30);
+    }
+    function playItemSound() {
+      beep(940, 0.08, "triangle", 0.04, 40);
+      setTimeout(() => beep(1180, 0.09, "triangle", 0.04, 60), 60);
+    }
+    function playSpecialSound() {
+      beep(880, 0.12, "square", 0.05, 120);
+      setTimeout(() => beep(660, 0.12, "square", 0.05, 80), 80);
+      setTimeout(() => beep(440, 0.18, "triangle", 0.05, -60), 160);
+    }
+    function playPauseSound() { beep(320, 0.08, "triangle", 0.03, -20); }
+    function playResumeSound() { beep(420, 0.08, "triangle", 0.03, 30); }
+    function playWinSound() {
+      beep(660, 0.08, "square", 0.03, 50);
+      setTimeout(() => beep(880, 0.08, "square", 0.03, 60), 80);
+      setTimeout(() => beep(1180, 0.12, "triangle", 0.04, 0), 160);
+    }
+    function playLoseSound() {
+      beep(320, 0.12, "square", 0.03, -30);
+      setTimeout(() => beep(260, 0.12, "square", 0.03, -30), 90);
+      setTimeout(() => beep(190, 0.18, "triangle", 0.04, -20), 180);
     }
 
     function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
@@ -667,48 +427,79 @@
       return current;
     }
 
-    function goToTitle() {
-      gameState = "title";
-      titleMenuIndex = 0;
-      bgmMode = "normal";
-      refreshBgm();
-      messageEl.textContent = "TITLE MENU";
+    function addParticles(x, y, color, count = 10) {
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 4,
+          vy: (Math.random() - 0.5) * 4,
+          size: 2 + Math.random() * 2,
+          life: 20 + Math.random() * 20,
+          color
+        });
+      }
     }
 
-    function initSingleMode() {
-      singlePlayer = {
-        x: canvas.width / 2 - 16,
-        y: 440,
-        width: 32,
-        height: 32,
-        speed: 6
-      };
-      singleBullets = [];
-      singleEnemies = [];
-      singleScore = 0;
-      singleLives = 3;
-      singleLastShot = 0;
-      singleEnemyDir = 1;
-      singleSpecial = 1;
+    function updateParticles() {
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+      });
+      particles = particles.filter(p => p.life > 0);
+    }
 
+    function drawParticles() {
+      particles.forEach(p => {
+        ctx.globalAlpha = p.life / 40;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(p.x, p.y, p.size, p.size);
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function createEnemyGrid() {
+      singleEnemies = [];
       for (let row = 0; row < 3; row++) {
         for (let col = 0; col < 10; col++) {
           singleEnemies.push({
             x: 95 + col * 62,
-            y: 60 + row * 36,
+            y: 70 + row * 38,
             width: 24,
             height: 24,
-            alive: true
+            alive: true,
+            shotCooldown: 40 + Math.random() * 120
           });
         }
       }
     }
 
+    function initSingleMode() {
+      singlePlayer = {
+        x: canvas.width / 2 - 16,
+        y: 430,
+        width: 32,
+        height: 32,
+        speed: 6
+      };
+      playerBullets = [];
+      enemyBullets = [];
+      items = [];
+      particles = [];
+      singleScore = 0;
+      singleLives = 3;
+      singleHp = 100;
+      singleLastShot = 0;
+      singleEnemyDir = 1;
+      singleSpecial = 1;
+      singleInvincible = 0;
+      createEnemyGrid();
+    }
+
     function startSingleMode() {
       initSingleMode();
       gameState = "single";
-      bgmMode = "normal";
-      refreshBgm();
       messageEl.textContent = "1 PLAYER START";
       playDecisionSound();
     }
@@ -716,16 +507,12 @@
     function startVsMenu() {
       gameState = "vs_menu";
       vsMenuIndex = 0;
-      bgmMode = "vs";
-      refreshBgm();
       messageEl.textContent = "SELECT VS MODE";
       playDecisionSound();
     }
 
     function startNormalMatch() {
       gameState = "normal_vs";
-      bgmMode = "vs";
-      refreshBgm();
       normalVs = {
         leftX: 140,
         rightX: 660,
@@ -735,7 +522,10 @@
         rightHp: 100,
         leftGauge: 35,
         rightGauge: 68,
-        timer: 99
+        timer: 99,
+        battleTimer: 0,
+        result: null,
+        rpDelta: 0
       };
       messageEl.textContent = "NORMAL MATCH START";
       playDecisionSound();
@@ -778,8 +568,6 @@
 
     function startRoomBattleDemo() {
       gameState = "room_battle";
-      bgmMode = "vs";
-      refreshBgm();
       roomBattleData = {
         leftName: playerName,
         rightName: "RIVAL",
@@ -814,43 +602,101 @@
 
     function retryCurrentMode() {
       playDecisionSound();
-      if (previousStateBeforePause === "single" || gameState === "single") {
-        startSingleMode();
-      } else if (previousStateBeforePause === "normal_vs" || gameState === "normal_vs") {
-        startNormalMatch();
-      } else if (previousStateBeforePause === "room_wait" || gameState === "room_wait") {
-        createRoomFlow();
-      } else if (previousStateBeforePause === "room_battle" || gameState === "room_battle") {
-        startRoomBattleDemo();
-      }
+      if (previousStateBeforePause === "single" || gameState === "single") startSingleMode();
+      else if (previousStateBeforePause === "normal_vs" || gameState === "normal_vs") startNormalMatch();
+      else if (previousStateBeforePause === "room_wait" || gameState === "room_wait") createRoomFlow();
+      else if (previousStateBeforePause === "room_battle" || gameState === "room_battle") startRoomBattleDemo();
+    }
+
+    function dropItem(x, y) {
+      const roll = Math.random();
+      let type = null;
+      if (roll < 0.15) type = "heal";
+      else if (roll < 0.27) type = "special";
+      else if (roll < 0.42) type = "score";
+      if (!type) return;
+
+      items.push({
+        x,
+        y,
+        width: 18,
+        height: 18,
+        type,
+        vy: 1.5
+      });
+    }
+
+    function updateItems() {
+      items.forEach(item => {
+        item.y += item.vy;
+      });
+
+      items.forEach(item => {
+        if (rectHit(item, singlePlayer)) {
+          if (item.type === "heal") {
+            singleHp = Math.min(100, singleHp + 25);
+            messageEl.textContent = "ITEM: HP UP";
+          } else if (item.type === "special") {
+            singleSpecial++;
+            messageEl.textContent = "ITEM: SPECIAL +1";
+          } else if (item.type === "score") {
+            singleScore += 50;
+            messageEl.textContent = "ITEM: SCORE +50";
+          }
+          addParticles(item.x + 8, item.y + 8, "#ffe57e", 12);
+          playItemSound();
+          item.y = canvas.height + 100;
+        }
+      });
+
+      items = items.filter(item => item.y < canvas.height + 30);
     }
 
     function updateSingleMode() {
       updateBackground();
+      updateParticles();
+
+      if (singleInvincible > 0) singleInvincible--;
 
       if (keys["ArrowLeft"] && singlePlayer.x > 10) singlePlayer.x -= singlePlayer.speed;
       if (keys["ArrowRight"] && singlePlayer.x + singlePlayer.width < canvas.width - 10) singlePlayer.x += singlePlayer.speed;
 
       const now = Date.now();
-      if (now - singleLastShot > 180) {
-        singleBullets.push({
-          x: singlePlayer.x + singlePlayer.width / 2 - 2,
-          y: singlePlayer.y - 8,
-          width: 4,
-          height: 12,
-          speed: 8
-        });
-        singleLastShot = now;
-        playShootSound();
+      if (keys["Space"] || keys["KeyZ"]) {
+        if (now - singleLastShot > 180) {
+          playerBullets.push({
+            x: singlePlayer.x + singlePlayer.width / 2 - 2,
+            y: singlePlayer.y - 8,
+            width: 4,
+            height: 12,
+            speed: 8
+          });
+          singleLastShot = now;
+          playShootSound();
+        }
       }
 
-      singleBullets.forEach(b => b.y -= b.speed);
-      singleBullets = singleBullets.filter(b => b.y > -20);
+      playerBullets.forEach(b => b.y -= b.speed);
+      playerBullets = playerBullets.filter(b => b.y > -20);
 
       let hitEdge = false;
       singleEnemies.forEach(e => {
         if (!e.alive) return;
         e.x += 0.6 * singleEnemyDir;
+        e.shotCooldown--;
+
+        if (e.shotCooldown <= 0) {
+          enemyBullets.push({
+            x: e.x + 10,
+            y: e.y + 16,
+            width: 4,
+            height: 10,
+            speed: 3.8 + Math.random() * 1.2
+          });
+          e.shotCooldown = 70 + Math.random() * 140;
+          playEnemyShootSound();
+        }
+
         if (e.x <= 20 || e.x + e.width >= canvas.width - 20) hitEdge = true;
       });
 
@@ -861,40 +707,129 @@
         });
       }
 
-      singleBullets.forEach(b => {
+      enemyBullets.forEach(b => b.y += b.speed);
+      enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20);
+
+      playerBullets.forEach(b => {
         singleEnemies.forEach(e => {
           if (!e.alive) return;
           if (rectHit(b, e)) {
             e.alive = false;
             b.y = -100;
             singleScore += 10;
+            addParticles(e.x + 12, e.y + 12, "#ff74c8", 10);
+            dropItem(e.x + 4, e.y + 4);
             playHitSound();
           }
         });
       });
 
+      if (singleInvincible <= 0) {
+        enemyBullets.forEach(b => {
+          if (rectHit(b, singlePlayer)) {
+            b.y = canvas.height + 50;
+            singleHp -= 20;
+            singleInvincible = 60;
+            addParticles(singlePlayer.x + 16, singlePlayer.y + 16, "#ff6464", 12);
+            playHitSound();
+            messageEl.textContent = "PLAYER HIT";
+
+            if (singleHp <= 0) {
+              singleLives--;
+              singleHp = 100;
+              singleInvincible = 90;
+              messageEl.textContent = "LIFE LOST";
+
+              if (singleLives <= 0) {
+                gameState = "single_gameover";
+                resultTimer = 180;
+                playLoseSound();
+                messageEl.textContent = `GAME OVER / SCORE ${singleScore}`;
+              }
+            }
+          }
+        });
+      }
+
+      updateItems();
+
       if (singleEnemies.every(e => !e.alive)) {
-        saveScoreSimple(singleScore);
-        initSingleMode();
+        createEnemyGrid();
+        singleScore += 100;
+        singleSpecial = Math.min(singleSpecial + 1, 5);
         messageEl.textContent = "WAVE CLEAR";
+      }
+    }
+
+    function applyRankResult(win) {
+      const beforeRank = getCurrentRank(rankData.rp);
+      let delta = 0;
+
+      if (win) {
+        delta = 20 + Math.min(rankData.streak * 2, 10);
+        rankData.wins++;
+        rankData.streak++;
+      } else {
+        delta = -12;
+        rankData.loses++;
+        rankData.streak = 0;
+      }
+
+      rankData.rp = Math.max(0, rankData.rp + delta);
+      saveRankData();
+
+      const afterRank = getCurrentRank(rankData.rp);
+      normalVs.rpDelta = delta;
+
+      if (afterRank.name !== beforeRank.name && win) {
+        messageEl.textContent = `RANK UP! ${afterRank.name}`;
+      } else if (afterRank.name !== beforeRank.name && !win) {
+        messageEl.textContent = `RANK DOWN! ${afterRank.name}`;
+      } else {
+        messageEl.textContent = win ? `RP +${delta}` : `RP ${delta}`;
       }
     }
 
     function updateNormalVsMode() {
       updateBackground();
-      normalVs.timer -= 0.02;
-      if (normalVs.timer < 0) normalVs.timer = 99;
+      normalVs.battleTimer++;
 
-      if (keys["ArrowLeft"] && normalVs.leftX > 50) normalVs.leftX -= 3.2;
-      if (keys["ArrowRight"] && normalVs.leftX < 350) normalVs.leftX += 3.2;
-      if (keys["ArrowUp"] && normalVs.leftY > 100) normalVs.leftY -= 3.2;
-      if (keys["ArrowDown"] && normalVs.leftY < 430) normalVs.leftY += 3.2;
+      if (normalVs.result === null) {
+        normalVs.timer -= 0.02;
+        if (normalVs.timer < 0) normalVs.timer = 0;
 
-      normalVs.rightX += Math.sin(Date.now() * 0.002) * 0.8;
-      normalVs.rightY += Math.cos(Date.now() * 0.0024) * 0.7;
+        if (keys["ArrowLeft"] && normalVs.leftX > 50) normalVs.leftX -= 3.2;
+        if (keys["ArrowRight"] && normalVs.leftX < 350) normalVs.leftX += 3.2;
 
-      normalVs.leftGauge = 20 + ((Math.sin(Date.now() * 0.002) + 1) * 35);
-      normalVs.rightGauge = 20 + ((Math.cos(Date.now() * 0.0022) + 1) * 35);
+        normalVs.rightX += Math.sin(Date.now() * 0.002) * 0.8;
+        normalVs.rightY += Math.cos(Date.now() * 0.0024) * 0.7;
+
+        if (keys["Space"] || keys["KeyZ"]) {
+          normalVs.rightHp -= 0.5;
+          normalVs.leftGauge = Math.min(100, normalVs.leftGauge + 0.6);
+        }
+
+        normalVs.leftGauge = Math.max(0, normalVs.leftGauge - 0.03);
+        normalVs.rightGauge = 20 + ((Math.cos(Date.now() * 0.0022) + 1) * 35);
+
+        if (normalVs.battleTimer % 12 === 0) {
+          normalVs.leftHp -= Math.random() < 0.42 ? 0 : 0.4;
+          normalVs.rightHp -= Math.random() < 0.55 ? 0 : 0.7;
+        }
+
+        if (normalVs.leftHp <= 0 || normalVs.rightHp <= 0 || normalVs.timer <= 0) {
+          const win = normalVs.rightHp <= 0 || normalVs.leftHp > normalVs.rightHp;
+          normalVs.result = win ? "WIN" : "LOSE";
+          applyRankResult(win);
+          resultTimer = 180;
+          if (win) playWinSound(); else playLoseSound();
+        }
+      } else {
+        resultTimer--;
+        if (resultTimer <= 0) {
+          startVsMenu();
+        }
+      }
     }
 
     function updateRoomWaitMode() {
@@ -911,13 +846,12 @@
 
     function updateRoomBattleMode() {
       updateBackground();
+
       roomBattleData.timer -= 0.02;
       if (roomBattleData.timer < 0) roomBattleData.timer = 99;
 
       if (keys["ArrowLeft"] && roomBattleData.leftX > 50) roomBattleData.leftX -= 3.2;
       if (keys["ArrowRight"] && roomBattleData.leftX < 350) roomBattleData.leftX += 3.2;
-      if (keys["ArrowUp"] && roomBattleData.leftY > 100) roomBattleData.leftY -= 3.2;
-      if (keys["ArrowDown"] && roomBattleData.leftY < 430) roomBattleData.leftY += 3.2;
 
       roomBattleData.rightX += Math.sin(Date.now() * 0.0023) * 0.8;
       roomBattleData.rightY += Math.cos(Date.now() * 0.0025) * 0.7;
@@ -930,6 +864,11 @@
         updateBackground();
       } else if (gameState === "single") {
         updateSingleMode();
+      } else if (gameState === "single_gameover") {
+        updateBackground();
+        updateParticles();
+        resultTimer--;
+        if (resultTimer <= 0) gameState = "title";
       } else if (gameState === "normal_vs") {
         updateNormalVsMode();
       } else if (gameState === "room_wait") {
@@ -939,28 +878,187 @@
       }
     }
 
+    function drawRankBadge(x, y, size, rank) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      const c = rank.color;
+      const a = rank.accent;
+
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = c;
+
+      if (rank.shape === "hex") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.86, -size * 0.5);
+        ctx.lineTo(size * 0.86, size * 0.5);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size * 0.86, size * 0.5);
+        ctx.lineTo(-size * 0.86, -size * 0.5);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = a;
+        ctx.fillRect(-3, -3, 6, 6);
+      }
+      else if (rank.shape === "bronze") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, -size * 0.2);
+        ctx.lineTo(size * 0.6, size);
+        ctx.lineTo(-size * 0.6, size);
+        ctx.lineTo(-size, -size * 0.2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = a;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-8, 0);
+        ctx.lineTo(0, 8);
+        ctx.lineTo(8, 0);
+        ctx.stroke();
+      }
+      else if (rank.shape === "shield") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, -size * 0.2);
+        ctx.lineTo(size * 0.7, size * 0.7);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size * 0.7, size * 0.7);
+        ctx.lineTo(-size, -size * 0.2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = a;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-6, -2);
+        ctx.lineTo(-6, 8);
+        ctx.moveTo(6, -2);
+        ctx.lineTo(6, 8);
+        ctx.stroke();
+      }
+      else if (rank.shape === "crown") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(-size, size * 0.7);
+        ctx.lineTo(-size * 0.7, -size * 0.6);
+        ctx.lineTo(0, 0);
+        ctx.lineTo(size * 0.7, -size * 0.6);
+        ctx.lineTo(size, size * 0.7);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = a;
+        ctx.beginPath();
+        ctx.arc(0, -2, 5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      else if (rank.shape === "crystal") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.7, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size * 0.7, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = a;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(0, size);
+        ctx.moveTo(-size * 0.7, 0);
+        ctx.lineTo(size * 0.7, 0);
+        ctx.stroke();
+      }
+      else if (rank.shape === "diamond") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size, 0);
+        ctx.lineTo(0, size);
+        ctx.lineTo(-size, 0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle = a;
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(0, size);
+        ctx.moveTo(-size, 0);
+        ctx.lineTo(size, 0);
+        ctx.moveTo(-size * 0.45, -size * 0.45);
+        ctx.lineTo(size * 0.45, size * 0.45);
+        ctx.stroke();
+      }
+      else if (rank.shape === "winged") {
+        ctx.fillStyle = c;
+        ctx.beginPath();
+        ctx.moveTo(0, -size);
+        ctx.lineTo(size * 0.7, -size * 0.2);
+        ctx.lineTo(size * 0.5, size * 0.9);
+        ctx.lineTo(-size * 0.5, size * 0.9);
+        ctx.lineTo(-size * 0.7, -size * 0.2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = a;
+        ctx.beginPath();
+        ctx.arc(0, -2, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = a;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-size * 1.05, 0);
+        ctx.lineTo(-size * 0.35, -4);
+        ctx.moveTo(size * 1.05, 0);
+        ctx.lineTo(size * 0.35, -4);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
     function drawTitleMenu() {
       ctx.fillStyle = "rgba(5,2,20,0.46)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+      const rank = getCurrentRank(rankData.rp);
+
       ctx.textAlign = "center";
       ctx.fillStyle = "#77f6ff";
       ctx.font = "30px 'Press Start 2P', monospace";
-      ctx.fillText("PIXEL SPACE", canvas.width / 2, 140);
-      ctx.fillText("BATTLE", canvas.width / 2, 190);
+      ctx.fillText("PIXEL SPACE", canvas.width / 2, 130);
+      ctx.fillText("BATTLE", canvas.width / 2, 180);
 
-      const menu = ["1 PLAYER", "VS MODE", "RANKING", "HOW TO PLAY", "NAME ENTRY"];
+      drawRankBadge(canvas.width / 2 - 170, 255, 18, rank);
+
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.fillStyle = rank.color;
+      ctx.fillText(rank.name, canvas.width / 2, 260);
+
+      ctx.font = "10px 'Press Start 2P', monospace";
+      ctx.fillStyle = "#c6f5ff";
+      ctx.fillText(`${playerName} / RP ${rankData.rp}`, canvas.width / 2, 290);
+      ctx.fillText(`W ${rankData.wins}  L ${rankData.loses}`, canvas.width / 2, 314);
+
+      const menu = ["1 PLAYER", "VS MODE", "ROOM MATCH"];
       ctx.font = "14px 'Press Start 2P', monospace";
 
       for (let i = 0; i < menu.length; i++) {
         ctx.fillStyle = i === titleMenuIndex ? "#ffe57e" : "#ffffff";
         const label = i === titleMenuIndex ? `> ${menu[i]} <` : menu[i];
-        ctx.fillText(label, canvas.width / 2, 270 + i * 42);
+        ctx.fillText(label, canvas.width / 2, 375 + i * 46);
       }
-
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#9ddfff";
-      ctx.fillText(`PLAYER: ${playerName}`, canvas.width / 2, 500);
     }
 
     function drawVsMenu() {
@@ -970,7 +1068,7 @@
       ctx.textAlign = "center";
       ctx.fillStyle = "#ff9fe1";
       ctx.font = "26px 'Press Start 2P', monospace";
-      ctx.fillText("VS MODE", canvas.width / 2, 145);
+      ctx.fillText("VS MODE", canvas.width / 2, 150);
 
       const menu = ["NORMAL MATCH", "ROOM MATCH", "BACK"];
       ctx.font = "14px 'Press Start 2P', monospace";
@@ -980,10 +1078,6 @@
         const label = i === vsMenuIndex ? `> ${menu[i]} <` : menu[i];
         ctx.fillText(label, canvas.width / 2, 255 + i * 52);
       }
-
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#bfefff";
-      ctx.fillText("SELECT MATCH TYPE", canvas.width / 2, 460);
     }
 
     function drawRoomMenu() {
@@ -1003,14 +1097,12 @@
         const label = i === roomMenuIndex ? `> ${menu[i]} <` : menu[i];
         ctx.fillText(label, canvas.width / 2, 255 + i * 52);
       }
-
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillStyle = "#bfefff";
-      ctx.fillText("FRIEND ROOM FLOW", canvas.width / 2, 460);
     }
 
     function drawSingleMode() {
-      drawPixelSprite(PLAYER_SPRITE, singlePlayer.x, singlePlayer.y, 4, "#9affff", "#117c9f");
+      if (!(singleInvincible > 0 && Math.floor(singleInvincible / 5) % 2 === 0)) {
+        drawPixelSprite(PLAYER_SPRITE, singlePlayer.x, singlePlayer.y, 4, "#9affff", "#117c9f");
+      }
 
       singleEnemies.forEach(e => {
         if (!e.alive) return;
@@ -1018,20 +1110,36 @@
       });
 
       ctx.fillStyle = "#fff37a";
-      singleBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+      playerBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+
+      ctx.fillStyle = "#ff8f8f";
+      enemyBullets.forEach(b => ctx.fillRect(b.x, b.y, b.width, b.height));
+
+      items.forEach(item => {
+        if (item.type === "heal") ctx.fillStyle = "#69ff98";
+        else if (item.type === "special") ctx.fillStyle = "#ffd968";
+        else ctx.fillStyle = "#71e8ff";
+        ctx.fillRect(item.x, item.y, item.width, item.height);
+        ctx.strokeStyle = "#ffffff";
+        ctx.strokeRect(item.x, item.y, item.width, item.height);
+      });
+
+      drawParticles();
 
       ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.fillRect(10, 10, canvas.width - 20, 34);
+      ctx.fillRect(10, 10, canvas.width - 20, 38);
       ctx.strokeStyle = "#7cf8ff";
       ctx.lineWidth = 2;
-      ctx.strokeRect(10, 10, canvas.width - 20, 34);
+      ctx.strokeRect(10, 10, canvas.width - 20, 38);
 
       ctx.fillStyle = "#fff";
-      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.font = "11px 'Press Start 2P', monospace";
       ctx.textAlign = "left";
-      ctx.fillText(`MODE SINGLE`, 24, 32);
-      ctx.fillText(`SCORE ${singleScore}`, 250, 32);
-      ctx.fillText(`SPECIAL ${singleSpecial}`, 620, 32);
+      ctx.fillText(`SINGLE`, 22, 34);
+      ctx.fillText(`SCORE ${singleScore}`, 145, 34);
+      ctx.fillText(`HP ${singleHp}`, 390, 34);
+      ctx.fillText(`LIFE ${singleLives}`, 530, 34);
+      ctx.fillText(`SP ${singleSpecial}`, 690, 34);
     }
 
     function drawBattleSplitBase(leftName, rightName, leftHp, rightHp, leftGauge, rightGauge, timer) {
@@ -1061,13 +1169,6 @@
       ctx.fillRect(72, 40, Math.max(0, (leftHp / 100) * 176), 8);
 
       ctx.fillStyle = "#ff9fe1";
-      ctx.fillText(`G`, 274, 48);
-      ctx.strokeStyle = "#ff9fe1";
-      ctx.strokeRect(300, 38, 70, 12);
-      ctx.fillStyle = "#ff65c7";
-      ctx.fillRect(302, 40, Math.max(0, (leftGauge / 100) * 66), 8);
-
-      ctx.fillStyle = "#ff9fe1";
       ctx.fillText(rightName, 504, 28);
       ctx.fillStyle = "#fff";
       ctx.fillText(`HP`, 504, 48);
@@ -1077,10 +1178,17 @@
       ctx.fillRect(552, 40, Math.max(0, (rightHp / 100) * 176), 8);
 
       ctx.fillStyle = "#7cf8ff";
-      ctx.fillText(`G`, 754, 48);
+      ctx.fillText(`G`, 274, 48);
       ctx.strokeStyle = "#7cf8ff";
-      ctx.strokeRect(780, 38, 70, 12);
+      ctx.strokeRect(300, 38, 70, 12);
       ctx.fillStyle = "#42f5ff";
+      ctx.fillRect(302, 40, Math.max(0, (leftGauge / 100) * 66), 8);
+
+      ctx.fillStyle = "#ff9fe1";
+      ctx.fillText(`G`, 754, 48);
+      ctx.strokeStyle = "#ff9fe1";
+      ctx.strokeRect(780, 38, 70, 12);
+      ctx.fillStyle = "#ff65c7";
       ctx.fillRect(782, 40, Math.max(0, (rightGauge / 100) * 66), 8);
 
       ctx.fillStyle = "#fff27a";
@@ -1097,6 +1205,8 @@
     }
 
     function drawNormalVsMode() {
+      const rank = getCurrentRank(rankData.rp);
+
       drawBattleSplitBase(
         playerName,
         "RIVAL CPU",
@@ -1110,10 +1220,34 @@
       drawPixelSprite(PLAYER_SPRITE, normalVs.leftX, normalVs.leftY, 4, "#7cf8ff", "#0d6f91");
       drawPixelSprite(PLAYER_SPRITE, normalVs.rightX, normalVs.rightY, 4, "#ff8fd8", "#8b2a67");
 
-      ctx.fillStyle = "#9ddfff";
-      ctx.textAlign = "center";
-      ctx.font = "10px 'Press Start 2P', monospace";
-      ctx.fillText("NORMAL MATCH UI", canvas.width / 2, 485);
+      drawRankBadge(360, 105, 14, rank);
+      ctx.textAlign = "left";
+      ctx.fillStyle = rank.color;
+      ctx.font = "9px 'Press Start 2P', monospace";
+      ctx.fillText(rank.name, 380, 110);
+
+      ctx.fillStyle = "#d8f6ff";
+      ctx.fillText(`RP ${rankData.rp}`, 380, 128);
+      ctx.fillText(`W ${rankData.wins} / L ${rankData.loses}`, 380, 146);
+
+      if (normalVs.result) {
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.fillRect(220, 180, 440, 150);
+        ctx.strokeStyle = normalVs.result === "WIN" ? "#ffe57e" : "#ff8fa8";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(220, 180, 440, 150);
+
+        ctx.textAlign = "center";
+        ctx.fillStyle = normalVs.result === "WIN" ? "#ffe57e" : "#ff8fa8";
+        ctx.font = "24px 'Press Start 2P', monospace";
+        ctx.fillText(normalVs.result, canvas.width / 2, 230);
+
+        ctx.font = "11px 'Press Start 2P', monospace";
+        ctx.fillStyle = "#d8f6ff";
+        const rpText = normalVs.rpDelta >= 0 ? `RP +${normalVs.rpDelta}` : `RP ${normalVs.rpDelta}`;
+        ctx.fillText(rpText, canvas.width / 2, 270);
+        ctx.fillText(`TOTAL RP ${rankData.rp}`, canvas.width / 2, 300);
+      }
     }
 
     function drawRoomWaitMode() {
@@ -1158,8 +1292,8 @@
       if (blink) {
         ctx.fillStyle = "#bfefff";
         ctx.font = "10px 'Press Start 2P', monospace";
-        ctx.fillText("ACTION = READY TOGGLE", canvas.width / 2, 410);
-        ctx.fillText("START = BEGIN DEMO BATTLE", canvas.width / 2, 440);
+        ctx.fillText("ACTION = READY", canvas.width / 2, 410);
+        ctx.fillText("OK = START DEMO", canvas.width / 2, 440);
       }
     }
 
@@ -1210,7 +1344,23 @@
 
       ctx.font = "9px 'Press Start 2P', monospace";
       ctx.fillStyle = "#bfefff";
-      ctx.fillText("P / ESC / START TO SELECT", canvas.width / 2, 370);
+      ctx.fillText("LEFT / RIGHT / OK", canvas.width / 2, 370);
+    }
+
+    function drawSingleGameOver() {
+      drawSingleMode();
+
+      ctx.fillStyle = "rgba(0,0,0,0.62)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#ff8fa8";
+      ctx.textAlign = "center";
+      ctx.font = "24px 'Press Start 2P', monospace";
+      ctx.fillText("GAME OVER", canvas.width / 2, 220);
+
+      ctx.fillStyle = "#d8f6ff";
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.fillText(`SCORE ${singleScore}`, canvas.width / 2, 270);
     }
 
     function draw() {
@@ -1224,6 +1374,8 @@
         drawRoomMenu();
       } else if (gameState === "single") {
         drawSingleMode();
+      } else if (gameState === "single_gameover") {
+        drawSingleGameOver();
       } else if (gameState === "normal_vs") {
         drawNormalVsMode();
       } else if (gameState === "room_wait") {
@@ -1245,34 +1397,6 @@
       requestAnimationFrame(gameLoop);
     }
 
-    async function saveScoreSimple(score) {
-      try {
-        await addDoc(collection(db, "ranking"), {
-          name: playerName,
-          score,
-          createdAt: Date.now()
-        });
-      } catch (e) {}
-    }
-
-    async function loadRanking() {
-      rankingList.innerHTML = "";
-      try {
-        const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(10));
-        const snap = await getDocs(q);
-        snap.forEach(docSnap => {
-          const data = docSnap.data();
-          const li = document.createElement("li");
-          li.textContent = `${data.name} - ${data.score} PT`;
-          rankingList.appendChild(li);
-        });
-      } catch (e) {
-        const li = document.createElement("li");
-        li.textContent = "LOAD FAILED";
-        rankingList.appendChild(li);
-      }
-    }
-
     function confirmCurrentMenu() {
       unlockAudioOnce();
 
@@ -1280,15 +1404,13 @@
         playDecisionSound();
         if (titleMenuIndex === 0) startSingleMode();
         else if (titleMenuIndex === 1) startVsMenu();
-        else if (titleMenuIndex === 2) openRanking();
-        else if (titleMenuIndex === 3) openHowTo();
-        else if (titleMenuIndex === 4) openNameModal();
+        else if (titleMenuIndex === 2) startRoomMenu();
       }
       else if (gameState === "vs_menu") {
         playDecisionSound();
         if (vsMenuIndex === 0) startNormalMatch();
         else if (vsMenuIndex === 1) startRoomMenu();
-        else if (vsMenuIndex === 2) goToTitle();
+        else if (vsMenuIndex === 2) gameState = "title";
       }
       else if (gameState === "room_menu") {
         playDecisionSound();
@@ -1300,54 +1422,9 @@
         playDecisionSound();
         if (pauseMenuIndex === 0) resumeGame();
         else if (pauseMenuIndex === 1) retryCurrentMode();
-        else if (pauseMenuIndex === 2) goToTitle();
+        else if (pauseMenuIndex === 2) gameState = "title";
       }
       else if (gameState === "room_wait") {
-        roomWaitData.hostReady = !roomWaitData.hostReady;
-        playDecisionSound();
-      }
-    }
-
-    function handleActionButton() {
-      unlockAudioOnce();
-
-      if (gameState === "title") {
-        titleMenuIndex = moveMenu(titleMenuIndex, 0, 4, 1);
-        playCursorSound();
-      } else if (gameState === "vs_menu") {
-        vsMenuIndex = moveMenu(vsMenuIndex, 0, 2, 1);
-        playCursorSound();
-      } else if (gameState === "room_menu") {
-        roomMenuIndex = moveMenu(roomMenuIndex, 0, 2, 1);
-        playCursorSound();
-      } else if (gameState === "room_wait") {
-        roomWaitData.hostReady = !roomWaitData.hostReady;
-        playDecisionSound();
-      } else if (gameState === "paused") {
-        pauseMenuIndex = moveMenu(pauseMenuIndex, 0, 2, 1);
-        playCursorSound();
-      }
-    }
-
-    function handleSpecialButton() {
-      unlockAudioOnce();
-
-      if (gameState === "single") {
-        if (singleSpecial > 0) {
-          singleSpecial--;
-          singleEnemies.forEach(e => e.alive = false);
-          playSpecialSound();
-          messageEl.textContent = "SPECIAL BLAST";
-        }
-      }
-    }
-
-    function handleStartButton() {
-      unlockAudioOnce();
-
-      if (["title","vs_menu","room_menu","paused"].includes(gameState)) {
-        confirmCurrentMenu();
-      } else if (gameState === "room_wait") {
         if (roomWaitData.hostReady && roomWaitData.guestName !== "WAITING...") {
           startRoomBattleDemo();
         } else {
@@ -1355,6 +1432,66 @@
           playCursorSound();
         }
       }
+    }
+
+    function menuMove(dir) {
+      if (gameState === "title") {
+        titleMenuIndex = moveMenu(titleMenuIndex, 0, 2, dir);
+        playCursorSound();
+      } else if (gameState === "vs_menu") {
+        vsMenuIndex = moveMenu(vsMenuIndex, 0, 2, dir);
+        playCursorSound();
+      } else if (gameState === "room_menu") {
+        roomMenuIndex = moveMenu(roomMenuIndex, 0, 2, dir);
+        playCursorSound();
+      } else if (gameState === "paused") {
+        pauseMenuIndex = moveMenu(pauseMenuIndex, 0, 2, dir);
+        playCursorSound();
+      }
+    }
+
+    function handleActionButton() {
+      unlockAudioOnce();
+
+      if (gameState === "single") {
+        const now = Date.now();
+        if (now - singleLastShot > 180) {
+          playerBullets.push({
+            x: singlePlayer.x + singlePlayer.width / 2 - 2,
+            y: singlePlayer.y - 8,
+            width: 4,
+            height: 12,
+            speed: 8
+          });
+          singleLastShot = now;
+          playShootSound();
+        }
+      } else if (gameState === "room_wait") {
+        roomWaitData.hostReady = !roomWaitData.hostReady;
+        playDecisionSound();
+      }
+    }
+
+    function handleSpecialButton() {
+      unlockAudioOnce();
+
+      if (gameState === "single" && singleSpecial > 0) {
+        singleSpecial--;
+        singleEnemies.forEach(e => {
+          if (e.alive) {
+            e.alive = false;
+            dropItem(e.x + 4, e.y + 4);
+            addParticles(e.x + 12, e.y + 12, "#ffe57e", 10);
+          }
+        });
+        playSpecialSound();
+        messageEl.textContent = "SPECIAL BLAST";
+      }
+    }
+
+    function handleOkButton() {
+      unlockAudioOnce();
+      confirmCurrentMenu();
     }
 
     function handlePauseToggle() {
@@ -1367,78 +1504,22 @@
     }
 
     document.addEventListener("keydown", (e) => {
-      if (["ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Enter","Space","KeyX","KeyP","Escape"].includes(e.code)) {
+      if (["ArrowLeft","ArrowRight","Enter","Space","KeyZ","KeyX","KeyP","Escape"].includes(e.code)) {
         e.preventDefault();
       }
 
       unlockAudioOnce();
       keys[e.code] = true;
 
-      if (gameState === "title") {
-        if (e.code === "ArrowUp") {
-          titleMenuIndex = moveMenu(titleMenuIndex, 0, 4, -1);
-          playCursorSound();
-        }
-        if (e.code === "ArrowDown") {
-          titleMenuIndex = moveMenu(titleMenuIndex, 0, 4, 1);
-          playCursorSound();
-        }
-        if (e.code === "Enter") confirmCurrentMenu();
-      }
-      else if (gameState === "vs_menu") {
-        if (e.code === "ArrowUp") {
-          vsMenuIndex = moveMenu(vsMenuIndex, 0, 2, -1);
-          playCursorSound();
-        }
-        if (e.code === "ArrowDown") {
-          vsMenuIndex = moveMenu(vsMenuIndex, 0, 2, 1);
-          playCursorSound();
-        }
-        if (e.code === "Enter") confirmCurrentMenu();
-      }
-      else if (gameState === "room_menu") {
-        if (e.code === "ArrowUp") {
-          roomMenuIndex = moveMenu(roomMenuIndex, 0, 2, -1);
-          playCursorSound();
-        }
-        if (e.code === "ArrowDown") {
-          roomMenuIndex = moveMenu(roomMenuIndex, 0, 2, 1);
-          playCursorSound();
-        }
-        if (e.code === "Enter") confirmCurrentMenu();
-      }
-      else if (gameState === "paused") {
-        if (e.code === "ArrowUp") {
-          pauseMenuIndex = moveMenu(pauseMenuIndex, 0, 2, -1);
-          playCursorSound();
-        }
-        if (e.code === "ArrowDown") {
-          pauseMenuIndex = moveMenu(pauseMenuIndex, 0, 2, 1);
-          playCursorSound();
-        }
-        if (e.code === "Enter") confirmCurrentMenu();
-        if (e.code === "KeyP" || e.code === "Escape") resumeGame();
+      if (["title","vs_menu","room_menu","paused"].includes(gameState)) {
+        if (e.code === "ArrowLeft") menuMove(-1);
+        if (e.code === "ArrowRight") menuMove(1);
+        if (e.code === "Enter") handleOkButton();
       }
       else if (["single","normal_vs","room_wait","room_battle"].includes(gameState)) {
-        if (e.code === "KeyP" || e.code === "Escape") {
-          handlePauseToggle();
-        }
-
-        if (gameState === "single" && e.code === "KeyX") {
-          handleSpecialButton();
-        }
-
-        if (gameState === "room_wait") {
-          if (e.code === "KeyX") {
-            roomWaitData.hostReady = !roomWaitData.hostReady;
-            playDecisionSound();
-          }
-          if (e.code === "Enter") {
-            if (roomWaitData.hostReady && roomWaitData.guestName !== "WAITING...") {
-              startRoomBattleDemo();
-            }
-          }
-        }
+        if (e.code === "KeyP" || e.code === "Escape") handlePauseToggle();
+        if (e.code === "KeyX") handleSpecialButton();
+        if (e.code === "Enter") handleOkButton();
       }
     });
 
@@ -1462,8 +1543,6 @@
 
     bindHoldButton(leftBtn, "ArrowLeft");
     bindHoldButton(rightBtn, "ArrowRight");
-    bindHoldButton(upBtn, "ArrowUp");
-    bindHoldButton(downBtn, "ArrowDown");
 
     actionBtn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
@@ -1475,9 +1554,9 @@
       handleSpecialButton();
     });
 
-    startBtn.addEventListener("pointerdown", (e) => {
+    okBtn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
-      handleStartButton();
+      handleOkButton();
     });
 
     pauseBtn.addEventListener("pointerdown", (e) => {
@@ -1485,37 +1564,7 @@
       handlePauseToggle();
     });
 
-    canvas.addEventListener("pointerdown", (e) => {
-      unlockAudioOnce();
-
-      if (gameState !== "title") return;
-
-      const rect = canvas.getBoundingClientRect();
-      const scaleY = canvas.height / rect.height;
-      const y = (e.clientY - rect.top) * scaleY;
-
-      if (y >= 248 && y < 290) titleMenuIndex = 0;
-      else if (y >= 290 && y < 332) titleMenuIndex = 1;
-      else if (y >= 332 && y < 374) titleMenuIndex = 2;
-      else if (y >= 374 && y < 416) titleMenuIndex = 3;
-      else if (y >= 416 && y < 458) titleMenuIndex = 4;
-      else confirmCurrentMenu();
-
-      playCursorSound();
-    });
-
-    window.toggleBgm = toggleBgm;
-    window.openRanking = openRanking;
-    window.closeRanking = closeRanking;
-    window.openHowTo = openHowTo;
-    window.closeHowTo = closeHowTo;
-    window.openNameModal = openNameModal;
-    window.closeNameModal = closeNameModal;
-    window.saveNameFromModal = saveNameFromModal;
-    window.goToTitle = goToTitle;
-
-    ensurePlayerId();
-    loadPlayerName();
+    loadPlayerData();
     createBackground();
     gameLoop();
   </script>
