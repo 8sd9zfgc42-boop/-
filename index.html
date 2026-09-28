@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>オンライン Space Invaders</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+    h1 {
+      margin: 10px 0;
+    }
+    #topBar {
+      margin: 10px;
+    }
+    #gameCanvas {
+      background: #111;
+      display: block;
+      margin: 0 auto;
+      border: 2px solid white;
+    }
+    #info {
+      margin-top: 10px;
+    }
+    #ranking {
+      margin-top: 20px;
+    }
+    button, input {
+      font-size: 16px;
+      padding: 8px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>オンライン Space Invaders</h1>
+
+  <div id="topBar">
+    <input id="playerName" placeholder="名前を入力" />
+    <button onclick="saveScore()">スコア保存</button>
+    <button onclick="loadRanking()">ランキング更新</button>
+  </div>
+
+  <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+  <div id="info">
+    <p>← → で移動 / スペースで弾発射</p>
+    <p>スコア: <span id="score">0</span></p>
+  </div>
+
+  <div id="ranking">
+    <h2>ランキング</h2>
+    <ol id="rankingList"></ol>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      getDocs,
+      query,
+      orderBy,
+      limit
+    } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAD2nUaqq8NLxBsfLylsHZQPlOoxbNWDG4",
+      authDomain: "space-invader-656c8.firebaseapp.com",
+      projectId: "space-invader-656c8",
+      storageBucket: "space-invader-656c8.firebasestorage.app",
+      messagingSenderId: "966615206229",
+      appId: "1:966615206229:web:5c9ff044bdcea422af47dc"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreEl = document.getElementById("score");
+    const rankingList = document.getElementById("rankingList");
+
+    let player = {
+      x: 180,
+      y: 560,
+      width: 40,
+      height: 20,
+      speed: 5
+    };
+
+    let bullets = [];
+    let enemies = [];
+    let keys = {};
+    let score = 0;
+    let gameOver = false;
+
+    for (let row = 0; row < 4; row++) {
+      for (let col = 0; col < 8; col++) {
+        enemies.push({
+          x: 30 + col * 40,
+          y: 30 + row * 40,
+          width: 30,
+          height: 20,
+          alive: true
+        });
+      }
+    }
+
+    document.addEventListener("keydown", e => {
+      keys[e.code] = true;
+      if (e.code === "Space") {
+        bullets.push({
+          x: player.x + player.width / 2 - 2,
+          y: player.y,
+          width: 4,
+          height: 10,
+          speed: 7
+        });
+      }
+    });
+
+    document.addEventListener("keyup", e => {
+      keys[e.code] = false;
+    });
+
+    function update() {
+      if (gameOver) return;
+
+      if (keys["ArrowLeft"] && player.x > 0) {
+        player.x -= player.speed;
+      }
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width) {
+        player.x += player.speed;
+      }
+
+      bullets.forEach(b => b.y -= b.speed);
+      bullets = bullets.filter(b => b.y > 0);
+
+      enemies.forEach(enemy => {
+        if (!enemy.alive) return;
+        enemy.y += 0.05;
+
+        if (
+          enemy.x < player.x + player.width &&
+          enemy.x + enemy.width > player.x &&
+          enemy.y < player.y + player.height &&
+          enemy.y + enemy.height > player.y
+        ) {
+          gameOver = true;
+          alert("ゲームオーバー！");
+        }
+
+        bullets.forEach(bullet => {
+          if (
+            bullet.x < enemy.x + enemy.width &&
+            bullet.x + bullet.width > enemy.x &&
+            bullet.y < enemy.y + enemy.height &&
+            bullet.y + bullet.height > enemy.y &&
+            enemy.alive
+          ) {
+            enemy.alive = false;
+            bullet.y = -100;
+            score += 10;
+            scoreEl.textContent = score;
+          }
+        });
+      });
+
+      if (enemies.every(e => !e.alive)) {
+        gameOver = true;
+        alert("クリア！");
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "lime";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+
+      ctx.fillStyle = "yellow";
+      bullets.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.width, b.height);
+      });
+
+      ctx.fillStyle = "red";
+      enemies.forEach(enemy => {
+        if (enemy.alive) {
+          ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+        }
+      });
+    }
+
+    function gameLoop() {
+      update();
+      draw();
+      requestAnimationFrame(gameLoop);
+    }
+
+    async function saveScore() {
+      const name = document.getElementById("playerName").value || "名無し";
+      try {
+        await addDoc(collection(db, "ranking"), {
+          name: name,
+          score: score,
+          createdAt: Date.now()
+        });
+        alert("スコア保存成功！");
+        loadRanking();
+      } catch (e) {
+        alert("保存失敗: " + e.message);
+      }
+    }
+
+    async function loadRanking() {
+      rankingList.innerHTML = "";
+      const q = query(collection(db, "ranking"), orderBy("score", "desc"), limit(10));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        const li = document.createElement("li");
+        li.textContent = `${data.name} - ${data.score}`;
+        rankingList.appendChild(li);
+      });
+    }
+
+    window.saveScore = saveScore;
+    window.loadRanking = loadRanking;
+
+    loadRanking();
+    gameLoop();
+  </script>
+</body>
+</html>
