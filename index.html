@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pixel Space Battle | レトロ風ブラウザシューティングゲーム</title>
-  <meta name="description" content="レトロなドット絵風デザインで遊べるブラウザシューティングゲーム。オート連射、BGM、効果音、ランキング、パワーアップ、ボス戦、必殺技つき。スマホ・タブレット・PC対応。" />
+  <meta name="description" content="レトロなドット絵風デザインで遊べるブラウザシューティングゲーム。オート連射、BGM、ランキング、パワーアップ、ボス戦、必殺技つき。スマホ・タブレット・PC対応。" />
   <meta name="keywords" content="シューティングゲーム, ブラウザゲーム, レトロゲーム, ドット絵, HTMLゲーム, JavaScriptゲーム, ボス戦, パワーアップ" />
   <meta name="author" content="Rakuten AI User Project" />
   <meta name="robots" content="index, follow" />
@@ -29,7 +29,7 @@
     "genre": ["Shooter", "Arcade"],
     "gamePlatform": ["Web Browser"],
     "inLanguage": "ja",
-    "description": "ドット絵風の宇宙背景、BGM、効果音、ランキング、パワーアップ、ボス戦、必殺技を搭載したレトロ風ブラウザシューティングゲーム。"
+    "description": "ドット絵風の宇宙背景、BGM、ランキング、パワーアップ、ボス戦、必殺技を搭載したレトロ風ブラウザシューティングゲーム。"
   }
   </script>
 
@@ -38,13 +38,27 @@
 
     * { box-sizing: border-box; }
 
-    body {
+    html, body {
       margin: 0;
+      padding: 0;
       background: radial-gradient(circle at top, #29114d 0%, #0a0720 35%, #03030a 100%);
       color: #d8f6ff;
       font-family: 'Press Start 2P', monospace;
       text-align: center;
       overflow-x: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    body, #gameWrap, #canvasWrap, #gameCanvas, button, input, div, span, p, h1, h2, section {
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
     }
 
     #gameWrap {
@@ -98,8 +112,8 @@
       inset: 0;
       background: repeating-linear-gradient(
         to bottom,
-        rgba(255,255,255,0.05) 0px,
-        rgba(255,255,255,0.05) 2px,
+        rgba(255,255,255,0.045) 0px,
+        rgba(255,255,255,0.045) 2px,
         rgba(0,0,0,0.00) 2px,
         rgba(0,0,0,0.00) 4px
       );
@@ -142,26 +156,15 @@
       text-shadow: 0 0 6px rgba(255, 229, 126, 0.65);
     }
 
-    #controls {
+    #topUtility {
       margin-top: 10px;
       display: flex;
-      flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
       max-width: 880px;
       margin-left: auto;
       margin-right: auto;
-    }
-
-    #safeControls {
-      margin-top: 10px;
-      display: flex;
       flex-wrap: wrap;
-      justify-content: center;
-      gap: 8px;
-      max-width: 880px;
-      margin-left: auto;
-      margin-right: auto;
     }
 
     #dangerZone {
@@ -179,7 +182,7 @@
     }
 
     input {
-      width: 170px;
+      width: 180px;
       background: #140f2b;
       color: #fff;
       outline: none;
@@ -194,6 +197,7 @@
       color: #fff;
       cursor: pointer;
       box-shadow: 0 0 0 2px #120c28 inset;
+      touch-action: none;
     }
 
     button:hover {
@@ -233,6 +237,16 @@
       font-size: 8px;
       color: #9ddfff;
       line-height: 1.8;
+    }
+
+    #playerInfoArea {
+      max-width: 880px;
+      margin: 18px auto 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
     #seoText {
@@ -346,10 +360,7 @@
 
     <div id="message">READY...</div>
 
-    <div id="safeControls">
-      <input id="playerName" placeholder="NAME" />
-      <button onclick="saveScore()">SAVE SCORE</button>
-      <button onclick="openRanking()">RANKING</button>
+    <div id="topUtility">
       <button onclick="toggleBgm()">BGM ON/OFF</button>
     </div>
 
@@ -369,12 +380,17 @@
       MOBILE: TOUCH LEFT / SPECIAL / RIGHT
     </div>
 
+    <div id="playerInfoArea">
+      <input id="playerName" placeholder="NAME" />
+      <button onclick="openRanking()">RANKING</button>
+    </div>
+
     <section id="seoText">
       <h2>このゲームについて</h2>
       <p>
         Pixel Space Battle は、昔のアーケードゲーム風の見た目を意識して作られた
         ブラウザシューティングゲームです。ドット絵風の自機と敵、宇宙背景、
-        レトロなBGMと効果音、ランキング機能、パワーアップ、ボス戦、必殺技を搭載しています。
+        レトロなBGM、ランキング、パワーアップ、ボス戦、必殺技を搭載しています。
       </p>
       <p>
         インストール不要で、Webブラウザですぐ遊べます。
@@ -453,6 +469,7 @@
     let lastAutoShotTime = 0;
 
     let audioCtx = null;
+    let audioUnlocked = false;
     let bgmEnabled = false;
     let bgmInterval = null;
     let bgmMode = "normal";
@@ -461,6 +478,8 @@
     let bossAttackTimer = 0;
     let bossBurstCount = 0;
     let bossBurstTimer = 0;
+    let bossEntranceTimer = 0;
+    let scoreSaved = false;
 
     let basePlayerSpeed = 6;
     let playerSpeedBoostUntil = 0;
@@ -470,7 +489,7 @@
     let baseAutoShotInterval = 190;
 
     const POWER_DURATION = 15000;
-    const ITEM_DROP_RATE = 0.2;
+    const ITEM_DROP_RATE = 0.12;
 
     const PLAYER_SPRITE = [
       "00011000","00111100","01111110","11111111",
@@ -501,6 +520,13 @@
       }
       if (audioCtx.state === "suspended") {
         audioCtx.resume();
+      }
+      audioUnlocked = true;
+    }
+
+    function unlockAudioOnce() {
+      if (!audioUnlocked) {
+        setupAudio();
       }
     }
 
@@ -575,7 +601,7 @@
       let index = 0;
       bgmInterval = setInterval(() => {
         if (!bgmEnabled || gameState !== "playing") return;
-        setupAudio();
+        if (!audioCtx) return;
 
         const melody = bgmMode === "boss" ? bossMelody : normalMelody;
         const [freq, dur] = melody[index];
@@ -609,7 +635,7 @@
     }
 
     function toggleBgm() {
-      setupAudio();
+      unlockAudioOnce();
       bgmEnabled = !bgmEnabled;
 
       if (bgmEnabled) {
@@ -625,7 +651,7 @@
       stars = [];
       nebulaDots = [];
 
-      for (let i = 0; i < 110; i++) {
+      for (let i = 0; i < 70; i++) {
         stars.push({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
@@ -635,7 +661,7 @@
         });
       }
 
-      for (let i = 0; i < 85; i++) {
+      for (let i = 0; i < 50; i++) {
         nebulaDots.push({
           x: 430 + Math.random() * 280,
           y: 20 + Math.random() * 170,
@@ -653,27 +679,44 @@
       return Math.max(1, Math.floor(stage / 5));
     }
 
+    function createBoss() {
+      const tier = getBossTier();
+      const hp = 100 + (tier - 1) * 45;
+
+      boss = {
+        x: canvas.width / 2 - 80,
+        y: -130,
+        targetY: 60,
+        width: 160,
+        height: 100,
+        hp: hp,
+        maxHp: hp,
+        direction: 1,
+        speed: 1.5 + (tier - 1) * 0.35,
+        tier: tier,
+        entering: true
+      };
+
+      bossAttackTimer = Date.now();
+      bossBurstCount = 0;
+      bossBurstTimer = 0;
+      bossEntranceTimer = 120;
+      bgmMode = "boss";
+      bossHpWrap.style.display = "block";
+      refreshBgm();
+      updateBossHpBar();
+    }
+
     function initEnemies() {
       enemies = [];
       boss = null;
       bossAttackTimer = 0;
       bossBurstCount = 0;
       bossBurstTimer = 0;
+      bossEntranceTimer = 0;
 
       if (isBossStage()) {
-        boss = {
-          x: canvas.width / 2 - 80,
-          y: 60,
-          width: 160,
-          height: 100,
-          hp: 180 + stage * 20,
-          maxHp: 180 + stage * 20,
-          direction: 1,
-          speed: 2 + stage * 0.08,
-          tier: getBossTier()
-        };
-        bgmMode = "boss";
-        bossHpWrap.style.display = "block";
+        createBoss();
       } else {
         const rows = Math.min(3 + Math.floor((stage - 1) / 2), 5);
         const cols = 10;
@@ -694,9 +737,9 @@
 
         bgmMode = "normal";
         bossHpWrap.style.display = "none";
+        refreshBgm();
       }
 
-      refreshBgm();
       updateBossHpBar();
     }
 
@@ -723,6 +766,7 @@
       lastEnemyShotTime = 0;
       lastAutoShotTime = 0;
       gameState = "playing";
+      scoreSaved = false;
 
       if (fullReset) {
         score = 0;
@@ -735,7 +779,7 @@
       initEnemies();
       createBackground();
       updateBossHpBar();
-      messageEl.textContent = isBossStage() ? "BOSS STAGE!" : "READY...";
+      messageEl.textContent = isBossStage() ? "WARNING!! BOSS APPROACH" : "READY...";
       if (bgmEnabled) startBgm();
     }
 
@@ -805,8 +849,8 @@
 
     function shootBullet() {
       if (gameState !== "playing") return;
+      if (boss && boss.entering) return;
 
-      setupAudio();
       playShootSound();
 
       const centerX = player.x + player.width / 2 - 2;
@@ -859,7 +903,7 @@
       if (aliveEnemies.length === 0) return;
 
       const now = Date.now();
-      const interval = Math.max(720, 1650 - stage * 95);
+      const interval = Math.max(760, 1700 - stage * 85);
       if (now - lastEnemyShotTime < interval) return;
 
       const shooter = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
@@ -868,7 +912,7 @@
         y: shooter.y + shooter.height,
         width: 4,
         height: 12,
-        speed: 2.8 + stage * 0.2,
+        speed: 2.7 + stage * 0.16,
         vx: 0
       });
 
@@ -890,7 +934,7 @@
       });
     }
 
-    function fireBossSpread(count = 5, speed = 3.6, spread = 2.4) {
+    function fireBossSpread(count = 5, speed = 3.2, spread = 2.1) {
       const centerX = boss.x + boss.width / 2;
       const startY = boss.y + boss.height - 6;
 
@@ -923,25 +967,25 @@
     }
 
     function bossShoot() {
-      if (!boss) return;
+      if (!boss || boss.entering) return;
 
       const now = Date.now();
       const tier = boss.tier;
 
       if (bossBurstCount > 0 && now >= bossBurstTimer) {
-        fireBossSpread(5 + Math.min(tier, 2), 3.4 + tier * 0.15, 2.0 + tier * 0.25);
+        fireBossSpread(4 + Math.min(tier, 2), 3.0 + tier * 0.12, 1.8 + tier * 0.2);
         bossBurstCount--;
-        bossBurstTimer = now + 180;
+        bossBurstTimer = now + 220;
       }
 
-      const interval = Math.max(420, 1100 - stage * 18);
+      const interval = Math.max(650, 1450 - tier * 90);
       if (now - bossAttackTimer < interval) return;
 
-      fireBossSpread(5, 3.4 + tier * 0.1, 2.4);
+      fireBossSpread(5, 3.0 + tier * 0.1, 2.0);
 
       if (tier >= 2) {
         bossBurstCount = 2;
-        bossBurstTimer = now + 180;
+        bossBurstTimer = now + 220;
       }
 
       if (tier >= 3) {
@@ -950,12 +994,12 @@
           boss.y + boss.height - 6,
           player.x + player.width / 2,
           player.y,
-          5
+          4.2
         );
       }
 
       if (tier >= 4) {
-        fireBossSpread(7, 4.0 + tier * 0.1, 3.4);
+        fireBossSpread(7, 3.6 + tier * 0.1, 2.8);
       }
 
       if (tier >= 5) {
@@ -964,14 +1008,14 @@
           boss.y + boss.height - 10,
           player.x + player.width / 2,
           player.y,
-          5.6
+          4.8
         );
         shootAimedBullet(
           boss.x + boss.width - 30,
           boss.y + boss.height - 10,
           player.x + player.width / 2,
           player.y,
-          5.6
+          4.8
         );
       }
 
@@ -985,7 +1029,7 @@
         return;
       }
 
-      setupAudio();
+      unlockAudioOnce();
       playSpecialSound();
 
       specialCount--;
@@ -1063,6 +1107,17 @@
 
     function updateEnemies() {
       if (boss) {
+        if (boss.entering) {
+          if (boss.y < boss.targetY) {
+            boss.y += 2.4;
+          } else {
+            boss.y = boss.targetY;
+            boss.entering = false;
+            messageEl.textContent = "BOSS BATTLE START!";
+          }
+          return;
+        }
+
         boss.x += boss.speed * boss.direction;
         if (boss.x <= 30 || boss.x + boss.width >= canvas.width - 30) {
           boss.direction *= -1;
@@ -1095,7 +1150,7 @@
     function checkBulletHits() {
       bullets.forEach(bullet => {
         if (boss) {
-          if (rectHit(bullet, boss)) {
+          if (!boss.entering && rectHit(bullet, boss)) {
             bullet.y = -100;
             boss.hp -= 1;
             score += 2;
@@ -1118,6 +1173,36 @@
       });
     }
 
+    async function saveScoreAuto() {
+      const name = document.getElementById("playerName").value.trim() || "NO_NAME";
+      try {
+        await addDoc(collection(db, "ranking"), {
+          name,
+          score,
+          stage,
+          createdAt: Date.now()
+        });
+        await loadRanking();
+        messageEl.textContent = "GAME OVER - RANKING UPDATED";
+      } catch (e) {
+        messageEl.textContent = "GAME OVER - SAVE FAILED";
+      }
+    }
+
+    function triggerGameOver(text = "GAME OVER") {
+      if (gameState === "gameover") return;
+
+      gameState = "gameover";
+      stopBgm();
+      messageEl.textContent = text;
+      playGameOverSound();
+
+      if (!scoreSaved) {
+        scoreSaved = true;
+        saveScoreAuto();
+      }
+    }
+
     function checkEnemyHitsPlayer() {
       enemyBullets.forEach(bullet => {
         if (rectHit(bullet, player)) {
@@ -1126,10 +1211,7 @@
           playDamageSound();
 
           if (lives <= 0) {
-            gameState = "gameover";
-            stopBgm();
-            messageEl.textContent = "GAME OVER - PRESS RESTART";
-            playGameOverSound();
+            triggerGameOver("GAME OVER");
           } else {
             messageEl.textContent = "WARNING! SHIP DAMAGED";
           }
@@ -1137,11 +1219,8 @@
       });
 
       if (boss) {
-        if (boss.y + boss.height >= player.y - 8) {
-          gameState = "gameover";
-          stopBgm();
-          messageEl.textContent = "BOSS COLLISION - GAME OVER";
-          playGameOverSound();
+        if (!boss.entering && boss.y + boss.height >= player.y - 8) {
+          triggerGameOver("BOSS COLLISION - GAME OVER");
         }
         return;
       }
@@ -1149,10 +1228,7 @@
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
         if (enemy.y + enemy.height >= player.y - 8) {
-          gameState = "gameover";
-          stopBgm();
-          messageEl.textContent = "ENEMY APPROACH - GAME OVER";
-          playGameOverSound();
+          triggerGameOver("ENEMY APPROACH - GAME OVER");
         }
       });
     }
@@ -1177,7 +1253,7 @@
       if (enemies.length && enemies.every(e => !e.alive)) {
         stage++;
         playClearSound();
-        messageEl.textContent = isBossStage() ? "WARNING! BOSS STAGE!" : "STAGE CLEAR!";
+        messageEl.textContent = isBossStage() ? "WARNING!! BOSS APPROACH" : "STAGE CLEAR!";
         bullets = [];
         enemyBullets = [];
         items = [];
@@ -1198,17 +1274,17 @@
 
       player.speed = getCurrentPlayerSpeed();
 
-      const now = Date.now();
-      if (now - lastAutoShotTime > getCurrentShotInterval()) {
-        shootBullet();
-        lastAutoShotTime = now;
-      }
-
       if (keys["ArrowLeft"] && player.x > 10) {
         player.x -= player.speed;
       }
       if (keys["ArrowRight"] && player.x + player.width < canvas.width - 10) {
         player.x += player.speed;
+      }
+
+      const now = Date.now();
+      if (now - lastAutoShotTime > getCurrentShotInterval()) {
+        shootBullet();
+        lastAutoShotTime = now;
       }
 
       updateBullets();
@@ -1312,38 +1388,69 @@
       });
     }
 
+    function drawBossEntranceWarning() {
+      if (!boss || !boss.entering) return;
+
+      const blink = Math.floor(Date.now() / 180) % 2 === 0;
+      ctx.save();
+
+      if (blink) {
+        ctx.fillStyle = "rgba(255, 60, 60, 0.18)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      ctx.fillStyle = "rgba(255, 40, 40, 0.75)";
+      ctx.fillRect(0, 165, canvas.width, 72);
+
+      ctx.strokeStyle = "#ffe7a6";
+      ctx.lineWidth = 4;
+      ctx.strokeRect(0, 165, canvas.width, 72);
+
+      ctx.fillStyle = "#fff7cf";
+      ctx.textAlign = "center";
+      ctx.font = "24px 'Press Start 2P', monospace";
+      ctx.fillText("WARNING !!", canvas.width / 2, 196);
+
+      ctx.font = "16px 'Press Start 2P', monospace";
+      ctx.fillText("BOSS APPROACH", canvas.width / 2, 223);
+
+      ctx.restore();
+    }
+
     function drawGameUi() {
       ctx.save();
-      ctx.textAlign = "left";
-      ctx.font = "12px 'Press Start 2P', monospace";
 
-      ctx.fillStyle = "rgba(0,0,0,0.45)";
-      ctx.fillRect(12, 12, 310, 120);
+      const hudY = 10;
+      const hudH = 34;
+
+      ctx.fillStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillRect(10, hudY, canvas.width - 20, hudH);
 
       ctx.strokeStyle = "#7cf8ff";
       ctx.lineWidth = 2;
-      ctx.strokeRect(12, 12, 310, 120);
+      ctx.strokeRect(10, hudY, canvas.width - 20, hudH);
 
       ctx.fillStyle = "#ffffff";
-      ctx.fillText(`SCORE ${score}`, 24, 34);
-      ctx.fillText(`LIFE ${"♥".repeat(Math.max(lives, 0)) || "0"}`, 24, 54);
-      ctx.fillText(`STAGE ${stage}`, 24, 74);
-      ctx.fillText(`MODE ${isBossStage() ? "BOSS" : "NORMAL"}`, 24, 94);
-      ctx.fillText(`SPECIAL ${specialCount}`, 24, 114);
+      ctx.font = "12px 'Press Start 2P', monospace";
+      ctx.textAlign = "left";
+
+      ctx.fillText(`SCORE ${score}`, 24, 32);
+      ctx.fillText(`LIFE ${"♥".repeat(Math.max(lives, 0)) || "0"}`, 190, 32);
+      ctx.fillText(`STAGE ${stage}`, 340, 32);
+      ctx.fillText(`SPECIAL ${specialCount}`, 490, 32);
+      ctx.fillText(`MODE ${isBossStage() ? "BOSS" : "NORMAL"}`, 660, 32);
 
       const powerText = getPowerStatusText();
       if (powerText) {
         ctx.fillStyle = "#9effb7";
-        ctx.fillRect(12, 140, 420, 28);
-        ctx.strokeStyle = "#64ff8f";
-        ctx.strokeRect(12, 140, 420, 28);
-        ctx.fillStyle = "#102215";
-        ctx.fillText(powerText, 20, 159);
+        ctx.font = "10px 'Press Start 2P', monospace";
+        ctx.fillText(powerText, 24, 58);
       }
 
       if (bgmEnabled) {
         ctx.fillStyle = "#ffe57e";
-        ctx.fillText("BGM ON", canvas.width - 125, 30);
+        ctx.font = "10px 'Press Start 2P', monospace";
+        ctx.fillText("BGM ON", canvas.width - 110, 58);
       }
 
       ctx.restore();
@@ -1373,6 +1480,7 @@
       drawItems();
       drawGameUi();
       drawEffects();
+      drawBossEntranceWarning();
       drawOverlay();
     }
 
@@ -1380,22 +1488,6 @@
       update();
       draw();
       requestAnimationFrame(gameLoop);
-    }
-
-    async function saveScore() {
-      const name = document.getElementById("playerName").value || "NO_NAME";
-      try {
-        await addDoc(collection(db, "ranking"), {
-          name,
-          score,
-          stage,
-          createdAt: Date.now()
-        });
-        messageEl.textContent = "SCORE SAVED!";
-        await loadRanking();
-      } catch (e) {
-        messageEl.textContent = "SAVE FAILED: " + e.message;
-      }
     }
 
     async function loadRanking() {
@@ -1427,16 +1519,41 @@
     }
 
     function restartGame() {
-      setupAudio();
+      unlockAudioOnce();
       resetGame(true);
     }
+
+    function bindHoldButton(button, code) {
+      button.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
+        unlockAudioOnce();
+        keys[code] = true;
+      });
+
+      button.addEventListener("pointerup", (e) => {
+        e.preventDefault();
+        keys[code] = false;
+      });
+
+      button.addEventListener("pointercancel", () => {
+        keys[code] = false;
+      });
+
+      button.addEventListener("pointerleave", () => {
+        keys[code] = false;
+      });
+    }
+
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+    });
 
     document.addEventListener("keydown", e => {
       if (["ArrowLeft", "ArrowRight", "Space", "KeyX"].includes(e.code)) {
         e.preventDefault();
       }
+      unlockAudioOnce();
       keys[e.code] = true;
-      setupAudio();
 
       if (e.code === "KeyX") {
         useSpecial();
@@ -1447,39 +1564,12 @@
       keys[e.code] = false;
     });
 
-    function bindHoldButton(button, code) {
-      button.addEventListener("touchstart", e => {
-        e.preventDefault();
-        setupAudio();
-        keys[code] = true;
-      }, { passive: false });
-
-      button.addEventListener("touchend", e => {
-        e.preventDefault();
-        keys[code] = false;
-      }, { passive: false });
-
-      button.addEventListener("mousedown", e => {
-        e.preventDefault();
-        setupAudio();
-        keys[code] = true;
-      });
-
-      button.addEventListener("mouseup", e => {
-        e.preventDefault();
-        keys[code] = false;
-      });
-
-      button.addEventListener("mouseleave", () => {
-        keys[code] = false;
-      });
-    }
-
     bindHoldButton(leftBtn, "ArrowLeft");
     bindHoldButton(rightBtn, "ArrowRight");
 
-    specialBtn.addEventListener("click", () => {
-      setupAudio();
+    specialBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      unlockAudioOnce();
       useSpecial();
     });
 
@@ -1489,7 +1579,6 @@
       }
     });
 
-    window.saveScore = saveScore;
     window.openRanking = openRanking;
     window.closeRanking = closeRanking;
     window.restartGame = restartGame;
