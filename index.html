@@ -3,124 +3,275 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>オンライン Space Invaders</title>
+  <title>Pixel Space Battle</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: sans-serif;
+      background:
+        radial-gradient(circle at top, #29114d 0%, #0a0720 35%, #03030a 100%);
+      color: #d8f6ff;
+      font-family: 'Press Start 2P', monospace;
       text-align: center;
+      overflow-x: hidden;
     }
 
     h1 {
-      margin: 12px 0 8px;
-      font-size: 28px;
+      margin: 14px 0 10px;
+      font-size: 20px;
+      color: #77f6ff;
+      text-shadow: 0 0 8px #2ee8ff, 0 0 18px #2ee8ff;
+      letter-spacing: 2px;
+    }
+
+    #gameWrap {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 10px 12px 30px;
+      position: relative;
     }
 
     #hud {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
       margin-bottom: 10px;
-      font-size: 18px;
+    }
+
+    .panel {
+      background: rgba(15, 10, 35, 0.9);
+      border: 3px solid #6ef7ff;
+      box-shadow:
+        0 0 0 3px #1d143f inset,
+        0 0 10px rgba(110, 247, 255, 0.4);
+      padding: 10px 6px;
+      min-height: 68px;
+    }
+
+    .label {
+      font-size: 9px;
+      color: #ffde7a;
+      margin-bottom: 8px;
+    }
+
+    .value {
+      font-size: 14px;
+      color: #ffffff;
+    }
+
+    #lives {
+      color: #ff7aa8;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px #ff4f88;
+      font-size: 14px;
+    }
+
+    #canvasWrap {
+      position: relative;
+      display: inline-block;
+      width: 100%;
     }
 
     #gameCanvas {
-      background: #111;
+      background: #050816;
       display: block;
-      margin: 0 auto;
-      border: 2px solid #fff;
-      max-width: 95vw;
+      width: 100%;
+      max-width: 560px;
       height: auto;
+      margin: 0 auto;
+      border: 4px solid #85fbff;
+      box-shadow:
+        0 0 0 4px #14233f,
+        0 0 18px rgba(133, 251, 255, 0.45);
+      image-rendering: pixelated;
       touch-action: none;
     }
 
+    #scanlines {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      background:
+        repeating-linear-gradient(
+          to bottom,
+          rgba(255,255,255,0.05) 0px,
+          rgba(255,255,255,0.05) 2px,
+          rgba(0,0,0,0.00) 2px,
+          rgba(0,0,0,0.00) 4px
+        );
+      mix-blend-mode: soft-light;
+    }
+
     #message {
-      margin-top: 10px;
-      min-height: 28px;
-      font-size: 18px;
-      color: #0f0;
+      min-height: 42px;
+      margin-top: 12px;
+      margin-bottom: 8px;
+      color: #ffe57e;
+      font-size: 11px;
+      line-height: 1.7;
+      text-shadow: 0 0 6px rgba(255, 229, 126, 0.65);
     }
 
     #controls {
-      margin-top: 14px;
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
     }
 
-    button, input {
-      font-size: 16px;
-      padding: 8px 12px;
-      margin: 4px;
-      border-radius: 8px;
-      border: none;
+    input, button {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      border: 3px solid #79f4ff;
+      border-radius: 0;
+      padding: 10px 10px;
+    }
+
+    input {
+      width: 180px;
+      background: #140f2b;
+      color: #fff;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: #bdb6e9;
     }
 
     button {
+      background: #1a1636;
+      color: #fff;
       cursor: pointer;
+      box-shadow: 0 0 0 2px #120c28 inset;
+    }
+
+    button:hover {
+      filter: brightness(1.12);
     }
 
     #touchControls {
-      margin-top: 14px;
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
     }
 
     #touchControls button {
-      min-width: 90px;
-      min-height: 50px;
-      font-size: 20px;
-      background: #222;
+      min-height: 56px;
+      font-size: 16px;
       color: #fff;
-      border: 1px solid #666;
+      background: linear-gradient(180deg, #352868 0%, #17132f 100%);
     }
 
     #ranking {
-      margin: 20px auto;
-      max-width: 400px;
+      margin: 24px auto 0;
       text-align: left;
+      background: rgba(8, 8, 24, 0.88);
+      border: 3px solid #ffdb70;
+      box-shadow: 0 0 0 3px #241a00 inset;
+      padding: 14px 16px 18px;
     }
 
-    #ranking h2 {
+    #rankingTitle {
       text-align: center;
+      color: #ffdb70;
+      margin: 0 0 14px;
+      font-size: 14px;
+      text-shadow: 0 0 8px rgba(255, 219, 112, 0.6);
     }
 
     #rankingList {
+      margin: 0;
       padding-left: 24px;
+      line-height: 1.9;
+      font-size: 10px;
+    }
+
+    #help {
+      margin-top: 16px;
+      font-size: 9px;
+      color: #9ddfff;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 16px;
+      }
+
+      .label {
+        font-size: 8px;
+      }
+
+      .value, #lives {
+        font-size: 11px;
+      }
+
+      #rankingList {
+        font-size: 9px;
+      }
+
+      input, button {
+        font-size: 9px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>オンライン Space Invaders</h1>
+  <div id="gameWrap">
+    <h1>PIXEL SPACE BATTLE</h1>
 
-  <div id="hud">
-    <div>スコア: <span id="score">0</span></div>
-    <div>残機: <span id="lives">3</span></div>
-    <div>ステージ: <span id="stage">1</span></div>
-  </div>
+    <div id="hud">
+      <div class="panel">
+        <div class="label">SCORE</div>
+        <div class="value" id="score">0</div>
+      </div>
+      <div class="panel">
+        <div class="label">LIFE</div>
+        <div class="value" id="lives">♥♥♥</div>
+      </div>
+      <div class="panel">
+        <div class="label">STAGE</div>
+        <div class="value" id="stage">1</div>
+      </div>
+    </div>
 
-  <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div id="canvasWrap">
+      <canvas id="gameCanvas" width="480" height="640"></canvas>
+      <div id="scanlines"></div>
+    </div>
 
-  <div id="message"></div>
+    <div id="message">READY...</div>
 
-  <div id="controls">
-    <input id="playerName" placeholder="名前を入力" />
-    <button onclick="saveScore()">スコア保存</button>
-    <button onclick="loadRanking()">ランキング更新</button>
-    <button onclick="restartGame()">再スタート</button>
-  </div>
+    <div id="controls">
+      <input id="playerName" placeholder="NAME" />
+      <button onclick="saveScore()">SAVE SCORE</button>
+      <button onclick="loadRanking()">RANKING</button>
+      <button onclick="restartGame()">RESTART</button>
+    </div>
 
-  <div id="touchControls">
-    <button id="leftBtn">← 左</button>
-    <button id="fireBtn">発射</button>
-    <button id="rightBtn">右 →</button>
-  </div>
+    <div id="touchControls">
+      <button id="leftBtn">◀</button>
+      <button id="fireBtn">SHOT</button>
+      <button id="rightBtn">▶</button>
+    </div>
 
-  <div id="ranking">
-    <h2>ランキング</h2>
-    <ol id="rankingList"></ol>
+    <div id="ranking">
+      <div id="rankingTitle">TOP RANKING</div>
+      <ol id="rankingList"></ol>
+    </div>
+
+    <div id="help">
+      KEYBOARD: ← → / SPACE<br />
+      MOBILE: TOUCH BUTTONS
+    </div>
   </div>
 
   <script type="module">
@@ -160,29 +311,132 @@
     const fireBtn = document.getElementById("fireBtn");
 
     let player;
-    let bullets;
-    let enemyBullets;
-    let enemies;
+    let bullets = [];
+    let enemyBullets = [];
+    let enemies = [];
+    let stars = [];
+    let nebulaDots = [];
     let keys = {};
-    let score;
-    let lives;
-    let stage;
-    let gameState;
-    let enemyDirection;
-    let lastShotTime;
-    let lastEnemyShotTime;
+    let score = 0;
+    let lives = 3;
+    let stage = 1;
+    let gameState = "playing";
+    let enemyDirection = 1;
+    let lastShotTime = 0;
+    let lastEnemyShotTime = 0;
+    let audioCtx = null;
+
+    const PLAYER_SPRITE = [
+      "00011000",
+      "00111100",
+      "01111110",
+      "11111111",
+      "11011011",
+      "00100100",
+      "01000010",
+      "10100101"
+    ];
+
+    const ENEMY_SPRITE = [
+      "00111100",
+      "01111110",
+      "11111111",
+      "11011011",
+      "11111111",
+      "00100100",
+      "01000010",
+      "10000001"
+    ];
+
+    function setupAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+      }
+    }
+
+    function beep(freq = 440, duration = 0.08, type = "square", volume = 0.03, slide = 0) {
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      if (slide !== 0) {
+        osc.frequency.linearRampToValueAtTime(freq + slide, audioCtx.currentTime + duration);
+      }
+      gain.gain.setValueAtTime(volume, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    function playShootSound() {
+      beep(700, 0.05, "square", 0.03, -120);
+    }
+
+    function playHitSound() {
+      beep(220, 0.08, "square", 0.04, 100);
+      setTimeout(() => beep(180, 0.06, "square", 0.03, -80), 30);
+    }
+
+    function playDamageSound() {
+      beep(140, 0.12, "sawtooth", 0.04, -40);
+    }
+
+    function playClearSound() {
+      beep(440, 0.08, "square", 0.03, 60);
+      setTimeout(() => beep(660, 0.08, "square", 0.03, 60), 80);
+      setTimeout(() => beep(880, 0.12, "square", 0.03, 80), 160);
+    }
+
+    function playGameOverSound() {
+      beep(280, 0.14, "sawtooth", 0.04, -60);
+      setTimeout(() => beep(220, 0.14, "sawtooth", 0.04, -60), 120);
+      setTimeout(() => beep(160, 0.18, "sawtooth", 0.04, -60), 240);
+    }
+
+    function createBackground() {
+      stars = [];
+      nebulaDots = [];
+
+      for (let i = 0; i < 90; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() < 0.7 ? 2 : 3,
+          speed: 0.15 + Math.random() * 0.35,
+          color: Math.random() < 0.7 ? "#c8f7ff" : "#8f9bff"
+        });
+      }
+
+      for (let i = 0; i < 70; i++) {
+        nebulaDots.push({
+          x: 250 + Math.random() * 190,
+          y: 20 + Math.random() * 200,
+          r: 2 + Math.random() * 4,
+          color: Math.random() > 0.5 ? "rgba(128,80,255,0.18)" : "rgba(0,220,255,0.14)"
+        });
+      }
+    }
 
     function initEnemies() {
       enemies = [];
-      const rows = Math.min(3 + stage, 6);
+      const rows = Math.min(3 + Math.floor((stage - 1) / 2), 5);
       const cols = 8;
+      const spacingX = 44;
+      const spacingY = 38;
+
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           enemies.push({
-            x: 30 + col * 40,
-            y: 30 + row * 35,
-            width: 28,
-            height: 20,
+            x: 42 + col * spacingX,
+            y: 60 + row * spacingY,
+            width: 24,
+            height: 24,
             alive: true
           });
         }
@@ -191,11 +445,11 @@
 
     function resetGame(fullReset = true) {
       player = {
-        x: 180,
-        y: 560,
-        width: 40,
-        height: 20,
-        speed: 5
+        x: canvas.width / 2 - 16,
+        y: 570,
+        width: 32,
+        height: 32,
+        speed: 4.8
       };
 
       bullets = [];
@@ -212,26 +466,52 @@
       }
 
       initEnemies();
+      createBackground();
       updateHud();
-      messageEl.textContent = "";
+      messageEl.textContent = "READY...";
     }
 
     function updateHud() {
       scoreEl.textContent = score;
-      livesEl.textContent = lives;
+      livesEl.textContent = "♥".repeat(Math.max(lives, 0)) || "×";
       stageEl.textContent = stage;
+    }
+
+    function drawPixelSprite(sprite, x, y, pixelSize, color, shadowColor = null) {
+      if (shadowColor) {
+        ctx.fillStyle = shadowColor;
+        for (let row = 0; row < sprite.length; row++) {
+          for (let col = 0; col < sprite[row].length; col++) {
+            if (sprite[row][col] === "1") {
+              ctx.fillRect(x + col * pixelSize + 2, y + row * pixelSize + 2, pixelSize, pixelSize);
+            }
+          }
+        }
+      }
+
+      ctx.fillStyle = color;
+      for (let row = 0; row < sprite.length; row++) {
+        for (let col = 0; col < sprite[row].length; col++) {
+          if (sprite[row][col] === "1") {
+            ctx.fillRect(x + col * pixelSize, y + row * pixelSize, pixelSize, pixelSize);
+          }
+        }
+      }
     }
 
     function shootBullet() {
       const now = Date.now();
       if (gameState !== "playing") return;
-      if (now - lastShotTime < 300) return;
+      if (now - lastShotTime < 280) return;
+
+      setupAudio();
+      playShootSound();
 
       bullets.push({
         x: player.x + player.width / 2 - 2,
         y: player.y - 10,
         width: 4,
-        height: 10,
+        height: 12,
         speed: 8
       });
 
@@ -243,7 +523,7 @@
       if (aliveEnemies.length === 0) return;
 
       const now = Date.now();
-      const interval = Math.max(350, 1200 - stage * 120);
+      const interval = Math.max(700, 1700 - stage * 100);
       if (now - lastEnemyShotTime < interval) return;
 
       const shooter = aliveEnemies[Math.floor(Math.random() * aliveEnemies.length)];
@@ -251,20 +531,41 @@
         x: shooter.x + shooter.width / 2 - 2,
         y: shooter.y + shooter.height,
         width: 4,
-        height: 10,
-        speed: 4 + stage * 0.4
+        height: 12,
+        speed: 2.8 + stage * 0.18
       });
 
       lastEnemyShotTime = now;
     }
 
+    function rectHit(a, b) {
+      return (
+        a.x < b.x + b.width &&
+        a.x + a.width > b.x &&
+        a.y < b.y + b.height &&
+        a.y + a.height > b.y
+      );
+    }
+
+    function updateBackground() {
+      stars.forEach(star => {
+        star.y += star.speed;
+        if (star.y > canvas.height) {
+          star.y = -4;
+          star.x = Math.random() * canvas.width;
+        }
+      });
+    }
+
     function update() {
       if (gameState !== "playing") return;
 
-      if (keys["ArrowLeft"] && player.x > 0) {
+      updateBackground();
+
+      if (keys["ArrowLeft"] && player.x > 8) {
         player.x -= player.speed;
       }
-      if (keys["ArrowRight"] && player.x + player.width < canvas.width) {
+      if (keys["ArrowRight"] && player.x + player.width < canvas.width - 8) {
         player.x += player.speed;
       }
 
@@ -272,15 +573,16 @@
       bullets = bullets.filter(b => b.y + b.height > 0);
 
       enemyBullets.forEach(b => b.y += b.speed);
-      enemyBullets = enemyBullets.filter(b => b.y < canvas.height);
+      enemyBullets = enemyBullets.filter(b => b.y < canvas.height + 20);
 
       let hitEdge = false;
+      const moveSpeed = 0.42 + stage * 0.06;
 
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
-        enemy.x += 1.1 * enemyDirection + stage * 0.15;
+        enemy.x += moveSpeed * enemyDirection;
 
-        if (enemy.x <= 0 || enemy.x + enemy.width >= canvas.width) {
+        if (enemy.x <= 10 || enemy.x + enemy.width >= canvas.width - 10) {
           hitEdge = true;
         }
       });
@@ -289,7 +591,7 @@
         enemyDirection *= -1;
         enemies.forEach(enemy => {
           if (enemy.alive) {
-            enemy.y += 18;
+            enemy.y += 10;
           }
         });
       }
@@ -300,51 +602,47 @@
         enemies.forEach(enemy => {
           if (!enemy.alive) return;
 
-          if (
-            bullet.x < enemy.x + enemy.width &&
-            bullet.x + bullet.width > enemy.x &&
-            bullet.y < enemy.y + enemy.height &&
-            bullet.y + bullet.height > enemy.y
-          ) {
+          if (rectHit(bullet, enemy)) {
             enemy.alive = false;
             bullet.y = -100;
             score += 10;
+            playHitSound();
             updateHud();
           }
         });
       });
 
       enemyBullets.forEach(bullet => {
-        if (
-          bullet.x < player.x + player.width &&
-          bullet.x + bullet.width > player.x &&
-          bullet.y < player.y + player.height &&
-          bullet.y + bullet.height > player.y
-        ) {
+        if (rectHit(bullet, player)) {
           bullet.y = canvas.height + 100;
           lives--;
+          playDamageSound();
           updateHud();
 
           if (lives <= 0) {
             gameState = "gameover";
-            messageEl.textContent = "ゲームオーバー！ 再スタートできます";
+            messageEl.textContent = "GAME OVER - PRESS RESTART";
+            playGameOverSound();
+          } else {
+            messageEl.textContent = "WARNING! SHIP DAMAGED";
           }
         }
       });
 
       enemies.forEach(enemy => {
         if (!enemy.alive) return;
-
-        if (enemy.y + enemy.height >= player.y) {
+        if (enemy.y + enemy.height >= player.y - 8) {
           gameState = "gameover";
-          messageEl.textContent = "敵が到達！ ゲームオーバー";
+          messageEl.textContent = "ENEMY APPROACH - GAME OVER";
+          playGameOverSound();
         }
       });
 
       if (enemies.every(e => !e.alive)) {
         stage++;
+        playClearSound();
         updateHud();
-        messageEl.textContent = "ステージクリア！ 次のステージへ";
+        messageEl.textContent = "STAGE CLEAR!";
         bullets = [];
         enemyBullets = [];
         initEnemies();
@@ -352,52 +650,83 @@
       }
     }
 
+    function drawBackground() {
+      const bg = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bg.addColorStop(0, "#120a2a");
+      bg.addColorStop(0.45, "#141c52");
+      bg.addColorStop(1, "#05101d");
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      nebulaDots.forEach(dot => {
+        ctx.fillStyle = dot.color;
+        ctx.fillRect(dot.x, dot.y, dot.r * 3, dot.r * 2);
+      });
+
+      ctx.fillStyle = "#3ff8ff";
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.arc(365, 100, 34, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = "#704dff";
+      ctx.globalAlpha = 0.2;
+      ctx.fillRect(315, 84, 100, 10);
+      ctx.fillRect(325, 94, 120, 8);
+      ctx.fillRect(300, 108, 90, 8);
+
+      ctx.globalAlpha = 1;
+      stars.forEach(star => {
+        ctx.fillStyle = star.color;
+        ctx.fillRect(star.x, star.y, star.size, star.size);
+      });
+    }
+
     function drawPlayer() {
-      ctx.fillStyle = "#00ff66";
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+      drawPixelSprite(PLAYER_SPRITE, player.x, player.y, 4, "#9affff", "#117c9f");
+      ctx.fillStyle = "#ffe66e";
+      ctx.fillRect(player.x + 14, player.y + 24, 4, 6);
+    }
+
+    function drawEnemies() {
+      enemies.forEach(enemy => {
+        if (!enemy.alive) return;
+        drawPixelSprite(ENEMY_SPRITE, enemy.x, enemy.y, 3, "#ff74c8", "#8e2f79");
+      });
     }
 
     function drawBullets() {
-      ctx.fillStyle = "#ffff00";
+      ctx.fillStyle = "#fff37a";
       bullets.forEach(b => {
         ctx.fillRect(b.x, b.y, b.width, b.height);
       });
 
-      ctx.fillStyle = "#00bfff";
+      ctx.fillStyle = "#ff8b5e";
       enemyBullets.forEach(b => {
         ctx.fillRect(b.x, b.y, b.width, b.height);
-      });
-    }
-
-    function drawEnemies() {
-      ctx.fillStyle = "#ff3b3b";
-      enemies.forEach(enemy => {
-        if (enemy.alive) {
-          ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-        }
       });
     }
 
     function drawOverlay() {
       if (gameState === "playing") return;
 
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillStyle = "rgba(5, 2, 20, 0.58)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      ctx.fillStyle = "#fff";
-      ctx.font = "28px sans-serif";
+      ctx.fillStyle = "#ffffff";
       ctx.textAlign = "center";
+      ctx.font = "24px 'Press Start 2P', monospace";
 
       if (gameState === "gameover") {
-        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2);
+        ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2 - 10);
       }
     }
 
     function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawBackground();
       drawPlayer();
-      drawBullets();
       drawEnemies();
+      drawBullets();
       drawOverlay();
     }
 
@@ -408,7 +737,7 @@
     }
 
     async function saveScore() {
-      const name = document.getElementById("playerName").value || "名無し";
+      const name = document.getElementById("playerName").value || "NO_NAME";
       try {
         await addDoc(collection(db, "ranking"), {
           name: name,
@@ -416,10 +745,10 @@
           stage: stage,
           createdAt: Date.now()
         });
-        messageEl.textContent = "スコア保存成功！";
+        messageEl.textContent = "SCORE SAVED!";
         loadRanking();
       } catch (e) {
-        messageEl.textContent = "保存失敗: " + e.message;
+        messageEl.textContent = "SAVE FAILED: " + e.message;
       }
     }
 
@@ -436,26 +765,30 @@
         querySnapshot.forEach(doc => {
           const data = doc.data();
           const li = document.createElement("li");
-          li.textContent = `${data.name} - ${data.score}点 - Stage ${data.stage ?? 1}`;
+          li.textContent = `${data.name} - ${data.score} PT - STAGE ${data.stage ?? 1}`;
           rankingList.appendChild(li);
         });
       } catch (e) {
         const li = document.createElement("li");
-        li.textContent = "ランキング読み込み失敗: " + e.message;
+        li.textContent = "LOAD FAILED: " + e.message;
         rankingList.appendChild(li);
       }
     }
 
     function restartGame() {
+      setupAudio();
       resetGame(true);
     }
 
     document.addEventListener("keydown", e => {
+      if (["ArrowLeft", "ArrowRight", "Space"].includes(e.code)) {
+        e.preventDefault();
+      }
       keys[e.code] = true;
       if (e.code === "Space") {
-        e.preventDefault();
         shootBullet();
       }
+      setupAudio();
     });
 
     document.addEventListener("keyup", e => {
@@ -465,22 +798,27 @@
     function bindHoldButton(button, code) {
       button.addEventListener("touchstart", e => {
         e.preventDefault();
+        setupAudio();
         keys[code] = true;
-      });
+      }, { passive: false });
+
       button.addEventListener("touchend", e => {
         e.preventDefault();
         keys[code] = false;
-      });
+      }, { passive: false });
+
       button.addEventListener("mousedown", e => {
         e.preventDefault();
+        setupAudio();
         keys[code] = true;
       });
+
       button.addEventListener("mouseup", e => {
         e.preventDefault();
         keys[code] = false;
       });
+
       button.addEventListener("mouseleave", e => {
-        e.preventDefault();
         keys[code] = false;
       });
     }
@@ -490,11 +828,13 @@
 
     fireBtn.addEventListener("touchstart", e => {
       e.preventDefault();
+      setupAudio();
       shootBullet();
-    });
+    }, { passive: false });
 
     fireBtn.addEventListener("mousedown", e => {
       e.preventDefault();
+      setupAudio();
       shootBullet();
     });
 
